@@ -375,7 +375,7 @@ public class ChatThemeController extends BaseController {
     public TLRPC.WallPaper getDialogWallpaper(long dialogId) {
         TLRPC.WallPaper info = WallpaperHelper.getInstance().getDialogWallpaper(dialogId);
         if (dialogId >= 0) {
-            if (NaConfig.INSTANCE.getDisableCustomWallpaperUser().Bool()) {
+            if (false) {
                 return null;
             }
             if (info != null) {
@@ -386,7 +386,7 @@ public class ChatThemeController extends BaseController {
                 return userFull.wallpaper;
             }
         } else {
-            if (NaConfig.INSTANCE.getDisableCustomWallpaperChannel().Bool()) {
+            if (false) {
                 return null;
             }
             if (info != null) {

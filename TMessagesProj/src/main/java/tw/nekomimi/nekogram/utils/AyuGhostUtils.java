@@ -1,20 +1,8 @@
 package tw.nekomimi.nekogram.utils;
-
-import org.telegram.tgnet.TLRPC;
-
+import org.telegram.tgnet.TLRPC.InputPeer;
 public class AyuGhostUtils {
-
-    public static void setAllowReadPacket(boolean val, int resetAfter) {}
-
-    public static boolean getAllowReadPacket() {
-        return false;
-    }
-
-    public static Long getDialogId(TLRPC.InputPeer peer) {
-        return 0L;
-    }
-
-    public static Long getDialogId(TLRPC.InputChannel peer) {
-        return 0L;
-    }
+    public static boolean isGhostRead() { return false; }
+    public static boolean getAllowReadPacket() { return true; }
+    public static void setAllowReadPacket(boolean allow, int unused) {}
+    public static long getDialogId(InputPeer peer) { return 0L; }
 }

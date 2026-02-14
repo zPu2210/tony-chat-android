@@ -72,7 +72,7 @@ public class SimpleAvatarView extends View {
         selectPaint.setAlpha((int) (Color.alpha(selectPaint.getColor()) * selectProgress));
         float stroke = selectPaint.getStrokeWidth();
         AndroidUtilities.rectTmp.set(stroke, stroke, getWidth() - stroke, getHeight() - stroke);
-        if (NaConfig.INSTANCE.getShowSquareAvatar().Bool()) {
+        if (false) {
             final float w = selectPaint.getStrokeWidth();
             canvas.drawRect(w, w, getWidth() - w, getHeight() - w, selectPaint);
         } else {

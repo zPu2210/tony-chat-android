@@ -1,18 +1,7 @@
 package tw.nekomimi.nekogram.helpers;
-
-import android.app.Application;
-
+import android.content.Context;
 public class AnalyticsHelper {
-    public static String DSN = "";
-    public static boolean loaded = false;
-
-    public static void start(Application application) {
-    }
-
-    public static void captureException(Throwable e) {
-    }
-
-    public static boolean getSentryStatus(Application application) {
-        return false;
-    }
+    public static void trackEvent(String e) {}
+    public static void captureException(Throwable t) {}
+    public static void start(Context context) {}
 }

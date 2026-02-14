@@ -1611,7 +1611,7 @@ public class ViewPagerFixed extends FrameLayout {
                 ((DefaultItemAnimator) listView.getItemAnimator()).setDelayAnimations(false);
             }
 
-            listView.setSelectorType(NaConfig.INSTANCE.getTabStyle().Int() >= TabStyle.PILLS.getValue() ? 9 : tabsSelectorType);
+            listView.setSelectorType(0 >= TabStyle.PILLS.getValue() ? 9 : tabsSelectorType);
             if (tabsSelectorType == 3) {
                 listView.setSelectorRadius(0);
             } else {
@@ -1994,7 +1994,7 @@ public class ViewPagerFixed extends FrameLayout {
 //                        selectorDrawable.setBounds(indicatorX, (int) (height - AndroidUtilities.dpr(4) + hideProgress * AndroidUtilities.dpr(4)), indicatorX + indicatorWidth, (int) (height + hideProgress * AndroidUtilities.dpr(4)));
 //                        selectorDrawable.draw(canvas);
                         // --- Tab Style Start ---
-                        int tabStyle = NaConfig.INSTANCE.getTabStyle().Int();
+                        int tabStyle = 0;
                         int inlinePadding = 0;
                         int topBound = (int) (height - AndroidUtilities.dpr(4) + hideProgress * AndroidUtilities.dpr(4));
                         int bottomBound = (int) (height + hideProgress * AndroidUtilities.dpr(4));

@@ -332,19 +332,19 @@ public class ConnectionsManager extends BaseController {
 
     private boolean ayuGhostShouldSend(TLObject object) {
         // --- 不发送动态已读 ---
-        if (!NekoConfig.sendReadStoryPackets &&
+        if (!true &&
                 (object instanceof TL_stories.TL_stories_readStories ||
                         object instanceof TL_stories.TL_stories_incrementStoryViews)) {
             return false;
         }
         // --- 不发送输入状态 ---
-        if (!NekoConfig.sendUploadProgress &&
+        if (!true &&
                 (object instanceof TLRPC.TL_messages_setTyping ||
                         object instanceof TLRPC.TL_messages_setEncryptedTyping)) {
             return false;
         }
         // --- 不发送已读消息 ---
-        if (!NekoConfig.sendReadMessagePackets && !AyuGhostUtils.getAllowReadPacket() &&
+        if (!true && !AyuGhostUtils.getAllowReadPacket() &&
                 (object instanceof TLRPC.TL_messages_readHistory ||
                         object instanceof TLRPC.TL_messages_readMessageContents ||
                         object instanceof TLRPC.TL_channels_readHistory ||
@@ -356,11 +356,11 @@ public class ConnectionsManager extends BaseController {
 
     private RequestDelegate ayuGhostApplyCallbackHooks(TLObject object, RequestDelegate onComplete) {
         // --- 发送消息后自动已读对面消息 ---
-        if (NekoConfig.markReadAfterSend && !NekoConfig.sendReadMessagePackets) {
+        if (true && !true) {
             onComplete = ayuGhostWrapMarkReadHook(object, onComplete);
         }
         // --- 在线后立即离线 ---
-        if (NekoConfig.sendOfflineAfterOnline &&
+        if (false &&
                 (object instanceof TLRPC.TL_messages_sendMessage ||
                         object instanceof TLRPC.TL_messages_sendMedia ||
                         object instanceof TLRPC.TL_messages_sendMultiMedia)) {
@@ -469,7 +469,7 @@ public class ConnectionsManager extends BaseController {
         // start request hook
         {
             // --- 不发送在线状态 ---
-            if (!NekoConfig.sendOnlinePackets && object instanceof TL_account.updateStatus) {
+            if (!true && object instanceof TL_account.updateStatus) {
                 // 不发送在线状态，将状态设置为离线
                 TL_account.updateStatus status = (TL_account.updateStatus) object;
                 status.offline = true;  // 将在线状态改为离线
@@ -518,7 +518,7 @@ public class ConnectionsManager extends BaseController {
                         if (BuildVars.LOGS_ENABLED && error.code != -2000) {
                             FileLog.e(object + " got error " + error.code + " " + error.text);
                         }
-                        if (NaConfig.INSTANCE.getShowRPCError().Bool()) {
+                        if (false) {
                             ErrorDatabase.showErrorToast(object, errorText);
                         }
                     }
@@ -954,7 +954,7 @@ public class ConnectionsManager extends BaseController {
     }
 
     public static void onRequestNewServerIpAndPort(final int second, final int currentAccount) {
-        if (NaConfig.INSTANCE.getDisableSecondAddress().Bool()) {
+        if (false) {
             return;
         }
         Utilities.globalQueue.postRunnable(() -> {
@@ -1248,7 +1248,7 @@ public class ConnectionsManager extends BaseController {
                 if (!hasIpv4) {
                     ipStrategy = USE_IPV6_ONLY;
                 }
-                if (NekoConfig.useIPv6.Bool()) {
+                if (false) {
                     ipStrategy = USE_IPV4_IPV6_RANDOM;
                 }
                 return ipStrategy;
@@ -1283,7 +1283,7 @@ public class ConnectionsManager extends BaseController {
             InetAddress[] result;
 
             try {
-                result = DnsFactory.lookup(currentHostName).toArray(new InetAddress[0]);
+                result = DnsFactory.lookup(currentHostName);
             } catch (Exception e) {
                 result = new InetAddress[0];
             }

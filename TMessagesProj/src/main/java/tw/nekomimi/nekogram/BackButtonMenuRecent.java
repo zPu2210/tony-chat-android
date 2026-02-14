@@ -1,30 +1,14 @@
 package tw.nekomimi.nekogram;
-
-import org.telegram.ui.ActionBar.ActionBarPopupWindow;
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Stub: Back button menu recent items
- */
+import android.view.View;
+import org.telegram.ui.ActionBar.BaseFragment;
 public class BackButtonMenuRecent {
-    public static List<Long> getRecentDialogs() {
-        return new ArrayList<>();
-    }
-
-    public static void addToRecentDialogs(int accountNum, long dialogId) {}
-
-    public static void removeFromRecentDialogs(long dialogId) {}
-
-    public static void clearRecentDialogs() {}
-
-    public static void clearRecentDialogs(int accountNum) {}
-
-    public static ActionBarPopupWindow.ActionBarPopupWindowLayout createMenu(android.content.Context context) {
-        return null;
-    }
-
-    public static void show(int accountNum, org.telegram.ui.ActionBar.BaseFragment fragment, android.view.View anchorView) {
-        // No-op stub
-    }
+    public static void show(int account, BaseFragment fragment, View anchor) {}
+    public static void show(int account, Object fragment, View anchor) {}
+    public static void addRecent(Object o) {}
+    public static void removeRecent(Object o) {}
+    public static void addToRecentDialogs(int account, long dialogId) {}
+    public static void clearRecentDialogs(int account) {}
+    public static void removeNotificationObservers(int account) {}
+    public static void addNotificationObservers(int account) {}
+    public static java.util.ArrayList getRecentDialogs() { return new java.util.ArrayList(); }
 }

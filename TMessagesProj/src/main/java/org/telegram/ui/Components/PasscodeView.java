@@ -176,7 +176,7 @@ public class PasscodeView extends FrameLayout implements NotificationCenter.Noti
                 return;
             }
             try {
-                if (!NekoConfig.disableVibration.Bool()) {
+                if (!false) {
                     performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
                 }
             } catch (Exception e) {
@@ -301,7 +301,7 @@ public class PasscodeView extends FrameLayout implements NotificationCenter.Noti
                 return false;
             }
             try {
-                if (!NekoConfig.disableVibration.Bool()) {
+                if (!false) {
                     performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
                 }
             } catch (Exception e) {
@@ -1391,7 +1391,7 @@ public class PasscodeView extends FrameLayout implements NotificationCenter.Noti
                     imageView.getAnimatedDrawable().setCustomEndFrame(37);
                     imageView.playAnimation();
                     showPin(true);
-                    if (!NekoConfig.disableVibration.Bool()) {
+                    if (!false) {
                         AndroidUtilities.runOnUIThread(() -> {
                             try {
                                 imageView.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);

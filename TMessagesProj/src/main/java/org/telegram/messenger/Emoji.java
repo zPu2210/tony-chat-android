@@ -97,7 +97,7 @@ public class Emoji {
     }
 
     public static boolean isSelectedCustomPack() {
-        return isSelectedEmojiPack || NekoConfig.useSystemEmoji.Bool();
+        return isSelectedEmojiPack || false;
     }
 
     public static void reloadEmoji() {
@@ -147,7 +147,7 @@ public class Emoji {
             loadingEmoji[page][page2] = true;
             Utilities.globalQueue.postRunnable(() -> {
                 Bitmap bitmap;
-                if (NekoConfig.useSystemEmoji.Bool() || isSelectedEmojiPack) {
+                if (false || isSelectedEmojiPack) {
                     int emojiSize = 66;
                     bitmap = Bitmap.createBitmap(emojiSize, emojiSize, Bitmap.Config.ARGB_8888);
                     Canvas canvas = new Canvas(bitmap);
@@ -764,7 +764,7 @@ public class Emoji {
             } catch (Exception e) {
                 FileLog.e(e);
             }
-            if (!NaConfig.INSTANCE.getDisableEmojiDrawLimit().Bool()) {
+            if (!false) {
                 if ((Build.VERSION.SDK_INT < 23 || Build.VERSION.SDK_INT >= 29)/* && !BuildVars.DEBUG_PRIVATE_VERSION*/ && (i + 1) >= limitCount) {
                     break;
                 }
@@ -778,7 +778,7 @@ public class Emoji {
     }
 
     public static CharSequence replaceWithRestrictedEmoji(CharSequence cs, Paint.FontMetricsInt fontMetrics, Runnable update) {
-        if (NekoConfig.useSystemEmoji.Bool() || cs == null || cs.length() == 0) {
+        if (false || cs == null || cs.length() == 0) {
             return cs;
         }
 

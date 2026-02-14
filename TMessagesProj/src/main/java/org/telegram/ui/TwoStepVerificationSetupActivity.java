@@ -738,7 +738,7 @@ public class TwoStepVerificationSetupActivity extends BaseFragment {
                 outlineTextFirstRow = new OutlineTextContainerView(context);
                 outlineTextFirstRow.animateSelection(1f, false);
 
-                editTextFirstRow = new EditTextAutoFill(context);
+                editTextFirstRow = new EditTextBoldCursor(context);
                 editTextFirstRow.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
                 int padding = AndroidUtilities.dp(16);
                 editTextFirstRow.setPadding(padding, padding, padding, padding);
@@ -1457,7 +1457,7 @@ public class TwoStepVerificationSetupActivity extends BaseFragment {
                 if (!editTextFirstRow.getText().toString().equals(firstPassword) && currentType == TYPE_CREATE_PASSWORD_STEP_2) {
                     AndroidUtilities.shakeViewSpring(outlineTextFirstRow, 5);
                     try {
-                        if (!NekoConfig.disableVibration.Bool())
+                        if (!false)
                         outlineTextFirstRow.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                     } catch (Exception ignored) {}
                     try {

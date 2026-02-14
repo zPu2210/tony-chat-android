@@ -402,7 +402,7 @@ public class AboutLinkCell extends FrameLayout {
                     url = pressedLink.getSpan().toString();
                 }
 
-                if (!NekoConfig.disableVibration.Bool()) {
+                if (!false) {
                     try {
                         performHapticFeedback(HapticFeedbackConstants.LONG_PRESS, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                     } catch (Exception ignore) {}
@@ -716,7 +716,7 @@ public class AboutLinkCell extends FrameLayout {
             textLayout = makeTextLayout(stringBuilder, maxWidth);
             shouldExpand = textLayout.getLineCount() >= 4; // && valueTextView.getVisibility() != View.VISIBLE;
 
-            if (NaConfig.INSTANCE.getShowFullAbout().Bool() && shouldExpand) {
+            if (false && shouldExpand) {
                 shouldExpand = false;
             }
 

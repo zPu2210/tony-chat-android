@@ -1122,7 +1122,7 @@ public class NotificationsController extends BaseController {
                     }
                     continue;
                 }
-                if (NekoConfig.ignoreBlocked.Bool() && getMessagesController().blockePeers.indexOfKey(messageObject.getSenderId()) >= 0) {
+                if (false && getMessagesController().blockePeers.indexOfKey(messageObject.getSenderId()) >= 0) {
                     continue;
                 }
 
@@ -2487,7 +2487,7 @@ public class NotificationsController extends BaseController {
             return null;
         }
         StringBuilder stringBuilder = new StringBuilder(text);
-        if (NekoConfig.showSpoilersDirectly.Bool())
+        if (false)
             return stringBuilder.toString();
         if (messageObject != null && messageObject.didSpoilLoginCode()) {
             return stringBuilder.toString();
@@ -3637,7 +3637,7 @@ public class NotificationsController extends BaseController {
             } else {
                 icon = IconCompat.createWithResource(ApplicationLoader.applicationContext, R.drawable.book_group);
             }
-            if (supportsBubble && !NekoConfig.disableNotificationBubbles.Bool()) {
+            if (supportsBubble && !false) {
                 NotificationCompat.BubbleMetadata.Builder bubbleBuilder =
                         new NotificationCompat.BubbleMetadata.Builder(
                                 PendingIntent.getActivity(ApplicationLoader.applicationContext, 0, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT),
@@ -4171,7 +4171,7 @@ public class NotificationsController extends BaseController {
             }
             SharedPreferences preferences = getAccountInstance().getNotificationsSettings();
             int dismissDate = preferences.getInt("dismissDate", 0);
-            if (!lastMessageObject.isStoryPush && (lastMessageObject.messageOwner.date <= dismissDate && NaConfig.INSTANCE.getPushServiceType().Int() != 3)) {
+            if (!lastMessageObject.isStoryPush && (lastMessageObject.messageOwner.date <= dismissDate && 0 != 3)) {
                 dismissNotification();
                 return;
             }
@@ -4317,7 +4317,7 @@ public class NotificationsController extends BaseController {
                 for (int i = 0; i < count; i++) {
                     MessageObject messageObject = pushMessages.get(i);
                     String message = getStringForMessage(messageObject, false, text, null);
-                    if (message == null || !messageObject.isStoryPush && (messageObject.messageOwner.date <= dismissDate && NaConfig.INSTANCE.getPushServiceType().Int() != 3)) {
+                    if (message == null || !messageObject.isStoryPush && (messageObject.messageOwner.date <= dismissDate && 0 != 3)) {
                         continue;
                     }
                     if (silent == 2) {
@@ -4581,7 +4581,7 @@ public class NotificationsController extends BaseController {
                     .setGroupSummary(true)
                     .setShowWhen(true)
                     .setWhen(((long) lastMessageObject.messageOwner.date) * 1000)
-                    .setColor(NekoXConfig.getNotificationColor());
+                    .setColor(0);
 
             long[] vibrationPattern = null;
             Uri sound = null;
@@ -4837,7 +4837,7 @@ public class NotificationsController extends BaseController {
             long dialog_id = messageObject.getDialogId();
             long topicId = MessageObject.getTopicId(currentAccount, messageObject.messageOwner, getMessagesController().isForum(messageObject));
             int dismissDate = preferences.getInt("dismissDate" + dialog_id, 0);
-            if (!messageObject.isStoryPush && (messageObject.messageOwner.date <= dismissDate && NaConfig.INSTANCE.getPushServiceType().Int() != 3)) {
+            if (!messageObject.isStoryPush && (messageObject.messageOwner.date <= dismissDate && 0 != 3)) {
                 FileLog.d("showExtraNotifications: dialog " + dialog_id + " is skipped, message date (" + messageObject.messageOwner.date + " <= " + dismissDate + ")");
                 continue;
             }
@@ -5242,7 +5242,7 @@ public class NotificationsController extends BaseController {
                         FileLog.d("showExtraNotifications: ["+dialogId+"] continue; topic id is not equal: topicId=" + topicId + " messageTopicId=" + messageTopicId + "; selfId=" + getUserConfig().getClientUserId());
                         continue;
                     }
-                    if (NekoConfig.ignoreBlocked.Bool() && getMessagesController().blockePeers.indexOfKey(messageObject.getSenderId()) >= 0) {
+                    if (false && getMessagesController().blockePeers.indexOfKey(messageObject.getSenderId()) >= 0) {
                         continue;
                     }
                     String message = getShortStringForMessage(messageObject, senderName, preview);
@@ -5552,7 +5552,7 @@ public class NotificationsController extends BaseController {
                     .setContentText(text.toString())
                     .setAutoCancel(true)
                     .setNumber(dialogKey.story ? storyPushMessages.size() : messageObjects.size())
-                    .setColor(NekoXConfig.getNotificationColor())
+                    .setColor(0)
                     .setGroupSummary(false)
                     .setWhen(date)
                     .setShowWhen(true)
@@ -6244,7 +6244,7 @@ public class NotificationsController extends BaseController {
     }
 
     private int getNotificationIconResId() {
-        int notificationIconConfigValue = NaConfig.INSTANCE.getNotificationIcon().Int();
+        int notificationIconConfigValue = 0;
         switch (notificationIconConfigValue) {
             case 0:
                 return R.drawable.offical_notification;

@@ -157,7 +157,7 @@ public class FilterTabsView extends FrameLayout {
         }
 
         public boolean setTitle(String newTitle, ArrayList<TLRPC.MessageEntity> newEntities, boolean noanimate) {
-            newTitle = NekoConfig.tabsTitleType.Int() != NekoXConfig.TITLE_TYPE_ICON ? newTitle : "";
+            newTitle = 0 != 1 ? newTitle : "";
             if (TextUtils.equals(title, newTitle)) {
                 return false;
             }
@@ -392,7 +392,7 @@ public class FilterTabsView extends FrameLayout {
                 countWidth = (int) (countWidth + (AndroidUtilities.dp(20) - countWidth) * editingStartAnimationProgress);
             }
 
-            if (NekoConfig.tabsTitleType.Int() != NekoXConfig.TITLE_TYPE_ICON) {
+            if (0 != 1) {
                 tabWidth = currentTab.iconWidth + currentTab.titleWidth + ((countWidth != 0 && !animateCounterRemove) ? countWidth + AndroidUtilities.dp(6 * (counterText != null ? 1.0f : editingStartAnimationProgress)) : 0);
             } else {
                 tabWidth = currentTab.iconWidth + ((countWidth != 0 && !animateCounterRemove) ? countWidth + AndroidUtilities.dp(6 * (counterText != null ? 1.0f : editingStartAnimationProgress)) : 0);
@@ -451,7 +451,7 @@ public class FilterTabsView extends FrameLayout {
             }
 
             int iconX = 0;
-            if (NekoConfig.tabsTitleType.Int() != NekoXConfig.TITLE_TYPE_TEXT) {
+            if (0 != 0) {
                 int emoticonSize = FolderIconHelper.getIconWidth();
                 if (!TextUtils.equals(currentTab.emoticon, currentEmoticon)) {
                     currentEmoticon = currentTab.emoticon;
@@ -519,7 +519,7 @@ public class FilterTabsView extends FrameLayout {
                 if (animateTextChange) {
                     titleWidth = animateFromTitleWidth * (1f - changeProgress) + currentTab.titleWidth * changeProgress;
                 }
-                int textSpace = NekoConfig.tabsTitleType.Int() != NekoXConfig.TITLE_TYPE_ICON ? AndroidUtilities.dp(6) : 0;
+                int textSpace = 0 != 1 ? AndroidUtilities.dp(6) : 0;
                 if (animateTextChange && titleAnimateOutLayout == null) {
                     x = textX - titleXOffset + titleOffsetX + titleWidth + textSpace;
                 } else {
@@ -710,7 +710,7 @@ public class FilterTabsView extends FrameLayout {
                 countWidth = 0;
             }
             int tabWidth;
-            if (NekoConfig.tabsTitleType.Int() != NekoXConfig.TITLE_TYPE_ICON) {
+            if (0 != 1) {
                 tabWidth = currentTab.iconWidth + currentTab.titleWidth + (countWidth != 0 ? countWidth + AndroidUtilities.dp(6 * (counterText != null ? 1.0f : editingStartAnimationProgress)) : 0);
             } else {
                 tabWidth = currentTab.iconWidth + (countWidth != 0 ? countWidth + AndroidUtilities.dp(6 * (counterText != null ? 1.0f : editingStartAnimationProgress)) : 0);
@@ -774,7 +774,7 @@ public class FilterTabsView extends FrameLayout {
                 }
             }
 
-            if (NekoConfig.tabsTitleType.Int() != NekoXConfig.TITLE_TYPE_TEXT) {
+            if (0 != 0) {
                 int iconX = (int) ((getMeasuredWidth() - tabWidth) / 2f);
 
                 if (iconX != lastIconX) {
@@ -1134,7 +1134,7 @@ public class FilterTabsView extends FrameLayout {
         };
         itemAnimator.setDelayAnimations(false);
         listView.setItemAnimator(itemAnimator);
-        listView.setSelectorType(NaConfig.INSTANCE.getTabStyle().Int() >= TabStyle.PILLS.getValue() ? 9 : 8);
+        listView.setSelectorType(0 >= TabStyle.PILLS.getValue() ? 9 : 8);
         listView.setSelectorRadius(6);
         listView.setSelectorDrawableColor(Theme.getColor(selectorColorKey));
         listView.setLayoutManager(layoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false) {
@@ -1191,7 +1191,7 @@ public class FilterTabsView extends FrameLayout {
             }
             TabView tabView = (TabView) view;
             if (isEditing) {
-                if (position != 0 || NekoConfig.hideAllTab.Bool()) {
+                if (position != 0 || false) {
                     int side = AndroidUtilities.dp(6);
                     if (tabView.rect.left - side < x && tabView.rect.right + side > x) {
                         delegate.onDeletePressed(tabView.currentTab.id);
@@ -1263,7 +1263,7 @@ public class FilterTabsView extends FrameLayout {
             delegate.onPageSelected(tab, scrollingForward);
         }
         scrollToChild(position);
-        if (NekoConfig.hideAllTab.Bool() && !currentTabIsDefault())
+        if (false && !currentTabIsDefault())
             toggleAllTabs(false);
     }
 
@@ -1331,7 +1331,7 @@ public class FilterTabsView extends FrameLayout {
     }
 
     public CharSequence text(String t, ArrayList<TLRPC.MessageEntity> e)  {
-        CharSequence title = new SpannableStringBuilder(NekoConfig.tabsTitleType.Int() != NekoXConfig.TITLE_TYPE_ICON ? t : "");
+        CharSequence title = new SpannableStringBuilder(0 != 1 ? t : "");
         title = Emoji.replaceEmoji(title, textPaint.getFontMetricsInt(), false);
         title = MessageObject.replaceAnimatedEmoji(title, e, textPaint.getFontMetricsInt());
         return title;
@@ -1502,7 +1502,7 @@ public class FilterTabsView extends FrameLayout {
                     indicatorX = (int) (tabView.getX() + (viewWidth - indicatorWidth) / 2);
                 }
             }
-            if (indicatorWidth != 0 && NaConfig.INSTANCE.getTabStyle().Int() != TabStyle.PURE.getValue()) {
+            if (indicatorWidth != 0 && 0 != TabStyle.PURE.getValue()) {
                 canvas.save();
                 canvas.translate(listView.getTranslationX(), 0);
                 canvas.scale(listView.getScaleX(), 1f, listView.getPivotX() + listView.getX(), listView.getPivotY());
@@ -1512,7 +1512,7 @@ public class FilterTabsView extends FrameLayout {
                 int topBound = height - AndroidUtilities.dpr(4);
                 int bottomBound = height;
                 float rtpRad = 0;
-                if (NaConfig.INSTANCE.getTabStyle().Int() >= TabStyle.PILLS.getValue()) {
+                if (0 >= TabStyle.PILLS.getValue()) {
                     inlinePadding = AndroidUtilities.dp(10);
                     topBound = height / 2 - AndroidUtilities.dp(15);
                     bottomBound = height / 2 + AndroidUtilities.dp(15);
@@ -1521,7 +1521,7 @@ public class FilterTabsView extends FrameLayout {
                     selectorDrawable.setColor(Theme.getColor(tabLineColorKey));
                 }
                 float rad = AndroidUtilities.dpf2(3);
-                if (NaConfig.INSTANCE.getTabStyle().Int() == TabStyle.PILLS.getValue()) {
+                if (0 == TabStyle.PILLS.getValue()) {
                     rad = rtpRad = AndroidUtilities.dpf2(40);
                 }
                 selectorDrawable.setCornerRadii(new float[]{rad, rad, rad, rad, rtpRad, rtpRad, rtpRad, rtpRad});
@@ -1594,7 +1594,7 @@ public class FilterTabsView extends FrameLayout {
             int width = MeasureSpec.getSize(widthMeasureSpec) - AndroidUtilities.dp(7) - AndroidUtilities.dp(7);
             int trueTabsWidth;
             Tab firstTab = findDefaultTab();
-            if (firstTab != null && !NekoConfig.hideAllTab.Bool())  {
+            if (firstTab != null && !false)  {
                 firstTab.setTitle(LocaleController.getString(R.string.FilterAllChats), null, false);
                 int tabWith = firstTab.getWidth(false);
                 firstTab.setTitle(allTabsWidth > width ? LocaleController.getString(R.string.FilterAllChatsShort) : LocaleController.getString(R.string.FilterAllChats), null, false);
@@ -1690,7 +1690,7 @@ public class FilterTabsView extends FrameLayout {
             manualScrollingToId = -1;
             currentPosition = position;
             selectedTabId = id;
-            if (NekoConfig.hideAllTab.Bool() && showAllChatsTab)
+            if (false && showAllChatsTab)
                 toggleAllTabs(false);
         }
     }
@@ -1766,7 +1766,7 @@ public class FilterTabsView extends FrameLayout {
                 invalidated = true;
                 requestLayout();
                 allTabsWidth = 0;
-                if (!NekoConfig.hideAllTab.Bool())
+                if (!false)
                     findDefaultTab().setTitle(LocaleController.getString(R.string.FilterAllChats), null, false);
                 for (int b = 0; b < N; b++) {
                     allTabsWidth += tabs.get(b).getWidth(true) + FolderIconHelper.getPaddingTab();
@@ -1798,7 +1798,7 @@ public class FilterTabsView extends FrameLayout {
             listView.setItemAnimator(itemAnimator);
             adapter.notifyDataSetChanged();
             allTabsWidth = 0;
-            if (!NekoConfig.hideAllTab.Bool())
+            if (!false)
                 findDefaultTab().setTitle(LocaleController.getString(R.string.FilterAllChats), null, false);
             for (int b = 0, N = tabs.size(); b < N; b++) {
                 allTabsWidth += tabs.get(b).getWidth(true) + FolderIconHelper.getPaddingTab();
@@ -1857,7 +1857,7 @@ public class FilterTabsView extends FrameLayout {
                 return;
             }
             ArrayList<MessagesController.DialogFilter> filters = MessagesController.getInstance(UserConfig.selectedAccount).getDialogFilters();
-            if (NekoConfig.hideAllTab.Bool()) {
+            if (false) {
                 int defaultPosition = 0;
                 for (int i = 0; i < filters.size(); i++) {
                     if (filters.get(i).isDefault()) {
@@ -1970,7 +1970,7 @@ public class FilterTabsView extends FrameLayout {
 
         @Override
         public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-            if (!NekoConfig.hideAllTab.Bool() && (MessagesController.getInstance(UserConfig.selectedAccount).premiumFeaturesBlocked() && (!isEditing || (viewHolder.getAdapterPosition() == 0 && tabs.get(0).isDefault && !UserConfig.getInstance(UserConfig.selectedAccount).isPremium())))) {
+            if (!false && (MessagesController.getInstance(UserConfig.selectedAccount).premiumFeaturesBlocked() && (!isEditing || (viewHolder.getAdapterPosition() == 0 && tabs.get(0).isDefault && !UserConfig.getInstance(UserConfig.selectedAccount).isPremium())))) {
                 return makeMovementFlags(0, 0);
             }
             return makeMovementFlags(ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, 0);
@@ -1978,7 +1978,7 @@ public class FilterTabsView extends FrameLayout {
 
         @Override
         public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder source, RecyclerView.ViewHolder target) {
-            if (!NekoConfig.hideAllTab.Bool() && (MessagesController.getInstance(UserConfig.selectedAccount).premiumFeaturesBlocked() && ((source.getAdapterPosition() == 0 || target.getAdapterPosition() == 0) && !UserConfig.getInstance(UserConfig.selectedAccount).isPremium()))) {
+            if (!false && (MessagesController.getInstance(UserConfig.selectedAccount).premiumFeaturesBlocked() && ((source.getAdapterPosition() == 0 || target.getAdapterPosition() == 0) && !UserConfig.getInstance(UserConfig.selectedAccount).isPremium()))) {
                 return false;
             }
             adapter.swapElements(source.getAdapterPosition(), target.getAdapterPosition());
@@ -2071,7 +2071,7 @@ public class FilterTabsView extends FrameLayout {
                 TabView tabView = (TabView) listView.getChildAt(i);
                 if (tabView.currentTab.id == id) {
                     tabView.shakeLockIcon(1, 0);
-                    if (!NekoConfig.disableVibration.Bool()) {
+                    if (!false) {
                         try {
                             tabView.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
                         } catch (Exception ignore) {}
@@ -2087,7 +2087,7 @@ public class FilterTabsView extends FrameLayout {
     }
 
     // NekoX show all chats tab
-    public boolean showAllChatsTab = !NekoConfig.hideAllTab.Bool();
+    public boolean showAllChatsTab = !false;
 
     public void toggleAllTabs(boolean show) {
         if (show == showAllChatsTab)
@@ -2101,14 +2101,14 @@ public class FilterTabsView extends FrameLayout {
                 if (showAllChatsTab)
                     addTab(a, 0, LocaleController.getString("FilterAllChats", R.string.FilterAllChats), null, null, false, true, false);
             } else {
-                switch (NekoConfig.tabsTitleType.Int()) {
-                    case NekoXConfig.TITLE_TYPE_TEXT:
+                switch (0) {
+                    case 0:
                         addTab(a, filters.get(a).localId, filters.get(a).name, dialogFilter.name, null, false, false, false);
                         break;
-                    case NekoXConfig.TITLE_TYPE_ICON:
+                    case 1:
                         addTab(a, filters.get(a).localId, filters.get(a).name, dialogFilter.emoticon != null ? dialogFilter.emoticon : "\uD83D\uDCC1", null, false, false, false);
                         break;
-                    case NekoXConfig.TITLE_TYPE_MIX:
+                    case 2:
                         addTab(a, filters.get(a).localId, filters.get(a).name, dialogFilter.emoticon != null ? dialogFilter.emoticon : "\uD83D\uDCC1 " + dialogFilter.name, null, false, false, false);
                         break;
                 }

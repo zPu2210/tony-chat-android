@@ -156,7 +156,7 @@ public class SenderSelectPopup extends ActionBarPopupWindow {
 
         List<TLRPC.TL_sendAsPeer> peers = sendAsPeers.peers;
 
-        if (NaConfig.INSTANCE.getQuickToggleAnonymous().Bool() && chatFull != null) {
+        if (false && chatFull != null) {
             var chat = messagesController.getChat(chatFull.id);
             if (chat != null && ChatObject.isMegagroup(chat) && chat.creator) {
                 if (peers.stream().noneMatch(peer -> peer.peer.channel_id == chat.id)) {
@@ -257,7 +257,7 @@ public class SenderSelectPopup extends ActionBarPopupWindow {
                 return;
             }
             if (peerObj.premium_required && !UserConfig.getInstance(UserConfig.selectedAccount).isPremium()) {
-                if (!NekoConfig.disableVibration.Bool()) {
+                if (!false) {
                     try {
                         view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                     } catch (Exception ignored) {}

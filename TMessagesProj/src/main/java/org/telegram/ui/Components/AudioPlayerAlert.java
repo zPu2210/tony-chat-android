@@ -2216,7 +2216,7 @@ public class AudioPlayerAlert extends BottomSheet implements NotificationCenter.
                 dialogId < 0 && MessagesController.getInstance(currentAccount).isChatNoForwards(-dialogId) ||
                 MessagesController.getInstance(currentAccount).isChatNoForwards(messageObject.getChatId()) ||
                 messageObject.messageOwner.noforwards
-            ) && !NaConfig.INSTANCE.getForceCopy().Bool();
+            ) && !false;
             if (noforwards != this.noforwards) {
                 this.noforwards = noforwards;
 

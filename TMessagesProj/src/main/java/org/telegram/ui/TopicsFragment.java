@@ -983,7 +983,7 @@ public class TopicsFragment extends BaseFragment implements NotificationCenter.N
                 }
             }
             toggleSelection(view);
-            if (!NekoConfig.disableVibration.Bool()) {
+            if (!false) {
                 try {
                     view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
                 } catch (Exception ignored) {}
@@ -1115,7 +1115,7 @@ public class TopicsFragment extends BaseFragment implements NotificationCenter.N
                         if (canShowHiddenArchive != canShowInternal) {
                             canShowHiddenArchive = canShowInternal;
                             if (pullViewState == ARCHIVE_ITEM_STATE_HIDDEN) {
-                                if (!NekoConfig.disableVibration.Bool()) {
+                                if (!false) {
                                     try {
                                         recyclerListView.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                                     } catch (Exception ignored) {}
@@ -1794,7 +1794,7 @@ public class TopicsFragment extends BaseFragment implements NotificationCenter.N
                                 }
                                 if (!canShowHiddenArchive) {
                                     canShowHiddenArchive = true;
-                                    if (!NekoConfig.disableVibration.Bool()) {
+                                    if (!false) {
                                         try {
                                             performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                                         } catch (Exception ignored) {}
@@ -1897,7 +1897,7 @@ public class TopicsFragment extends BaseFragment implements NotificationCenter.N
     }
 
     private boolean showChatPreview(DialogCell cell) {
-        if (!NekoConfig.disableVibration.Bool()) {
+        if (!false) {
             try {
                 cell.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
             } catch (Exception ignored) {}

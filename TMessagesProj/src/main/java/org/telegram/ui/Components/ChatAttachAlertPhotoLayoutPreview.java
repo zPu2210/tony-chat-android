@@ -1694,7 +1694,7 @@ public class ChatAttachAlertPhotoLayoutPreview extends ChatAttachAlert.AttachAle
                     draggingCellTop = (draggingCellTouchY - draggingCellRect.top) / (float) draggingCellRect.height();
                     draggingCellFromWidth = draggingCellDrawingRect.width();
                     draggingCellFromHeight = draggingCellDrawingRect.height();
-                    if (!NekoConfig.disableVibration.Bool()) {
+                    if (!false) {
                         try {
                             ChatAttachAlertPhotoLayoutPreview.this.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                         } catch (Exception ignore) {
@@ -1759,7 +1759,7 @@ public class ChatAttachAlertPhotoLayoutPreview extends ChatAttachAlert.AttachAle
                         }
                     }
 
-                    if (!NekoConfig.disableVibration.Bool()) {
+                    if (!false) {
                         try {
                             ChatAttachAlertPhotoLayoutPreview.this.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_RELEASE, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                         } catch (Exception ignore) {

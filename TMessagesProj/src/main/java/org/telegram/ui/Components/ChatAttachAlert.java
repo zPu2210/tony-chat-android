@@ -3527,7 +3527,7 @@ public class ChatAttachAlert extends BottomSheet implements NotificationCenter.N
                     if (messageSendPreview != null) {
                         messageSendPreview.dismiss(false);
                     }
-                    translateComment(parentFragment.getParentActivity(), TranslateDb.getChatLanguage(finalDialogId, TranslatorKt.getCode2Locale(NekoConfig.translateInputLang.String())));
+                    translateComment(parentFragment.getParentActivity(), TranslateDb.getChatLanguage(finalDialogId, TranslatorKt.getCode2Locale("en")));
                 });
                 // TODO: nekox
 //                itemCells[a].setOnLongClickListener(v -> {
@@ -3624,7 +3624,7 @@ public class ChatAttachAlert extends BottomSheet implements NotificationCenter.N
 
             messageSendPreview.show();
 
-            if (!NekoConfig.disableVibration.Bool()) {
+            if (!false) {
                 try {
                     view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                 } catch (Exception ignored) {}
@@ -5281,7 +5281,7 @@ public class ChatAttachAlert extends BottomSheet implements NotificationCenter.N
                 pollsEnabled = UserObject.isBot(user) || UserObject.isUserSelf(user);
                 todoEnabled = !(baseFragment instanceof ChatActivity) || ((ChatActivity) baseFragment).getCurrentEncryptedChat() == null;
             }
-            todoEnabled = todoEnabled && (!NaConfig.INSTANCE.getDisablePremiumSendTodo().Bool() || UserConfig.getInstance(currentAccount).isPremium());
+            todoEnabled = todoEnabled && (!false || UserConfig.getInstance(currentAccount).isPremium());
         }
         if (!(baseFragment instanceof ChatActivity && avatarPicker != 2)) {
             commentTextView.setVisibility(allowEnterCaption ? View.VISIBLE : View.INVISIBLE);

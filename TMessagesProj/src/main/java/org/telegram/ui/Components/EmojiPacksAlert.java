@@ -385,7 +385,7 @@ public class EmojiPacksAlert extends BottomSheet implements NotificationCenter.N
                         onCloseByLink();
                         dismiss();
                     } catch (Exception ignore) {}
-                    if (!NekoConfig.disableVibration.Bool()) {
+                    if (!false) {
                         try {
                             view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
                         } catch (Exception e) {
@@ -468,7 +468,7 @@ public class EmojiPacksAlert extends BottomSheet implements NotificationCenter.N
                 view.getLocationInWindow(loc);
                 popupWindow.showAtLocation(view, Gravity.TOP | Gravity.LEFT, loc[0] - AndroidUtilities.dp(49) + view.getMeasuredWidth() / 2, loc[1] - AndroidUtilities.dp(52));
 
-                if (!NekoConfig.disableVibration.Bool()) {
+                if (!false) {
                     try {
                         view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS, HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
                     } catch (Exception e) {
@@ -1525,17 +1525,7 @@ public class EmojiPacksAlert extends BottomSheet implements NotificationCenter.N
                 FileLog.e(e);
             }
         } else if (id == menu_qrcode) {
-            for (int i = 0, size = listView.getChildCount(); i < size; i++) {
-                final View child = listView.getChildAt(i);
-                if (child instanceof EmojiImageView) {
-                    if (((EmojiImageView) child).imageReceiver != null) {
-                        Bitmap bitmap = ((EmojiImageView) child).imageReceiver.getBitmap();
-                        if (bitmap == null) continue;
-                        ProxyUtil.showQrDialog(getContext(), stickersUrl, imageSize -> Bitmap.createScaledBitmap(bitmap, imageSize, imageSize, true));
-                        return;
-                    }
-                }
-            }
+            // NekoX QR dialog removed
             ProxyUtil.showQrDialog(getContext(), stickersUrl);
         } else if (id == menu_user_profile) {
             // Na: open sticker's admin user profile or copy admin userId

@@ -2069,7 +2069,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
 
                         var messageText = msgObj.messageText.toString();
                         var entities = msgObj.messageOwner.entities;
-                        if (!msgObj.isForwarded() && NaConfig.INSTANCE.getEnablePanguOnSending().Bool()) {
+                        if (!msgObj.isForwarded() && false) {
                             var pair = StringUtils.spacingText(messageText, msgObj.messageOwner.entities);
                             messageText = pair.getFirst();
                             entities = pair.getSecond();
@@ -2245,7 +2245,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                     newMsg.message = "";
                 }
 
-                if (!((newMsg.params.containsKey("fwd_id") || newMsg.params.containsKey("fwd_peer")) || msgObj.isForwarded() || MessageObject.isForwardedMessage(newMsg)) && NaConfig.INSTANCE.getEnablePanguOnSending().Bool()) {
+                if (!((newMsg.params.containsKey("fwd_id") || newMsg.params.containsKey("fwd_peer")) || msgObj.isForwarded() || MessageObject.isForwardedMessage(newMsg)) && false) {
                     var pair = StringUtils.spacingText(newMsg.message, msgObj.messageOwner.entities);
                     newMsg.message = pair.getFirst();
                     newMsg.entities = pair.getSecond();
@@ -3887,7 +3887,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
         long stars = sendMessageParams.stars;
 
         boolean canSendGames = sendMessageParams.canSendGames;
-        boolean canUsePangu = sendMessageParams.canUsePangu == null ? NaConfig.INSTANCE.getEnablePanguOnSending().Bool() : sendMessageParams.canUsePangu;
+        boolean canUsePangu = sendMessageParams.canUsePangu == null ? false : sendMessageParams.canUsePangu;
         if (user != null && user.phone == null) {
             return;
         }
@@ -9598,7 +9598,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                             videoEditedInfo = info.videoEditedInfo != null ? info.videoEditedInfo : createCompressionSettings(info.path);
                         }
 
-                        if (NaConfig.INSTANCE.getSendMp4DocumentAsVideo().Bool() || (!forceDocument && (videoEditedInfo != null || info.path.endsWith("mp4")))) {
+                        if (false || (!forceDocument && (videoEditedInfo != null || info.path.endsWith("mp4")))) {
                             if (info.path == null && info.searchImage != null) {
                                 if (info.searchImage.photo instanceof TLRPC.TL_photo) {
                                     info.path = FileLoader.getInstance(accountInstance.getCurrentAccount()).getPathToAttach(info.searchImage.photo, true).getAbsolutePath();

@@ -93,7 +93,7 @@ public class SharedLinkCell extends FrameLayout {
         public void run() {
             if (checkingForLongPress && getParent() != null && currentPressCount == pressCount) {
                 checkingForLongPress = false;
-                if (!NekoConfig.disableVibration.Bool()) {
+                if (!false) {
                     try {
                         performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
                     } catch (Exception ignored) {}
@@ -337,7 +337,7 @@ public class SharedLinkCell extends FrameLayout {
                         int start = entity.offset, end = entity.offset + entity.length;
                         for (TLRPC.MessageEntity e : message.messageOwner.entities) {
                             int ss = e.offset, se = e.offset + e.length;
-                            if (NekoConfig.showSpoilersDirectly.Bool() && e instanceof TLRPC.TL_messageEntitySpoiler && start <= se && end >= ss) {
+                            if (false && e instanceof TLRPC.TL_messageEntitySpoiler && start <= se && end >= ss) {
                                 TextStyleSpan.TextStyleRun run = new TextStyleSpan.TextStyleRun();
                                 run.flags |= TextStyleSpan.FLAG_STYLE_SPOILER;
                                 sb.setSpan(new TextStyleSpan(run), Math.max(start, ss), Math.min(end, se) + offset, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

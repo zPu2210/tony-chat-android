@@ -42,7 +42,7 @@ public class UnifiedPushService extends PushService {
             }
 
             try {
-                PushListenerController.sendRegistrationToServer(PushListenerController.PUSH_TYPE_SIMPLE, NaConfig.INSTANCE.getPushServiceTypeUnifiedGateway().String() + URLEncoder.encode(endpoint.getUrl(), "UTF-8"));
+                PushListenerController.sendRegistrationToServer(PushListenerController.PUSH_TYPE_SIMPLE, "" + URLEncoder.encode(endpoint.getUrl(), "UTF-8"));
             } catch (UnsupportedEncodingException ignored) {
             }
         });

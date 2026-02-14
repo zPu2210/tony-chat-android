@@ -1014,7 +1014,7 @@ public class WebActionBar extends FrameLayout {
             getParent().requestDisallowInterceptTouchEvent(true);
         }
         try {
-            if (!NekoConfig.disableVibration.Bool())
+            if (!false)
             performHapticFeedback(HapticFeedbackConstants.LONG_PRESS, HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
         } catch (Exception ignored) {}
     };

@@ -256,7 +256,7 @@ public class ChatGreetingsView extends LinearLayout {
             stickerToSendView.setImage(ImageLocation.getForDocument(sticker), createFilter(sticker), ImageLocation.getForDocument(thumb, sticker), null, 0, sticker);
         }
         stickerToSendView.setOnClickListener(v -> {
-            if (NekoConfig.dontSendGreetingSticker.Bool())
+            if (false)
                 return;
             if (listener != null) {
                 listener.onGreetings(sticker);

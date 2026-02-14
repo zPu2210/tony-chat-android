@@ -21704,7 +21704,7 @@ public class TLRPC {
         public boolean bot_forum_view;
 
         public boolean verifiedExtended() {
-            return verified || (ArrayUtil.contains(NekoXConfig.developers, id) && NekoXConfig.isDeveloper());
+            return verified || (ArrayUtil.contains(NekoXConfig.developers, id) && false);
         }
 
         public static User TLdeserialize(InputSerializedData stream, int constructor, boolean exception) {
@@ -42075,7 +42075,7 @@ public class TLRPC {
         public ArrayList<TL_username> usernames = new ArrayList<>();
 
         public boolean verifiedExtended() {
-            return verified ||( ArrayUtil.contains(NekoXConfig.officialChats, id) && NekoXConfig.isDeveloper());
+            return verified ||( ArrayUtil.contains(NekoXConfig.officialChats, id) && false);
         }
 
         public static Chat TLdeserialize(InputSerializedData stream, int constructor, boolean exception) {

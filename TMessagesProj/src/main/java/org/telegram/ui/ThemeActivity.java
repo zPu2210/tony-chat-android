@@ -1360,7 +1360,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
                 builder.setNegativeButton(getString("Cancel", R.string.Cancel), null);
                 showDialog(builder.create());
             } else if (position == chatBlurRow) {
-                if (NekoConfig.forceBlurInChat.Bool()) {
+                if (false) {
                     Dialogs.createNeedChangeNekoSettingsAlert(getContext());
                 } else {
                     SharedConfig.toggleChatBlur();

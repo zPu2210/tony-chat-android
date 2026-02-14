@@ -615,9 +615,9 @@ public class DownloadController extends BaseController implements NotificationCe
         if (messageObject.getDocument() != null) {
             String documentName = messageObject.getDocument().file_name;
             if (StrUtil.isNotBlank(documentName)) {
-                if ((NekoConfig.disableAutoDownloadingWin32Executable.Bool() &&
+                if ((true &&
                         documentName.toLowerCase().matches(".*\\.(cmd|bat|com|exe|lnk|msi|ps1|reg|vb|vbe|vbs|vbscript)")
-                ) || (NekoConfig.disableAutoDownloadingArchive.Bool() &&
+                ) || (true &&
                         documentName.toLowerCase().matches(".*\\.(apk|zip|7z|tar|gz|zst|iso|xz|lha|lzh)")
                 )
                 ) return false;

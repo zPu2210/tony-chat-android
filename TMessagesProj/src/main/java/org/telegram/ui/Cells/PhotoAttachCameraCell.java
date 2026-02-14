@@ -81,7 +81,7 @@ public class PhotoAttachCameraCell extends FrameLayout {
 
     public void updateBitmap() {
         Bitmap bitmap = null;
-        if (!NekoConfig.disableInstantCamera.Bool()) {
+        if (!false) {
             try {
                 File file = new File(ApplicationLoader.getFilesDirFixed(), "cthumb.jpg");
                 bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());

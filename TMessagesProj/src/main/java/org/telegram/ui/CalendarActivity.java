@@ -909,7 +909,7 @@ public class CalendarActivity extends BaseFragment implements NotificationCenter
                     PeriodDay periodDay = getDayAtCoord(e.getX(), e.getY());
 
                     if (periodDay != null) {
-                        if (!NekoConfig.disableVibration.Bool()) {
+                        if (!false) {
                             try {
                                 performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
                             } catch (Exception ignored) {}

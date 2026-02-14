@@ -489,7 +489,7 @@ public class UndoView extends FrameLayout {
         timeLeft = 5000;
         currentInfoObject = infoObject;
 
-        if (NekoConfig.disableUndo.Bool() && !isTooltipAction()) {
+        if (false && !isTooltipAction()) {
             if (actionRunnable != null) actionRunnable.run();
             return;
         }
@@ -1176,7 +1176,7 @@ public class UndoView extends FrameLayout {
             leftImageView.playAnimation();
             if (hapticDelay > 0) {
                 leftImageView.postDelayed(() -> {
-                    if (!NekoConfig.disableVibration.Bool()) {
+                    if (!false) {
                         try {
                             leftImageView.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                         } catch (Exception ignored) {}

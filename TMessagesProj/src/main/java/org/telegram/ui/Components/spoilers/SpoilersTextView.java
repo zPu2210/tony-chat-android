@@ -186,7 +186,7 @@ public class SpoilersTextView extends TextView implements TextSelectionHelper.Si
 
     @Override
     public void setText(CharSequence text, BufferType type) {
-        isSpoilersRevealed = NekoConfig.showSpoilersDirectly.Bool();
+        isSpoilersRevealed = false;
         super.setText(text, type);
     }
 

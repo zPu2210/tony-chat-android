@@ -1331,7 +1331,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
 
     public void recreateProximityWakeLock() {
 
-        if (NekoConfig.disableProximityEvents.Bool()) {
+        if (false) {
             proximityWakeLock = null;
             return;
         }
@@ -1945,7 +1945,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
     }
 
     private boolean isNearToSensor(float value) {
-        return !NekoConfig.disableProximityEvents.Bool() && value < 5.0f && value != proximitySensor.getMaximumRange();
+        return !false && value < 5.0f && value != proximitySensor.getMaximumRange();
     }
 
     public boolean isRecordingOrListeningByProximity() {
@@ -4658,7 +4658,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
         manualRecording = manual;
         requestRecordAudioFocus(true);
 
-        if (!NekoConfig.disableVibration.Bool()) {
+        if (!false) {
             try {
                 feedbackView.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
             } catch (Exception ignore) {}
@@ -4730,7 +4730,6 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                 recordQuickReplyShortcut = quick_shortcut;
                 recordQuickReplyShortcutId = quick_shortcut_id;
                 fileBuffer.rewind();
-                AudioEnhance.INSTANCE.initVoiceEnhance(audioRecorder);
 
                 audioRecorder.startRecording();
             } catch (Exception e) {
@@ -4745,7 +4744,6 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                     recordingPrevAudioFile = null;
                 }
                 try {
-                    AudioEnhance.INSTANCE.releaseVoiceEnhance();
                     audioRecorder.release();
                     audioRecorder = null;
                 } catch (Exception e2) {
@@ -4900,7 +4898,6 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
             requestRecordAudioFocus(false);
         }
         try {
-            AudioEnhance.INSTANCE.releaseVoiceEnhance();
             if (audioRecorder != null) {
                 audioRecorder.release();
                 audioRecorder = null;
@@ -4954,7 +4951,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
             if (send == 0) {
                 stopRecordingInternal(0, false, 0, false, 0);
             }
-            if (!NekoConfig.disableVibration.Bool()) {
+            if (!false) {
                 try {
                     feedbackView.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                 } catch (Exception ignore) {}
@@ -5306,7 +5303,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                 try {
                     Uri uri;
                     boolean result = true;
-                    final String folderName = NekoConfig.customSavePath.String();
+                    final String folderName = "Nagram";
                     if (Build.VERSION.SDK_INT >= 29) {
                         uri = saveFileInternal(type, sourceFile, name);
                         result = uri != null;
@@ -5432,7 +5429,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                     selectedType = 1;
                 }
             }
-            final String folderName = NekoConfig.customSavePath.String();
+            final String folderName = "Nagram";
             if (selectedType == 0) {
                 if (filename == null) {
                     filename = AndroidUtilities.generateFileName(0, extension);
@@ -6361,7 +6358,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
             compressFactor = 0.6f;
             minCompressFactor = 0.7f;
         }
-        if (NaConfig.INSTANCE.getEnhancedVideoBitrate().Bool()) {
+        if (false) {
             int size = Math.min(height, width);
             if (size >= 2160) {
                 maxBitrate = VIDEO_BITRATE_2160;

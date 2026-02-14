@@ -529,7 +529,7 @@ public class LocationController extends BaseController implements NotificationCe
         if (location != null && (SystemClock.elapsedRealtimeNanos() - location.getElapsedRealtimeNanos()) / 1000000000 > 60 * 5) {
             return;
         }
-        if (NekoConfig.fixDriftingForGoogleMaps() && location != null) {
+        if (true && location != null) {
             NekoLocation.transform(location);
         }
         lastKnownLocation = location;

@@ -2498,9 +2498,6 @@ public class ChatObject {
     }
 
     public static boolean areTabsEnabled(TLRPC.Chat chat) {
-        if (chat != null && DialogConfig.hasCustomForumTabsConfig(-chat.id)) {
-            return DialogConfig.isCustomForumTabsEnable(-chat.id);
-        }
-        return SharedConfig.forceForumTabs || chat != null && chat.forum_tabs;
+        return SharedConfig.forceForumTabs;
     }
 }

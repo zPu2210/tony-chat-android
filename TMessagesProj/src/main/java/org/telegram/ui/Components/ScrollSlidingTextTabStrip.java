@@ -500,7 +500,7 @@ public class ScrollSlidingTextTabStrip extends HorizontalScrollView {
             };
             tab.setGravity(Gravity.CENTER);
             tab.setTextAlignment(TEXT_ALIGNMENT_CENTER);
-            if (NaConfig.INSTANCE.getTabStyle().Int() < TabStyle.PILLS.getValue()) tab.setBackground(Theme.createSelectorDrawable(Theme.multAlpha(processColor(Theme.getColor(activeTextColorKey, resourcesProvider)), .15f), 3));
+            if (0 < TabStyle.PILLS.getValue()) tab.setBackground(Theme.createSelectorDrawable(Theme.multAlpha(processColor(Theme.getColor(activeTextColorKey, resourcesProvider)), .15f), 3));
             tab.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
 //            tab.setSingleLine(true);
             tab.setMaxLines(2);
@@ -595,7 +595,7 @@ public class ScrollSlidingTextTabStrip extends HorizontalScrollView {
         for (int a = 0; a < count; a++) {
             TextView tab = (TextView) tabsContainer.getChildAt(a);
             tab.setTextColor(processColor(Theme.getColor(currentPosition == a ? activeTextColorKey : unactiveTextColorKey, resourcesProvider)));
-            if (NaConfig.INSTANCE.getTabStyle().Int() < TabStyle.PILLS.getValue()) tab.setBackground(Theme.createSelectorDrawable(Theme.multAlpha(processColor(Theme.getColor(activeTextColorKey, resourcesProvider)), .15f), 3));
+            if (0 < TabStyle.PILLS.getValue()) tab.setBackground(Theme.createSelectorDrawable(Theme.multAlpha(processColor(Theme.getColor(activeTextColorKey, resourcesProvider)), .15f), 3));
         }
         selectorDrawable.setColor(processColor(Theme.getColor(tabLineColorKey, resourcesProvider)));
         invalidate();
@@ -649,7 +649,7 @@ public class ScrollSlidingTextTabStrip extends HorizontalScrollView {
 //            );
 //            selectorDrawable.draw(canvas);
             // --- Tab Style Start ---
-            int tabStyle = NaConfig.INSTANCE.getTabStyle().Int();
+            int tabStyle = 0;
             int inlinePadding = 0;
             int topBound = height - AndroidUtilities.dp(4);
             int bottomBound = height;

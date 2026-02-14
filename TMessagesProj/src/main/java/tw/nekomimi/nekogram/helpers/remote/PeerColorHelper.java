@@ -1,87 +1,15 @@
 package tw.nekomimi.nekogram.helpers.remote;
-
 import org.telegram.tgnet.TLRPC;
-
 public class PeerColorHelper {
-    public static PeerColorHelper getInstance() {
-        return new PeerColorHelper();
-    }
-
-    public void loadPeerColorInfo() {
-    }
-
-    public void savePeerColorInfo() {
-    }
-
-    public boolean needUpdate() {
-        return false;
-    }
-
-    public void checkPeerColor() {
-    }
-
-    public Integer getColorId(long chatId) {
-        return null;
-    }
-
-    public Integer getColorId(TLRPC.User user) {
-        return null;
-    }
-
-    public Integer getColorId(TLRPC.Chat chat) {
-        return null;
-    }
-
-    public Long getEmojiId(long chatId) {
-        return null;
-    }
-
-    public Long getEmojiId(TLRPC.User user) {
-        return null;
-    }
-
-    public Long getEmojiId(TLRPC.Chat chat) {
-        return null;
-    }
-
-    public Integer getProfileColorId(long chatId) {
-        return null;
-    }
-
-    public Integer getProfileColorId(TLRPC.User user) {
-        return null;
-    }
-
-    public Integer getProfileColorId(TLRPC.Chat chat) {
-        return null;
-    }
-
-    public Long getProfileEmojiId(long chatId) {
-        return null;
-    }
-
-    public Long getProfileEmojiId(TLRPC.User user) {
-        return null;
-    }
-
-    public Long getProfileEmojiId(TLRPC.Chat chat) {
-        return null;
-    }
-
-    public static class PeerColorInfo {
-        public long chatId;
-        public int version;
-        public int colorId;
-        public long emojiId;
-        public int profileColorId;
-        public long profileEmojiId;
-
-        public PeerColorInfo(long chatId, int version) {
-            this.chatId = chatId;
-            this.version = version;
-        }
-
-        public PeerColorInfo() {
-        }
-    }
+    private static PeerColorHelper instance = new PeerColorHelper();
+    public static PeerColorHelper getInstance() { return instance; }
+    public int getColorId(TLRPC.User user) { return -1; }
+    public int getColorId(TLRPC.Chat chat) { return -1; }
+    public long getEmojiId(TLRPC.User user) { return 0; }
+    public long getEmojiId(TLRPC.Chat chat) { return 0; }
+    public int getProfileColorId(TLRPC.User user) { return -1; }
+    public int getProfileColorId(TLRPC.Chat chat) { return -1; }
+    public long getProfileEmojiId(TLRPC.User user) { return 0; }
+    public long getProfileEmojiId(TLRPC.Chat chat) { return 0; }
+    public long getBackgroundEmojiId(TLRPC.Chat chat) { return 0; }
 }

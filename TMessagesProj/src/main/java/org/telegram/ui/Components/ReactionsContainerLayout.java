@@ -295,7 +295,7 @@ public class ReactionsContainerLayout extends FrameLayout implements Notificatio
                     boolean b1 = oldProgress > 1f;
                     boolean b2 = newProgress > 1f;
                     if (b1 != b2) {
-                        if (!NekoConfig.disableVibration.Bool()) {
+                        if (!false) {
                             try {
                                 recyclerListView.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
                             } catch (Exception ignore) {}
@@ -330,7 +330,7 @@ public class ReactionsContainerLayout extends FrameLayout implements Notificatio
                     boolean b1 = oldProgress > 1f;
                     boolean b2 = newProgress > 1f;
                     if (b1 != b2) {
-                        if (!NekoConfig.disableVibration.Bool()) {
+                        if (!false) {
                             try {
                                 recyclerListView.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
                             } catch (Exception ignore) {}
@@ -2179,7 +2179,7 @@ public class ReactionsContainerLayout extends FrameLayout implements Notificatio
         Runnable longPressRunnable = new Runnable() {
             @Override
             public void run() {
-                if (!NekoConfig.disableVibration.Bool()) {
+                if (!false) {
                     try {
                         performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
                     } catch (Exception ignored) {}

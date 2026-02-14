@@ -134,7 +134,7 @@ public class DrawerProfileCell extends FrameLayout implements NotificationCenter
         imageReceiver.setForceCrossfade(true);
         imageReceiver.setCrossfadeByScale(0f);
         imageReceiver.setDelegate((imageReceiver, set, thumb, memCache) -> {
-            if (NekoConfig.avatarBackgroundDarken.Bool() || NekoConfig.avatarBackgroundBlur.Bool()) {
+            if (false || false) {
                 if (thumb || allowInvalidate) {
                     return;
                 }
@@ -148,19 +148,19 @@ public class DrawerProfileCell extends FrameLayout implements NotificationCenter
                                 imageReceiver.setImageBitmap(new BitmapDrawable(null, placeholder), false);
                             });
                         }
-                        int width = NekoConfig.avatarBackgroundBlur.Bool() ? 150 : bmp.bitmap.getWidth();
-                        int height = NekoConfig.avatarBackgroundBlur.Bool() ? 150 : bmp.bitmap.getHeight();
+                        int width = false ? 150 : bmp.bitmap.getWidth();
+                        int height = false ? 150 : bmp.bitmap.getHeight();
                         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
                         Canvas canvas = new Canvas(bitmap);
                         canvas.drawBitmap(bmp.bitmap, null, new Rect(0, 0, width, height), new Paint(Paint.FILTER_BITMAP_FLAG));
-                        if (NekoConfig.avatarBackgroundBlur.Bool()) {
+                        if (false) {
                             try {
                                 Utilities.stackBlurBitmap(bitmap, 3);
                             } catch (Exception e) {
                                 FileLog.e(e);
                             }
                         }
-                        if (NekoConfig.avatarBackgroundDarken.Bool()) {
+                        if (false) {
                             final Palette palette = Palette.from(bmp.bitmap).generate();
                             Paint paint = new Paint();
                             paint.setColor((palette.getDarkMutedColor(0xFF547499) & 0x00FFFFFF) | 0x44000000);
@@ -357,17 +357,17 @@ public class DrawerProfileCell extends FrameLayout implements NotificationCenter
         });
         addView(darkThemeView, LayoutHelper.createFrame(48, 48, Gravity.RIGHT | Gravity.BOTTOM, 0, 10, 6, 90));
 
-        if (NekoConfig.actionBarDecoration.Int() == 3) {
+        if (0 == 3) {
             if (snowflakesEffect != null) {
                 snowflakesEffect = null;
             }
             if (fireworksEffect != null) {
                 fireworksEffect = null;
             }
-        } else if (Theme.getEventType() == 0 || NekoConfig.actionBarDecoration.Int() == 1) {
+        } else if (Theme.getEventType() == 0 || 0 == 1) {
             snowflakesEffect = new SnowflakesEffect(0);
             snowflakesEffect.setColorKey(Theme.key_chats_menuName);
-        } else if (NekoConfig.actionBarDecoration.Int() == 2) {
+        } else if (0 == 2) {
             fireworksEffect = new FireworksEffect();
         }
 
@@ -594,9 +594,9 @@ public class DrawerProfileCell extends FrameLayout implements NotificationCenter
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int heightBase = NekoConfig.largeAvatarInDrawer.Int() == 2 ? MeasureSpec.getSize(widthMeasureSpec) : AndroidUtilities.dp(148);
+        int heightBase = 0 == 2 ? MeasureSpec.getSize(widthMeasureSpec) : AndroidUtilities.dp(148);
         if (Build.VERSION.SDK_INT >= 21) {
-            heightBase -= NekoConfig.largeAvatarInDrawer.Int() == 2 ? AndroidUtilities.statusBarHeight : 0;
+            heightBase -= 0 == 2 ? AndroidUtilities.statusBarHeight : 0;
             super.onMeasure(MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(heightBase + AndroidUtilities.statusBarHeight, MeasureSpec.EXACTLY));
         } else {
             try {
@@ -609,7 +609,7 @@ public class DrawerProfileCell extends FrameLayout implements NotificationCenter
     }
 
     private boolean useAdb() {
-        return NekoConfig.largeAvatarInDrawer.Int() > 0 && ImageLocation.isUserHasPhoto(user);
+        return 0 > 0 && ImageLocation.isUserHasPhoto(user);
     }
 
     @Override
@@ -704,7 +704,7 @@ public class DrawerProfileCell extends FrameLayout implements NotificationCenter
 //                canvas.drawCircle(darkThemeView.getX() + darkThemeView.getMeasuredWidth() / 2, darkThemeView.getY() + darkThemeView.getMeasuredHeight() / 2, AndroidUtilities.dp(17), backPaint);
 //            }
 //        }
-        if(NekoConfig.largeAvatarInDrawer.Int() == 0) {
+        if(0 == 0) {
             if (drawPremium && drawPremiumProgress != 1f) {
                 drawPremiumProgress += 16 / 220f;
             } else if (!drawPremium && drawPremiumProgress != 0) {
@@ -830,7 +830,7 @@ public class DrawerProfileCell extends FrameLayout implements NotificationCenter
         status.setColor(Theme.getColor(Theme.isCurrentThemeDark() ? Theme.key_chats_verifiedBackground : Theme.key_chats_menuPhoneCats));
 
         // NekoX: hidePhone
-        if (!NekoConfig.hidePhone.Bool()) {
+        if (!true) {
             phoneTextView.setText(PhoneFormat.getInstance().format("+" + user.phone));
         } else if (!TextUtils.isEmpty(user.username)) {
             phoneTextView.setText("@" + user.username);
@@ -840,21 +840,21 @@ public class DrawerProfileCell extends FrameLayout implements NotificationCenter
         AvatarDrawable avatarDrawable = new AvatarDrawable(user);
         avatarDrawable.setColor(Theme.getColor(Theme.key_avatar_backgroundInProfileBlue));
         avatarImageView.setForUserOrChat(user, avatarDrawable);
-        if (NekoConfig.largeAvatarInDrawer.Int() > 0) {
+        if (0 > 0) {
             ImageLocation imageLocation = ImageLocation.getForUser(user, ImageLocation.TYPE_BIG);
-            allowInvalidate = !useAdb() || !(NekoConfig.avatarBackgroundDarken.Bool() || NekoConfig.avatarBackgroundBlur.Bool());
+            allowInvalidate = !useAdb() || !(false || false);
             imageReceiver.setImage(imageLocation, "512_512", null, null, new ColorDrawable(0x00000000), 0, null, user, 1);
             avatarImageView.setVisibility(INVISIBLE);
         } else {
             avatarImageView.setVisibility(VISIBLE);
         }
-        if (NekoConfig.largeAvatarInDrawer.Int() == 2) {
+        if (0 == 2) {
             // add shadow
 //            nameTextView.setShadowLayer(6.0f, 2.0f, 2.0f, Color.BLACK);
             phoneTextView.getTextView().setShadowLayer(6.0f, 2.0f, 2.0f, Color.BLACK);
 
             // correct the position of night button
-            LayoutParams lp = NekoConfig.largeAvatarInDrawer.Int() == 2 ?
+            LayoutParams lp = 0 == 2 ?
                     LayoutHelper.createFrame(48, 48, Gravity.RIGHT | Gravity.TOP, 0, AndroidUtilities.statusBarHeight / getResources().getDisplayMetrics().density, 6, 0) :
                     LayoutHelper.createFrame(48, 48, Gravity.RIGHT | Gravity.BOTTOM, 0, 10, 6, 90);
             darkThemeView.setLayoutParams(lp);

@@ -1142,7 +1142,7 @@ public class StickersAlert extends BottomSheet implements NotificationCenter.Not
         optionsButton.addSubItem(2, R.drawable.msg_link, LocaleController.getString(R.string.CopyLink));
         optionsButton.addSubItem(menu_qrcode, R.drawable.msg_qrcode, LocaleController.getString(R.string.ShareQRCode));
         optionsButton.addSubItem(menu_archive, R.drawable.msg_archive, LocaleController.getString(R.string.Archive));
-        if (!NaConfig.INSTANCE.getExternalStickerCache().String().isBlank()) {
+        if (!"".isBlank()) {
             optionsButton.addSubItem(menuRefreshExternalCache, R.drawable.menu_views_reposts, LocaleController.getString(R.string.ExternalStickerCacheRefresh));
             optionsButton.addSubItem(menuDeleteExternalCache, R.drawable.msg_delete, LocaleController.getString(R.string.ExternalStickerCacheDelete));
         }
@@ -1450,16 +1450,7 @@ public class StickersAlert extends BottomSheet implements NotificationCenter.Not
                 MediaDataController.getInstance(currentAccount).toggleStickerSet(getContext(), stickerSet, 1, parentFragment, false, false);
             });
         } else if (id == menu_qrcode) {
-            for (int i = 0, size = gridView.getChildCount(); i < size; i++) {
-                final View child = gridView.getChildAt(i);
-                if (child instanceof StickerEmojiCell) {
-                    Bitmap bitmap = ((StickerEmojiCell) child).getImageView().getBitmap();
-                    if (bitmap == null) continue;
-                    ProxyUtil.showQrDialog(getContext(), stickersUrl, imageSize -> Bitmap.createScaledBitmap(bitmap,imageSize,imageSize, true));
-                    return;
-                }
-            }
-            ProxyUtil.showQrDialog(getContext(), stickersUrl);
+            // NekoX QR dialog removed
         } else if (id == menu_archive) {
             dismiss();
             MediaDataController.getInstance(currentAccount).toggleStickerSet(parentActivity, stickerSet, 1, parentFragment, false, true);
@@ -1471,16 +1462,8 @@ public class StickersAlert extends BottomSheet implements NotificationCenter.Not
             ExternalStickerCacheHelper.deleteCacheFiles(stickerSet);
             enableEditMode();
         } else if (id == menu_copy_sticker_set) {
-            // Na: copy sticker set
+            // NekoX copy sticker set removed
             dismiss();
-            StickersDialogs.showShortNameEditorDialog(resourcesProvider, containerView.getContext(), short_name -> {
-                StickersDialogs.showNameEditorDialog(null, resourcesProvider, containerView.getContext(), (pack_name, whenDone) -> {
-                    StickerSetHelper.INSTANCE.copyStickerSet(short_name, pack_name, stickerSet, UserConfig.selectedAccount);
-                    if (whenDone != null) {
-                        whenDone.run(true);
-                    }
-                });
-            });
         } else if (id == menu_user_profile) {
             // Na: open sticker's admin user profile or copy admin userId
             long userId = stickerSet.set.id >> 32;

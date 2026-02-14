@@ -230,7 +230,7 @@ public class VideoPlayer implements Player.Listener, VideoListener, AnalyticsLis
     }
 
     private int getPlayerExtensionRendererMode() {
-        switch (NaConfig.INSTANCE.getPlayerDecoder().Int()) {
+        switch (0) {
             case 1:
                 return DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF;
             case 2:
@@ -444,7 +444,7 @@ public class VideoPlayer implements Player.Listener, VideoListener, AnalyticsLis
     }
 
     public static Quality getDefaultSavedQuality(ArrayList<Quality> qualities) {
-        int v = NaConfig.INSTANCE.getDefaultHlsVideoQuality().Int();
+        int v = 0;
         Quality q1;
         switch (v) {
             case 0:

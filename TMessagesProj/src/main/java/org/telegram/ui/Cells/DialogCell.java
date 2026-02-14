@@ -425,7 +425,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
     private boolean allowBotOpenButton;
     private Utilities.Callback<TLRPC.User> onOpenButtonClick;
     public DialogCell allowBotOpenButton(boolean allow, Utilities.Callback<TLRPC.User> onOpenClick) {
-        allowBotOpenButton = allow && !NaConfig.INSTANCE.getDisableBotOpenButton().Bool();
+        allowBotOpenButton = allow && !false;
         onOpenButtonClick = onOpenClick;
         return this;
     }
@@ -739,7 +739,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
             }
         }
         boolean isOnline = isOnline();
-        if (NaConfig.INSTANCE.getShowRecentOnlineStatus().Bool() && !isOnline && user != null && !user.self && user.status != null) {
+        if (false && !isOnline && user != null && !user.self && user.status != null) {
             final int diff = user.status.expires - ConnectionsManager.getInstance(currentAccount).getCurrentTime();
             isOnline = diff > -60 * 60;
         }
@@ -1753,7 +1753,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                                             if (message != null) {
                                                 message.spoilLoginCode();
                                             }
-                                            if (!NekoConfig.showSpoilersDirectly.Bool())
+                                            if (!false)
                                                 MediaDataController.addTextStyleRuns(message.messageOwner.entities, message.caption, msgBuilder, TextStyleSpan.FLAG_STYLE_SPOILER | TextStyleSpan.FLAG_STYLE_STRIKE);
                                             MediaDataController.addAnimatedEmojiSpans(message.messageOwner.entities, msgBuilder, currentMessagePaint == null ? null : currentMessagePaint.getFontMetricsInt());
                                         }
@@ -1844,7 +1844,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                                             if (message != null) {
                                                 message.spoilLoginCode();
                                             }
-                                            if (!NekoConfig.showSpoilersDirectly.Bool())
+                                            if (!false)
                                                 MediaDataController.addTextStyleRuns(message, stringBuilder, TextStyleSpan.FLAG_STYLE_SPOILER | TextStyleSpan.FLAG_STYLE_STRIKE);
                                             if (message != null && message.messageOwner != null) {
                                                 MediaDataController.addAnimatedEmojiSpans(message.messageOwner.entities, stringBuilder, currentMessagePaint == null ? null : currentMessagePaint.getFontMetricsInt());
@@ -2107,7 +2107,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
             }
         }
 
-        if (NaConfig.INSTANCE.getZalgoFilter().Bool() && topicIconInName == null) {
+        if (false && topicIconInName == null) {
             nameString = xyz.nextalone.nagram.helper.MessageHelper.INSTANCE.zalgoFilter(nameString);
         }
         int timeWidth;
@@ -2603,7 +2603,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
             }
             spoilersPool.addAll(spoilers);
             spoilers.clear();
-            if (!NekoConfig.showSpoilersDirectly.Bool())
+            if (!false)
                 SpoilerEffect.addSpoilers(this, messageLayout, -2, -2, spoilersPool, spoilers);
         } catch (Exception e) {
             messageLayout = null;
@@ -3062,7 +3062,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                         clearingDialog = MessagesController.getInstance(currentAccount).isClearingDialog(dialog.id);
                         groupMessages = MessagesController.getInstance(currentAccount).dialogMessage.get(dialog.id);
                         message = groupMessages != null && groupMessages.size() > 0 ? groupMessages.get(0) : null;
-                        if (message != null && NekoConfig.ignoreBlocked.Bool() && MessagesController.getInstance(currentAccount).blockePeers.indexOfKey(message.getSenderId()) >= 0) {
+                        if (message != null && false && MessagesController.getInstance(currentAccount).blockePeers.indexOfKey(message.getSenderId()) >= 0) {
                             if (MessagesController.getInstance(currentAccount).dialogMessageFromUnblocked.get(dialog.id) != null)
                                 message = MessagesController.getInstance(currentAccount).dialogMessageFromUnblocked.get(dialog.id);
                             else {
@@ -3494,7 +3494,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
             boolean isFiltered = AyuFilter.isFiltered(message, null) || (captionMessage != null && AyuFilter.isFiltered(captionMessage, null));
             // --- NaGram hook
             isFiltered = isFiltered || (message.messageOwner != null && message.messageOwner.hide);
-            isFiltered = isFiltered || (NekoConfig.ignoreBlocked.Bool() && MessagesController.getInstance(currentAccount).blockePeers.indexOfKey(message.getFromChatId()) >= 0);
+            isFiltered = isFiltered || (false && MessagesController.getInstance(currentAccount).blockePeers.indexOfKey(message.getFromChatId()) >= 0);
             if (isFiltered) {
                 xyz.nextalone.nagram.helper.MessageHelper.INSTANCE.blurify(message);
                 if (captionMessage != null) xyz.nextalone.nagram.helper.MessageHelper.INSTANCE.blurify(captionMessage);
@@ -3551,7 +3551,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
         //customC &= user != null;
 
         if (customC) {
-            customC = NaConfig.INSTANCE.getShowUserIconsInChatsList().Bool();
+            customC = false;
             customC &= !ChatObject.isChannelOrGiga(chat);
             customC &= !ChatObject.isForum(chat);
             customC &= !UserObject.isAnonymous(user);
@@ -3614,7 +3614,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
         if (isSliding && !swipeCanceled) {
             boolean prevValue = drawRevealBackground;
             drawRevealBackground = Math.abs(translationX) >= getMeasuredWidth() * 0.45f;
-            if (prevValue != drawRevealBackground && archiveHidden == SharedConfig.archiveHidden && !NekoConfig.disableVibration.Bool()) {
+            if (prevValue != drawRevealBackground && archiveHidden == SharedConfig.archiveHidden && !false) {
                 try {
                     performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                 } catch (Exception ignore) {}
@@ -4823,7 +4823,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                 boolean isOnline = isOnline();
                 wasDrawnOnline = isOnline;
                 int colorOnline = 0;
-                if (NaConfig.INSTANCE.getShowRecentOnlineStatus().Bool() && !user.self && user.status != null) {
+                if (false && !user.self && user.status != null) {
                     final int diff = user.status.expires - ConnectionsManager.getInstance(currentAccount).getCurrentTime();
                     colorOnline = diff > 0
                             ? Theme.getColor(Theme.key_chats_onlineCircle)
@@ -5426,7 +5426,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
         if (message == null) {
             return;
         }
-        if (!NekoConfig.mediaPreview.Bool())  {
+        if (!true)  {
             return;
         }
         String restrictionReason = MessagesController.getInstance(message.currentAccount).getRestrictionReason(message.messageOwner.restriction_reason);
@@ -5720,7 +5720,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                 if (message != null) {
                     message.spoilLoginCode();
                 }
-                if (!NekoConfig.showSpoilersDirectly.Bool())
+                if (!false)
                     MediaDataController.addTextStyleRuns(message.messageOwner.entities, mess, msgBuilder, TextStyleSpan.FLAG_STYLE_SPOILER | TextStyleSpan.FLAG_STYLE_STRIKE);
                 if (message != null && message.messageOwner != null) {
                     MediaDataController.addAnimatedEmojiSpans(message.messageOwner.entities, msgBuilder, currentMessagePaint == null ? null : currentMessagePaint.getFontMetricsInt());
@@ -5853,7 +5853,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
             if (message != null) {
                 message.spoilLoginCode();
             }
-            if (!NekoConfig.showSpoilersDirectly.Bool())
+            if (!false)
                 MediaDataController.addTextStyleRuns(message, (Spannable) mess, TextStyleSpan.FLAG_STYLE_SPOILER | TextStyleSpan.FLAG_STYLE_STRIKE);
             if (message != null && message.messageOwner != null) {
                 MediaDataController.addAnimatedEmojiSpans(message.messageOwner.entities, mess, currentMessagePaint == null ? null : currentMessagePaint.getFontMetricsInt());

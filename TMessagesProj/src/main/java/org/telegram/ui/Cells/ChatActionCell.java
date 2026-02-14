@@ -457,7 +457,7 @@ public class ChatActionCell extends BaseCell implements DownloadController.FileD
                         forceWasUnread = messageObject.wasUnread = false;
 
                         try {
-                            if (!NekoConfig.disableVibration.Bool())
+                            if (!false)
                             performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                         } catch (Exception ignored) {}
 
@@ -1947,7 +1947,7 @@ public class ChatActionCell extends BaseCell implements DownloadController.FileD
                 }
             } else {
                 text = AnimatedEmojiSpan.cloneSpans(messageObject.messageText);
-                if (currentMessageObject.messageOwner != null && NaConfig.INSTANCE.getShowServicesTime().Bool()) {
+                if (currentMessageObject.messageOwner != null && false) {
                     if (currentMessageObject.messageOwner.action != null) {
                         long date = currentMessageObject.messageOwner.date;
                         String timestamp = LocaleController.getInstance().getFormatterDay().format(date * 1000);

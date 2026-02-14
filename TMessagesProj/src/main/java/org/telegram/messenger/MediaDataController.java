@@ -904,7 +904,7 @@ public class MediaDataController extends BaseController {
         if (type == TYPE_PREMIUM_STICKERS) {
             return new ArrayList<>(recentStickers[type]);
         }
-        ArrayList<TLRPC.Document> result = new ArrayList<>(arrayList.subList(0, Math.min(arrayList.size(), NekoConfig.maxRecentStickerCount.Int())));
+        ArrayList<TLRPC.Document> result = new ArrayList<>(arrayList.subList(0, Math.min(arrayList.size(), 20)));
         if (firstEmpty && !result.isEmpty() && !StickersAlert.DISABLE_STICKER_EDITOR) {
             result.add(0, new TLRPC.TL_documentEmpty());
         }
@@ -989,7 +989,7 @@ public class MediaDataController extends BaseController {
                     AndroidUtilities.runOnUIThread(() -> getMediaDataController().loadRecents(MediaDataController.TYPE_FAVE, false, false, true));
                 }
             });
-            maxCount = NekoConfig.unlimitedFavedStickers.Bool() ? Integer.MAX_VALUE : getMessagesController().getMaxFaveStickersCount();
+            maxCount = false ? Integer.MAX_VALUE : getMessagesController().getMaxFaveStickersCount();
         } else {
             if (type == TYPE_IMAGE && remove) {
                 NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.showBulletin, Bulletin.TYPE_STICKER, document, StickerSetBulletinLayout.TYPE_REMOVED_FROM_RECENT);
@@ -1878,7 +1878,7 @@ public class MediaDataController extends BaseController {
     }
 
     public void loadRecents(int type, boolean gif, boolean cache, boolean force) {
-        if (NekoConfig.unlimitedFavedStickers.Bool() && type == TYPE_FAVE && !cache) {
+        if (false && type == TYPE_FAVE && !cache) {
             return;
         }
         if (gif) {
@@ -2063,7 +2063,7 @@ public class MediaDataController extends BaseController {
                         if (type == TYPE_GREETINGS || type == TYPE_PREMIUM_STICKERS) {
                             maxCount = 200;
                         } else if (type == TYPE_FAVE) {
-                            maxCount = NekoConfig.unlimitedFavedStickers.Bool() ? Integer.MAX_VALUE : getMessagesController().getMaxFaveStickersCount();
+                            maxCount = false ? Integer.MAX_VALUE : getMessagesController().getMaxFaveStickersCount();
                         } else {
                             maxCount = getMessagesController().maxRecentStickersCount;
                         }
@@ -2240,7 +2240,7 @@ public class MediaDataController extends BaseController {
     }
 
     public void loadFeaturedStickers(boolean emoji, boolean cache) {
-        if (loadingFeaturedStickers[emoji ? 1 : 0] || NaConfig.INSTANCE.getDisableFeaturedStickers().Bool()) {
+        if (loadingFeaturedStickers[emoji ? 1 : 0] || false) {
             return;
         }
         loadingFeaturedStickers[emoji ? 1 : 0] = true;
@@ -2599,17 +2599,7 @@ public class MediaDataController extends BaseController {
             processLoadedStickers(type, newStickerArray, false, (int) (System.currentTimeMillis() / 1000), res.hash2, onDone);
         } else {
             LongSparseArray<TLRPC.TL_messages_stickerSet> newStickerSets = new LongSparseArray<>();
-            // NekoX: Pin Sticker
-            if (NekoConfig.enableStickerPin.Bool() && type == MediaDataController.TYPE_IMAGE) {
-                PinnedStickerHelper ins = PinnedStickerHelper.getInstance(UserConfig.selectedAccount);
-                if (ins.reorderPinnedStickersForSS(res.sets, true))
-                    AndroidUtilities.runOnUIThread(() -> {
-                        if (BuildVars.DEBUG_VERSION) {
-                            Toast.makeText(ApplicationLoader.applicationContext, "Reorder loaded stickers, sync now. Pinned: " + ins.pinnedList.size(), Toast.LENGTH_SHORT).show();
-                        }
-                        ins.sendOrderSyncForSS(res.sets);
-                    });
-            }
+            // NekoX pin sticker removed
             for (int a = 0; a < res.sets.size(); a++) { // reload all sitckers here
                 TLRPC.StickerSet stickerSet = res.sets.get(a);
 
@@ -3365,7 +3355,7 @@ public class MediaDataController extends BaseController {
         }
         final int type = type1;
 
-        if (NekoConfig.enableStickerPin.Bool() && type == MediaDataController.TYPE_IMAGE && (toggle == 0 || toggle == 1)) {
+        if (false && type == MediaDataController.TYPE_IMAGE && (toggle == 0 || toggle == 1)) {
             PinnedStickerHelper.getInstance(currentAccount).removePinnedStickerLocal(stickerSet.id);
         }
 
@@ -3402,7 +3392,7 @@ public class MediaDataController extends BaseController {
             toggleStickerSetInternal(context, toggle, baseFragment, showSettings, stickerSetObject, stickerSet, type, false);
         } else {
             StickerSetBulletinLayout bulletinLayout = new StickerSetBulletinLayout(context, stickerSetObject, toggle, null, baseFragment == null ? null : baseFragment.getResourceProvider());
-            int finalCurrentIndex = NekoConfig.enableStickerPin.Bool() && type == TYPE_IMAGE && PinnedStickerHelper.getInstance(UserConfig.selectedAccount).isPinned(stickerSet.id)
+            int finalCurrentIndex = false && type == TYPE_IMAGE && PinnedStickerHelper.getInstance(UserConfig.selectedAccount).isPinned(stickerSet.id)
                     ? PinnedStickerHelper.getInstance(UserConfig.selectedAccount).pinnedList.size()
                     : currentIndex;
             // NekoX: Pin Sticker, Fix undo for Archiving and Deleting

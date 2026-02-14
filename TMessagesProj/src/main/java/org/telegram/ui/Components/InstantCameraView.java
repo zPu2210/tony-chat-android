@@ -732,7 +732,7 @@ public class InstantCameraView extends FrameLayout implements NotificationCenter
         cameraReady = false;
         selectedCamera = null;
         if (!fromPaused) {
-            isFrontface = !NekoConfig.rearVideoMessages.Bool();
+            isFrontface = !false;
             updateFlash();
             recordedTime = 0;
             progress = 0;
@@ -3252,7 +3252,7 @@ public class InstantCameraView extends FrameLayout implements NotificationCenter
                     if (cancelled) {
                         return;
                     }
-                    if (!NekoConfig.disableVibration.Bool()) {
+                    if (!false) {
                         try {
                             performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                         } catch (Exception ignore) {}

@@ -757,7 +757,7 @@ public class ChatActivityEnterView extends FrameLayout implements
     private ChatActivity.ReplyQuote replyingQuote;
     private MessageObject botMessageObject;
     private TLRPC.WebPage messageWebPage;
-    private boolean messageWebPageSearch = !NekoConfig.disableLinkPreviewByDefault.Bool();
+    private boolean messageWebPageSearch = !false;
     private ChatActivityEnterViewDelegate delegate;
     private TrendingStickersAlert trendingStickersAlert;
 
@@ -2846,7 +2846,7 @@ public class ChatActivityEnterView extends FrameLayout implements
 
             @Override
             public boolean onTouchEvent(MotionEvent motionEvent) {
-                if (NekoConfig.useChatAttachMediaMenu.Bool())
+                if (true)
                     return super.onTouchEvent(motionEvent);
                 if (isLiveComment) return false;
                 createRecordCircle();
@@ -2970,7 +2970,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                             setRecordVideoButtonVisible(!isInVideoMode(), true);} else {
                             delegate.needShowMediaBanHint();
                         }
-                            if (!NekoConfig.disableVibration.Bool()) {
+                            if (!false) {
                                 performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
                             }
                             sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_CLICKED);
@@ -2988,12 +2988,12 @@ public class ChatActivityEnterView extends FrameLayout implements
                                     return true;
                                 }
                                 CameraController.getInstance().cancelOnInitRunnable(onFinishInitCameraRunnable);
-                                delegate.needStartRecordVideo(NekoConfig.confirmAVMessage.Bool() ? 3 : 1, true, 0, 0, voiceOnce ? 0x7FFFFFFF : 0, effectId, 0);
+                                delegate.needStartRecordVideo(false ? 3 : 1, true, 0, 0, voiceOnce ? 0x7FFFFFFF : 0, effectId, 0);
                                 sendButton.setEffect(effectId = 0);
                             } else if (!sendVoiceEnabled) {
                                 delegate.needShowMediaBanHint();
                             } else {
-                                if (!NekoConfig.confirmAVMessage.Bool()) {
+                                if (!false) {
                                     if (AlertsCreator.needsPaidMessageAlert(currentAccount, dialog_id)) {
                                         if (sendButtonVisible) {
                                             calledRecordRunnable = true;
@@ -3013,13 +3013,13 @@ public class ChatActivityEnterView extends FrameLayout implements
                                     }
                                 }
                                 delegate.needStartRecordAudio(0);
-                                if (!NekoConfig.confirmAVMessage.Bool()) {
+                                if (!false) {
                                     MediaController.getInstance().stopRecording(isInScheduleMode() ? 3 : 1, true, 0, voiceOnce, 0);
                                 } else {
                                     MediaController.getInstance().stopRecording(2, true, 0, voiceOnce, 0);
                                 }
                             }
-                            if (!NekoConfig.confirmAVMessage.Bool()) {
+                            if (!false) {
                                 recordingAudioVideo = false;
                                 messageTransitionIsRunning = false;
                                 AndroidUtilities.runOnUIThread(moveToSendStateRunnable = () -> {
@@ -3089,7 +3089,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                 return true;
             }
         };
-        if (NekoConfig.useChatAttachMediaMenu.Bool()) {
+        if (true) {
             audioVideoButtonContainer.setOnClickListener(v -> {
                 createRecordAudioPanel();
                 createRecordCircle();
@@ -3294,7 +3294,7 @@ public class ChatActivityEnterView extends FrameLayout implements
         audioVideoSendButton.setPadding(padding, padding, padding, padding);
         audioVideoSendButton.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_glass_defaultIcon), PorterDuff.Mode.SRC_IN));
 
-        if (Build.VERSION.SDK_INT >= 21 && NekoConfig.useChatAttachMediaMenu.Bool()) {
+        if (Build.VERSION.SDK_INT >= 21 && true) {
             audioVideoSendButton.setBackground(Theme.createSelectorDrawable(Theme.getColor(Theme.key_listSelector)));
         }
 
@@ -4440,7 +4440,7 @@ public class ChatActivityEnterView extends FrameLayout implements
 
     private void startLockTransition(boolean animate) {
         AnimatorSet animatorSet = new AnimatorSet();
-        if (!NekoConfig.disableVibration.Bool() && animate) {
+        if (!false && animate) {
             try {
                 performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
             } catch (Exception ignored) {}
@@ -4660,7 +4660,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                     recordAudioVideoRunnable.run();
                     delegate.onSwitchRecordMode(isInVideoMode);
                     setRecordVideoButtonVisible(isInVideoMode, true);
-                    if (!NekoConfig.disableVibration.Bool()) {
+                    if (!false) {
                         performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
                     }
                     sendButtonVisible = true;
@@ -4694,7 +4694,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                         recordAudioVideoRunnable.run();
                         delegate.onSwitchRecordMode(isInVideoMode);
                         setRecordVideoButtonVisible(isInVideoMode, true);
-                        if (!NekoConfig.disableVibration.Bool()) {
+                        if (!false) {
                             performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
                         }
                         sendButtonVisible = true;
@@ -4709,7 +4709,7 @@ public class ChatActivityEnterView extends FrameLayout implements
 
         } else {
 
-            if (StrUtil.isNotBlank(NekoConfig.openPGPApp.String())) {
+            if (StrUtil.isNotBlank("")) {
 
                 cell.setTextAndIcon(LocaleController.getString("Sign", R.string.Sign), R.drawable.baseline_vpn_key_24);
                 cell.setOnClickListener(v -> {
@@ -4732,63 +4732,7 @@ public class ChatActivityEnterView extends FrameLayout implements
 
             }
 
-            cell.setTextAndIcon(LocaleController.getString("Translate", R.string.Translate), R.drawable.ic_translate);
-            cell.setOnClickListener(v -> {
-                if (menuPopupWindow != null && menuPopupWindow.isShowing()) {
-                    menuPopupWindow.dismiss();
-                }
-                translateComment(TranslateDb.getChatLanguage(chatId, TranslatorKt.getCode2Locale(NekoConfig.translateInputLang.String())));
-            });
-            ActionBarMenuSubItem finalCell = cell;
-            cell.setOnLongClickListener(v -> {
-                Translator.showTargetLangSelect(finalCell, true, (locale) -> {
-                    if (menuPopupWindow != null && menuPopupWindow.isShowing()) {
-                        menuPopupWindow.dismiss();
-                    }
-                    translateComment(locale);
-                    TranslateDb.saveChatLanguage(chatId, locale);
-                    return Unit.INSTANCE;
-                });
-                return true;
-            });
-            cell.setMinimumWidth(AndroidUtilities.dp(196));
-            menuPopupLayout.addView(cell, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 48, LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT, 0, 48 * a++, 0, 0));
-            cell = new ActionBarMenuSubItem(getContext(), false, dlps == 0);
-
-            cell.setTextAndIcon(LocaleController.getString("Translate", R.string.OpenCC), R.drawable.ic_translate);
-            ActionBarMenuSubItem finalCell1 = cell;
-            cell.setOnClickListener(v -> {
-                String ccTarget = TranslateDb.getChatCCTarget(chatId, NekoConfig.ccInputLang.String());
-                if (ccTarget == null || StringsKt.isBlank(ccTarget)) {
-                    Translator.showCCTargetSelect(finalCell1, (target) -> {
-                        if (menuPopupWindow != null && menuPopupWindow.isShowing()) {
-                            menuPopupWindow.dismiss();
-                        }
-                        ccComment(target);
-                        TranslateDb.saveChatCCTarget(chatId, target);
-                        return Unit.INSTANCE;
-                    });
-                    return;
-                }
-                if (menuPopupWindow != null && menuPopupWindow.isShowing()) {
-                    menuPopupWindow.dismiss();
-                }
-                ccComment(ccTarget);
-            });
-            cell.setOnLongClickListener(v -> {
-                Translator.showCCTargetSelect(finalCell1, (target) -> {
-                    if (menuPopupWindow != null && menuPopupWindow.isShowing()) {
-                        menuPopupWindow.dismiss();
-                    }
-                    ccComment(target);
-                    TranslateDb.saveChatCCTarget(chatId, target);
-                    return Unit.INSTANCE;
-                });
-                return true;
-            });
-            cell.setMinimumWidth(AndroidUtilities.dp(196));
-            menuPopupLayout.addView(cell, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 48, LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT, 0, 48 * a++, 0, 0));
-            cell = new ActionBarMenuSubItem(getContext(), false, dlps == 0);
+            // Translator menu items removed (NekoX feature)
 
 
             cell.setTextAndIcon(LocaleController.getString("ReplaceText", R.string.ReplaceText), R.drawable.msg_edit);
@@ -5250,7 +5194,7 @@ public class ChatActivityEnterView extends FrameLayout implements
         }
         if (sendWithoutSoundButtonValue) {
             if (containsMarkdown(messageEditText.getText())) {
-                boolean withoutMarkdown = NaConfig.INSTANCE.getDisableMarkdown().Bool();
+                boolean withoutMarkdown = false;
                 int markdownButtonDrawable = withoutMarkdown ? R.drawable.round_code_white : R.drawable.round_code_off_white;
                 String markdownButtonStr = withoutMarkdown ? getString(R.string.SendWithMarkdown) : getString(R.string.SendWithoutMarkdown);
                 options.add(markdownButtonDrawable, markdownButtonStr, () -> {
@@ -5277,7 +5221,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                     }
                 });
             } else if (StringUtils.canUsePangu(messageEditText.getText().toString())) {
-                boolean shouldUsePangu = !NaConfig.INSTANCE.getEnablePanguOnSending().Bool();
+                boolean shouldUsePangu = !false;
                 int markdownButtonDrawable = shouldUsePangu ? R.drawable.round_code_white : R.drawable.round_code_off_white;
                 String markdownButtonStr = shouldUsePangu ? getString(R.string.SendWithPangu) : getString(R.string.SendWithoutPangu);
                 options.add(markdownButtonDrawable, markdownButtonStr, () -> {
@@ -5306,7 +5250,7 @@ public class ChatActivityEnterView extends FrameLayout implements
 
         messageSendPreview.show();
 
-        if (!NekoConfig.disableVibration.Bool()) {
+        if (!false) {
             try {
                 view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
             } catch (Exception ignore) {}
@@ -6200,76 +6144,15 @@ public class ChatActivityEnterView extends FrameLayout implements
 
         Intent intent = new Intent();
 
-        if (NekoConfig.openPGPKeyId.Long() != 0L && save)
-            intent.putExtra(OpenPgpApi.EXTRA_SIGN_KEY_ID, NekoConfig.openPGPKeyId.Long());
+        if (0L != 0L && save)
+            intent.putExtra(OpenPgpApi.EXTRA_SIGN_KEY_ID, 0L);
 
         signComment(intent, save);
 
     }
 
     private void signComment(Intent intent, boolean save) {
-
-        if (parentActivity instanceof LaunchActivity) {
-
-            ((LaunchActivity) parentActivity).callbacks.put(115, result -> {
-
-                if (result != null) {
-
-                    long keyId = result.getLongExtra(OpenPgpApi.EXTRA_SIGN_KEY_ID, 0L);
-
-                    if (save) NekoConfig.openPGPKeyId.setConfigLong(keyId);
-
-                    signComment(result, save);
-
-                }
-
-            });
-
-        }
-
-        intent.setAction(OpenPgpApi.ACTION_CLEARTEXT_SIGN);
-
-        ByteArrayInputStream is = IoUtil.toUtf8Stream(messageEditText.getText().toString());
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-        PGPUtil.post(() -> PGPUtil.api.executeApiAsync(intent, is, os, result -> {
-
-            switch (result.getIntExtra(OpenPgpApi.RESULT_CODE, OpenPgpApi.RESULT_CODE_ERROR)) {
-
-                case OpenPgpApi.RESULT_CODE_SUCCESS: {
-
-                    String str = StrUtil.utf8Str(os.toByteArray());
-                    if (StrUtil.isNotBlank(str)) messageEditText.setText(str);
-                    break;
-
-                }
-
-                case OpenPgpApi.RESULT_CODE_USER_INTERACTION_REQUIRED: {
-
-                    PendingIntent pi = result.getParcelableExtra(OpenPgpApi.RESULT_INTENT);
-                    try {
-                        parentActivity.startIntentSenderFromChild(parentActivity, pi.getIntentSender(), 115, null, 0, 0, 0);
-                    } catch (Exception e) {
-                        FileLog.e(e);
-                        AlertUtil.showToast(e);
-                    }
-                    break;
-                }
-                case OpenPgpApi.RESULT_CODE_ERROR: {
-                    OpenPgpError error = result.getParcelableExtra(OpenPgpApi.RESULT_ERROR);
-                    if (error == null) return;
-                    if (error.getMessage() != null && error.getMessage().contains("not found") && save) {
-                        NekoConfig.openPGPKeyId.setConfigLong(0L);
-                        signComment(new Intent(), true);
-                    } else {
-                        AlertUtil.showToast(error.toString());
-                    }
-                    break;
-                }
-            }
-
-        }));
-
+        // PGP removed
     }
 
     private void translateComment(Locale target) {
@@ -6362,7 +6245,8 @@ public class ChatActivityEnterView extends FrameLayout implements
 
         builder.addTitle(LocaleController.getString("ReplaceText", R.string.ReplaceText), true);
 
-        TextCheckCell regex = builder.addCheckItem(LocaleController.getString("ReplaceRegex", R.string.ReplaceRegex), false, false, null);
+        Object regexObj = builder.addCheckItem(LocaleController.getString("ReplaceRegex", R.string.ReplaceRegex), false, false, null);
+        TextCheckCell regex = (regexObj instanceof org.telegram.ui.Cells.TextCheckCell) ? (org.telegram.ui.Cells.TextCheckCell) regexObj : null;
         EditText origin = builder.addEditText(LocaleController.getString("TextOrigin", R.string.TextOrigin));
         EditText replace = builder.addEditText(LocaleController.getString("TextReplace", R.string.TextReplace));
 
@@ -6429,7 +6313,7 @@ public class ChatActivityEnterView extends FrameLayout implements
             }
             preferences.edit().putBoolean(isChannel ? "currentModeVideoChannel" : "currentModeVideo", visible).apply();
         }
-        if (!NekoConfig.useChatAttachMediaMenu.Bool())
+        if (!true)
             audioVideoSendButton.setState(isInVideoMode() ? ChatActivityEnterViewAnimatedIconView.State.VIDEO : ChatActivityEnterViewAnimatedIconView.State.VOICE, animated);
         else
             audioVideoSendButton.setState(ChatActivityEnterViewAnimatedIconView.State.MENU, animated);
@@ -7140,14 +7024,14 @@ public class ChatActivityEnterView extends FrameLayout implements
                     TLRPC.User us = accountInstance.getMessagesController().getUser(dialog_id);
                     SpannableStringBuilder messageEditTextText = SpannableStringBuilder.valueOf(getString(R.string.TypeMessage));
                     SpannableString sendAsText = null;
-                    if (NaConfig.INSTANCE.getTypeMessageHintUseGroupName().Bool()) {
+                    if (false) {
                         if (chat != null) {
                             messageEditTextText = SpannableStringBuilder.valueOf(chat.title);
                         } else if (us != null && us != accountInstance.getUserConfig().getCurrentUser()) {
                             messageEditTextText = SpannableStringBuilder.valueOf((us.first_name != null ? us.first_name : "") + " " + (us.last_name != null ? us.last_name : ""));
                         }
                     }
-                    if (NaConfig.INSTANCE.getShowSendAsUnderMessageHint().Bool() && delegate != null) {
+                    if (false && delegate != null) {
                         TLRPC.ChatFull full = accountInstance.getMessagesController().getChatFull(-dialog_id);
                         TLRPC.Peer defPeer = full != null ? full.default_send_as : null;
                         if (defPeer == null && delegate.getSendAsPeers() != null && !delegate.getSendAsPeers().peers.isEmpty()) {
@@ -7422,7 +7306,7 @@ public class ChatActivityEnterView extends FrameLayout implements
 
             AnimatorSet attachIconAnimator = null;
             AnimatorSet botIconAnimator = null;
-            if (attachButton != null && NekoConfig.useChatAttachMediaMenu.Bool()) {
+            if (attachButton != null && true) {
                 checkAttachButton(false, 150);
                 if (!attachButton.isShown()) {
                     attachButton.setAlpha(0f);
@@ -8067,7 +7951,7 @@ public class ChatActivityEnterView extends FrameLayout implements
             editingMessageObject.editingMessageEntities = withMarkdown ? entities : new ArrayList<>();
 
             // Apply Pangu formatting for message editing if enabled
-            if (!editingMessageObject.isForwarded() && NaConfig.INSTANCE.getEnablePanguOnEditing().Bool()) {
+            if (!editingMessageObject.isForwarded() && false) {
                 var pair = StringUtils.spacingText(editingMessageObject.editingMessage.toString(), editingMessageObject.editingMessageEntities);
                 editingMessageObject.editingMessage = pair.getFirst();
                 editingMessageObject.editingMessageEntities = pair.getSecond();
@@ -8147,7 +8031,7 @@ public class ChatActivityEnterView extends FrameLayout implements
     }
 
     public boolean processSendingText(CharSequence text, boolean notify, int scheduleDate, int scheduleRepeatPeriod, long payStars, SendMessageInternalParams internalParams) {
-        boolean withMarkdown = internalParams.withMarkdown == null ? !NaConfig.INSTANCE.getDisableMarkdown().Bool() : internalParams.withMarkdown;
+        boolean withMarkdown = internalParams.withMarkdown == null ? !false : internalParams.withMarkdown;
         boolean withGame = internalParams.withGame;
         Boolean canUsePangu = internalParams.canUsePangu;
 
@@ -8328,7 +8212,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                     }
 
                     if (attachLayout != null) {
-                        if (!NekoConfig.useChatAttachMediaMenu.Bool()) {
+                        if (!true) {
                             runningAnimation2 = new AnimatorSet();
                             ArrayList<Animator> animators = new ArrayList<>();
                             animators.add(ObjectAnimator.ofFloat(attachLayout, ATTACH_LAYOUT_ALPHA, 0.0f));
@@ -8386,7 +8270,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                         runningAnimation = new AnimatorSet();
 
                         ArrayList<Animator> animators = new ArrayList<>();
-                        if (NekoConfig.useChatAttachMediaMenu.Bool() && botButton != null && botButton.getVisibility() == VISIBLE) {
+                        if (true && botButton != null && botButton.getVisibility() == VISIBLE) {
                             animators.add(ObjectAnimator.ofFloat(botButton, View.SCALE_X, 0.1f));
                             animators.add(ObjectAnimator.ofFloat(botButton, View.SCALE_Y, 0.1f));
                             animators.add(ObjectAnimator.ofFloat(botButton, View.ALPHA, 0.0f));
@@ -8467,7 +8351,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                             expandStickersButton.setVisibility(GONE);
                         }
                         if (attachLayout != null) {
-                            if (!NekoConfig.useChatAttachMediaMenu.Bool()) {
+                            if (!true) {
                                 attachLayout.setVisibility(GONE);
                                 if (delegate != null && getVisibility() == VISIBLE) {
                                     delegate.onAttachButtonHidden();
@@ -8528,7 +8412,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                     }
 
                     if (attachLayout != null) {
-                        if (!NekoConfig.useChatAttachMediaMenu.Bool()) {
+                        if (!true) {
                             runningAnimation2 = new AnimatorSet();
                             ArrayList<Animator> animators = new ArrayList<>();
                             animators.add(ObjectAnimator.ofFloat(attachLayout, ATTACH_LAYOUT_ALPHA, 0.0f));
@@ -8582,7 +8466,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                     runningAnimation = new AnimatorSet();
 
                     ArrayList<Animator> animators = new ArrayList<>();
-                    if (botButton != null && NekoConfig.useChatAttachMediaMenu.Bool() && botButton.getVisibility() == VISIBLE) {
+                    if (botButton != null && true && botButton.getVisibility() == VISIBLE) {
                         animators.add(ObjectAnimator.ofFloat(botButton, View.SCALE_X, 0.1f));
                         animators.add(ObjectAnimator.ofFloat(botButton, View.SCALE_Y, 0.1f));
                         animators.add(ObjectAnimator.ofFloat(botButton, View.ALPHA, 0.0f));
@@ -8628,7 +8512,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                         @Override
                         public void onAnimationEnd(Animator animation) {
                             if (animation.equals(runningAnimation)) {
-                                if (NekoConfig.useChatAttachMediaMenu.Bool() && botButton != null) {
+                                if (true && botButton != null) {
                                     botButton.setVisibility(View.GONE);
                                     updateFieldRight(1);
                                 }
@@ -8694,7 +8578,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                         expandStickersButton.setVisibility(GONE);
                     }
                     if (attachLayout != null) {
-                        if (!NekoConfig.useChatAttachMediaMenu.Bool()) {
+                        if (!true) {
                             attachLayout.setVisibility(GONE);
                             if (delegate != null && getVisibility() == VISIBLE) {
                                 delegate.onAttachButtonHidden();
@@ -8935,7 +8819,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                             scheduledButton.setTranslationX(0);
                         }
                     }
-                    if (NekoConfig.useChatAttachMediaMenu.Bool() && checkBotButton()) {
+                    if (true && checkBotButton()) {
                         animators.add(ObjectAnimator.ofFloat(botButton, View.SCALE_X, 1f));
                         animators.add(ObjectAnimator.ofFloat(botButton, View.SCALE_Y, 1f));
                         animators.add(ObjectAnimator.ofFloat(botButton, View.ALPHA, 1f));
@@ -8948,7 +8832,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                             if (animation.equals(runningAnimation2)) {
                                 runningAnimation2 = null;
                             }
-                            if (NekoConfig.useChatAttachMediaMenu.Bool() && checkBotButton()) {
+                            if (true && checkBotButton()) {
                                 updateBotButton(true);
                                 updateFieldRight(1);
                             }
@@ -9423,7 +9307,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                     audioVideoSendButton.setScaleX(1f);
                     audioVideoSendButton.setScaleY(1f);
                     runningAnimationAudio.playTogether(ObjectAnimator.ofFloat(audioVideoSendButton, View.ALPHA, 1));
-                    if (!NekoConfig.useChatAttachMediaMenu.Bool())
+                    if (!true)
                         audioVideoSendButton.setState(isInVideoMode() ? ChatActivityEnterViewAnimatedIconView.State.VIDEO : ChatActivityEnterViewAnimatedIconView.State.VOICE, true);
                 }
                 if (scheduledButton != null) {
@@ -9582,7 +9466,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                     messageEditText.setAlpha(0f);
 
                     if (audioVideoSendButton != null) {
-                        if (!NekoConfig.useChatAttachMediaMenu.Bool())
+                        if (!true)
                         audioVideoSendButton.setState(isInVideoMode() ? ChatActivityEnterViewAnimatedIconView.State.VIDEO : ChatActivityEnterViewAnimatedIconView.State.VOICE, animated);
                         audioVideoSendButton.setAlpha(1f);
                         audioVideoSendButton.setScaleX(1f);
@@ -9776,7 +9660,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                     audioVideoButtonContainer.setScaleY(0);
 
                     if (attachButton != null) {
-                        if (NekoConfig.useChatAttachMediaMenu.Bool()) {
+                        if (true) {
                             checkAttachButton(false, 150);
                         } else if (attachButton.getVisibility() == View.VISIBLE) {
                             attachButton.setScaleX(0);
@@ -9819,7 +9703,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                         iconsAnimator.playTogether(ObjectAnimator.ofFloat(audioVideoSendButton, View.ALPHA, 1));
                         iconsAnimator.playTogether(ObjectAnimator.ofFloat(audioVideoSendButton, View.SCALE_X, 1));
                         iconsAnimator.playTogether(ObjectAnimator.ofFloat(audioVideoSendButton, View.SCALE_Y, 1));
-                        if (!NekoConfig.useChatAttachMediaMenu.Bool())
+                        if (!true)
                             audioVideoSendButton.setState(isInVideoMode() ? ChatActivityEnterViewAnimatedIconView.State.VIDEO : ChatActivityEnterViewAnimatedIconView.State.VOICE, true);
                     }
                     if (scheduledButton != null) {
@@ -9924,7 +9808,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                     audioVideoSendButton.setScaleX(1f);
                     audioVideoSendButton.setScaleY(1f);
                     iconsAnimator.playTogether(ObjectAnimator.ofFloat(audioVideoSendButton, View.ALPHA, 1));
-                    if (!NekoConfig.useChatAttachMediaMenu.Bool())
+                    if (!true)
                         audioVideoSendButton.setState(isInVideoMode() ? ChatActivityEnterViewAnimatedIconView.State.VIDEO : ChatActivityEnterViewAnimatedIconView.State.VOICE, true);
                 }
                 if (attachLayout != null) {
@@ -10094,7 +9978,7 @@ public class ChatActivityEnterView extends FrameLayout implements
             }
         } else {
             // Na: DisableClickCommandToSend
-            if (NaConfig.INSTANCE.getDisableClickCommandToSend().Bool()) {
+            if (false) {
                 return;
             }
 
@@ -11052,7 +10936,7 @@ public class ChatActivityEnterView extends FrameLayout implements
             return;
         }
         createMessageEditText();
-        if (NekoConfig.hideSendAsChannel.Bool())
+        if (false)
             return;
         TLRPC.Chat chat;
         TLRPC.Peer defPeer;
@@ -11237,7 +11121,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                     botButton.setContentDescription(getString("AccDescrBotKeyboard", R.string.AccDescrBotKeyboard));
                 }
             } else {
-                if (!canShowBotsMenu && !NaConfig.INSTANCE.getHideBotButtonInInputField().Bool()) {
+                if (!canShowBotsMenu && !false) {
                     createBotButton();
                     botButtonDrawable.setIcon(R.drawable.input_bot1, true);
                     botButton.setContentDescription(getString("AccDescrBotCommands", R.string.AccDescrBotCommands));
@@ -11305,7 +11189,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                     return true;
                 }
             } else {
-                if (!canShowBotsMenu && !NaConfig.INSTANCE.getHideBotButtonInInputField().Bool()) {
+                if (!canShowBotsMenu && !false) {
                     botButtonDrawable.setIcon(R.drawable.input_bot1, true);
                     botButton.setContentDescription(LocaleController.getString("AccDescrBotCommands", R.string.AccDescrBotCommands));
                     return true;
@@ -11882,7 +11766,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                             TL_stories.StoryItem storyItem = delegate != null ? delegate.getReplyToStory() : null;
                             if (gif instanceof TLRPC.Document) {
                                 TLRPC.Document document = (TLRPC.Document) gif;
-                                if (NaConfig.INSTANCE.getAutoInsertGIFCaption().Bool()) {
+                                if (false) {
                                     ArrayList<TLRPC.MessageEntity> entities = MediaDataController.getInstance(currentAccount).getEntities(new CharSequence[]{AndroidUtilities.getTrimmedString(messageEditText.getText())}, supportsSendingNewEntities());
                                     String caption = messageEditText.getText().toString();
                                     if (caption.startsWith("@gif")) {
@@ -12964,7 +12848,7 @@ public class ChatActivityEnterView extends FrameLayout implements
             }
             boolean audio = (Boolean) args[1];
             isInVideoMode = !audio;
-            if (audioVideoSendButton != null && !NekoConfig.useChatAttachMediaMenu.Bool()) {
+            if (audioVideoSendButton != null && !true) {
                 audioVideoSendButton.setState(audio ? ChatActivityEnterViewAnimatedIconView.State.VOICE : ChatActivityEnterViewAnimatedIconView.State.VIDEO, true);
             }
             if (!recordingAudioVideo) {

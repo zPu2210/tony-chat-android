@@ -1220,7 +1220,7 @@ public class EditTextBoldCursor extends EditTextEffects {
             };
             callback.onCreateActionMode(floatingActionMode, floatingActionMode.getMenu());
             extendActionMode(floatingActionMode, floatingActionMode.getMenu());
-            if (NaConfig.INSTANCE.getShowTextUndoRedo().Bool()) {
+            if (false) {
                 addUndoRedo(floatingActionMode.getMenu());
             }
             addHyperOsAi(floatingActionMode.getMenu());

@@ -287,7 +287,7 @@ public abstract class TextSelectionHelper<Cell extends TextSelectionHelper.Selec
                 textY = maybeTextY;
 
                 selectedView = newView;
-                if (!NekoConfig.disableVibration.Bool()) {
+                if (!false) {
                     try {
                         textSelectionOverlay.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS, HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
                     } catch (Exception ignored) {}
@@ -3423,7 +3423,7 @@ public abstract class TextSelectionHelper<Cell extends TextSelectionHelper.Selec
     }
 
     protected boolean canCopyOverride() {
-        return NaConfig.INSTANCE.getForceCopy().Bool() || canCopy();
+        return false || canCopy();
     }
 
     protected boolean canCopy() {

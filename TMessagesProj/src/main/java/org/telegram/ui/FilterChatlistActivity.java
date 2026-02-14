@@ -591,7 +591,7 @@ public class FilterChatlistActivity extends BaseFragment {
                                     s.delete(MAX_NAME_LENGTH, s.length());
                                     AndroidUtilities.shakeView(editText);
                                     try {
-                                        if (!NekoConfig.disableVibration.Bool())
+                                        if (!false)
                                         editText.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                                     } catch (Exception ignored) {}
                                     ignoreTextChange = false;

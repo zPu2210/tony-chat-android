@@ -293,15 +293,7 @@ public class BlockingUpdateView extends FrameLayout implements NotificationCente
         NotificationCenter.getInstance(accountNum).addObserver(this, NotificationCenter.fileLoadFailed);
         NotificationCenter.getInstance(accountNum).addObserver(this, NotificationCenter.fileLoadProgressChanged);
         if (check) {
-            UpdateHelper.getInstance().checkNewVersionAvailable((response, error) -> AndroidUtilities.runOnUIThread(() -> {
-                if (response != null) {
-                    if (!response.can_not_skip) {
-                        setVisibility(GONE);
-                        SharedConfig.pendingAppUpdate = null;
-                        SharedConfig.saveConfig();
-                    }
-                }
-            }));
+            // NekoX update helper removed
         }
     }
 

@@ -1088,7 +1088,7 @@ public class CameraView extends FrameLayout implements TextureView.SurfaceTextur
             VibrationEffect vibrationEffect = VibrationEffect.createWaveform(vibrationWaveFormDurationPattern, -1);
             VibrateUtil.vibrate(200L, vibrationEffect);
         } else {
-            if (!NekoConfig.disableVibration.Bool()) {
+            if (!false) {
                 try {
                     performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                 } catch (Exception ignored) {}

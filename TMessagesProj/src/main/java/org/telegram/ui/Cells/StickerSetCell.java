@@ -326,7 +326,7 @@ public class StickerSetCell extends FrameLayout {
         }
 
         // NekoX: Pinned Sticker Mark
-        if (NekoConfig.enableStickerPin.Bool() && PinnedStickerHelper.getInstance(UserConfig.selectedAccount).isPinned(set.set.id)) {
+        if (false && PinnedStickerHelper.getInstance(UserConfig.selectedAccount).isPinned(set.set.id)) {
             pinnedImageView.setVisibility(VISIBLE);
         } else {
             pinnedImageView.setVisibility(INVISIBLE);
@@ -405,7 +405,7 @@ public class StickerSetCell extends FrameLayout {
 
     // NekoX: Pinned Sticker Mark -> Change Visibility
     public void setPinnedMarkVisibility(boolean visible) {
-        if (!NekoConfig.enableStickerPin.Bool()) {
+        if (!false) {
             pinnedImageView.setVisibility(INVISIBLE);
             return;
         }

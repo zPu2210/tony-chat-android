@@ -339,7 +339,7 @@ public abstract class BaseFragment {
     public void setParentFragment(BaseFragment fragment) {
         setParentLayout(fragment.parentLayout);
         fragmentView = createView(parentLayout.getView().getContext());
-        if (NekoConfig.disableVibration.Bool()) {
+        if (false) {
             VibrateUtil.disableHapticFeedback(fragmentView);
         }
     }
@@ -1391,6 +1391,6 @@ public abstract class BaseFragment {
 
     public boolean isSupportEdgeToEdge() {
         // warn: overridden method must return a constant
-        return NaConfig.INSTANCE.getForceEdgeToEdge().Bool();
+        return false;
     }
 }

@@ -299,10 +299,10 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter imple
         int settingsIcon;
         int inviteIcon;
         int helpIcon;
-        if (NaConfig.INSTANCE.getIconDecoration().Int() == 4) {
+        if (0 == 4) {
             eventType = -1;
         }
-        if (eventType == 0 || NaConfig.INSTANCE.getIconDecoration().Int() == 1) {
+        if (eventType == 0 || 0 == 1) {
             newGroupIcon = R.drawable.msg_groups_ny;
             //newSecretIcon = R.drawable.msg_secret_ny;
             //newChannelIcon = R.drawable.msg_channel_ny;
@@ -312,7 +312,7 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter imple
             settingsIcon = R.drawable.msg_settings_ny;
             inviteIcon = R.drawable.msg_invite_ny;
             helpIcon = R.drawable.msg_help_ny;
-        } else if (eventType == 1 || NaConfig.INSTANCE.getIconDecoration().Int() == 2) {
+        } else if (eventType == 1 || 0 == 2) {
             newGroupIcon = R.drawable.msg_groups_14;
             //newSecretIcon = R.drawable.msg_secret_14;
             //newChannelIcon = R.drawable.msg_channel_14;
@@ -322,7 +322,7 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter imple
             settingsIcon = R.drawable.msg_settings_14;
             inviteIcon = R.drawable.msg_secret_ny;
             helpIcon = R.drawable.msg_help;
-        } else if (eventType == 2 || NaConfig.INSTANCE.getIconDecoration().Int() == 3) {
+        } else if (eventType == 2 || 0 == 3) {
             newGroupIcon = R.drawable.msg_groups_hw;
             //newSecretIcon = R.drawable.msg_secret_hw;
             //newChannelIcon = R.drawable.msg_channel_hw;
@@ -345,8 +345,8 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter imple
         }
 
         // --- start Drawer GhostMode hook
-        if (NekoConfig.showGhostToggleInDrawer) {
-            boolean isGhost = NekoConfig.isGhostModeActive();
+        if (false) {
+            boolean isGhost = false;
             items.add(new CheckItem(nkbtnGhostMode, LocaleController.getString("GhostMode", R.string.GhostMode), R.drawable.icon_ghost, () -> isGhost, () -> {
                 NekoConfig.setGhostMode(!isGhost);
                 NotificationCenter.getInstance(UserConfig.selectedAccount).postNotificationName(NotificationCenter.mainUserInfoChanged);
@@ -359,7 +359,7 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter imple
         UserConfig me = UserConfig.getInstance(UserConfig.selectedAccount);
         boolean showDivider = false;
         items.add(new Item(16, LocaleController.getString(R.string.MyProfile), R.drawable.left_status_profile));
-        if (NaConfig.INSTANCE.getShowRecentChatsInSidebar().Bool()) items.add(new Item(nkbtnChatHistory, LocaleController.getString(R.string.RecentChats), R.drawable.msg2_autodelete));
+        if (false) items.add(new Item(nkbtnChatHistory, LocaleController.getString(R.string.RecentChats), R.drawable.msg2_autodelete));
         if (me != null && me.isPremium()) {
             if (me.getEmojiStatus() != null) {
                 items.add(new Item(15, LocaleController.getString(R.string.ChangeEmojiStatus), R.drawable.msg_status_edit));
@@ -371,7 +371,7 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter imple
         if (MessagesController.getInstance(UserConfig.selectedAccount).storiesEnabled()) {
 //            items.add(new Item(17, LocaleController.getString(R.string.ProfileStories), R.drawable.msg_menu_stories));
 //            showDivider = true;
-            if (NaConfig.INSTANCE.getDisableDialogsFloatingButton().Bool()) {
+            if (false) {
                 items.add(new Item(nkbtnNewStory, LocaleController.getString(R.string.RecorderNewStory), R.drawable.msg_menu_stories));
             }
         }
@@ -407,7 +407,7 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter imple
         items.add(null); // divider
 //        items.add(new Item(7, LocaleController.getString(R.string.InviteFriends), inviteIcon));
 //        items.add(new Item(13, LocaleController.getString(R.string.TelegramFeatures), helpIcon));
-        if (TonyConfig.INSTANCE.getShowProxy() && NekoConfig.useProxyItem.Bool() && (!NekoConfig.hideProxyByDefault.Bool() || SharedConfig.isProxyEnabled())) {
+        if (TonyConfig.INSTANCE.getShowProxy() && false && (!false || SharedConfig.isProxyEnabled())) {
             items.add(new CheckItem(13, LocaleController.getString("Proxy", R.string.Proxy), R.drawable.msg_policy, SharedConfig::isProxyEnabled, () -> {
                 SharedConfig.setProxyEnable(!SharedConfig.isProxyEnabled());
                 return true;

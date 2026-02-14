@@ -429,7 +429,7 @@ public class PrivacySettingsActivity extends BaseFragment implements Notificatio
                             Bulletin.make(PrivacySettingsActivity.this, layout, duration).show();
 
                             try {
-                                if (!NekoConfig.disableVibration.Bool())
+                                if (!false)
                                 fragmentView.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                             } catch (Exception ignored) {}
 

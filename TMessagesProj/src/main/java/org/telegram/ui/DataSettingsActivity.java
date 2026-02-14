@@ -470,38 +470,7 @@ public class DataSettingsActivity extends BaseFragment {
             } else if (position == dataUsageRow) {
                 presentFragment(new DataUsage2Activity());
             } else if (position == storageNumRow) {
-                BottomBuilder builder = new BottomBuilder(getParentActivity());
-
-                builder.addTitle(LocaleController.getString(R.string.StoragePath));
-
-                AtomicReference<String> target = new AtomicReference<>();
-
-                builder.addRadioItems(EnvUtil.getAvailableDirectories(),
-                        (index, path) -> path.equals(NekoConfig.cachePath.String()), (__, path, cell) -> {
-
-                            target.set(path);
-                            builder.doRadioCheck(cell);
-
-                            return null;
-
-                        });
-
-                builder.addCancelButton();
-                builder.addOkButton((it) -> {
-
-                    if (target.get() != null) {
-
-                        NekoConfig.cachePath.setConfigString(target.get());
-                        ImageLoader.getInstance().checkMediaPaths();
-                        listAdapter.notifyItemChanged(position);
-
-                    }
-
-                    return Unit.INSTANCE;
-
-                });
-
-                builder.show();
+                // NekoX storage path selection removed
             } else if (position == proxyRow) {
                 presentFragment(new ProxyListActivity());
             } else if (position == enableStreamRow) {

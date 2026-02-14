@@ -80,9 +80,9 @@ public class DatabaseMigrationHint extends FrameLayout {
         // Move to /sdcard/Android/...... automatically
         if (Build.VERSION.SDK_INT >= 30) {
             ContextCompat.getMainExecutor(getContext()).execute(() -> {
-                if (!NekoConfig.cachePath.String().contains("/data/")) {
-                    NekoConfig.cachePath.setConfigString(EnvUtil.getAvailableDirectories()[2]);
-                    ImageLoader.getInstance().checkMediaPaths();
+                if (!"".contains("/data/")) {
+                    // NekoX cache path removed
+
                 }
             });
         }

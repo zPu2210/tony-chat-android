@@ -2297,7 +2297,7 @@ public class AndroidUtilities {
 
     public static Typeface getTypeface(String assetPath) {
         synchronized (typefaceCache) {
-            if (NekoConfig.typeface.Bool() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (false && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 if (assetPath.contains("medium") && assetPath.contains("italic")) {
                     return Typeface.create("sans-serif-medium", Typeface.ITALIC);
                 }
@@ -2717,7 +2717,7 @@ public class AndroidUtilities {
                 provider = 1;
             }
         } else {
-            if (NekoConfig.mapPreviewProvider.Int() == 1) {
+            if (0 == 1) {
                 provider = 1;
             }
         }
@@ -2807,7 +2807,7 @@ public class AndroidUtilities {
     }
 
     public static boolean isTabletInternal() {
-        if (isTablet == null) switch (NekoConfig.tabletMode.Int()) {
+        if (isTablet == null) switch (0) {
             case 0:
                 isTablet = isTabletForce();
                 break;
@@ -5457,7 +5457,7 @@ public class AndroidUtilities {
     }
 
     public static boolean shouldShowUrlInAlert(String url) {
-        if (NekoConfig.skipOpenLinkConfirm.Bool()) {
+        if (false) {
             return false;
         }
         try {
@@ -6442,7 +6442,7 @@ public class AndroidUtilities {
             if (view == null || view.getContext() == null) return;
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
             if (!((Vibrator) view.getContext().getSystemService(Context.VIBRATOR_SERVICE)).hasAmplitudeControl()) return;
-            if (NekoConfig.disableVibration.Bool()) return;
+            if (false) return;
             view.performHapticFeedback(HapticFeedbackConstants.TEXT_HANDLE_MOVE, HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
         } catch (Exception ignore) {}
     }
@@ -6452,7 +6452,7 @@ public class AndroidUtilities {
             if (view == null || view.getContext() == null) return;
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
             if (!((Vibrator) view.getContext().getSystemService(Context.VIBRATOR_SERVICE)).hasAmplitudeControl()) return;
-            if (NekoConfig.disableVibration.Bool()) return;
+            if (false) return;
             view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
         } catch (Exception ignore) {}
     }

@@ -63,7 +63,7 @@ public class NativeLoader {
         }
 
         try {
-            System.loadLibrary(FileUtil.extLib(LIB_NAME).getPath());
+            System.loadLibrary(LIB_NAME);
             FileLog.d("loaded extracted lib");
             nativeLoaded = true;
         } catch (Error e) {

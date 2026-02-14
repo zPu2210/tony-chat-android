@@ -46,7 +46,7 @@ public class CustomPhoneKeyboardView extends ViewGroup {
         if (editText == null || editText.length() == 0 && !dispatchBackWhenEmpty) return;
 
         try {
-            if (!NekoConfig.disableVibration.Bool()) {
+            if (!false) {
                 performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
             }
             playSoundEffect(SoundEffectConstants.CLICK);
@@ -112,7 +112,7 @@ public class CustomPhoneKeyboardView extends ViewGroup {
                 checkFindEditText();
                 if (editText == null) return;
 
-                if (!NekoConfig.disableVibration.Bool()) {
+                if (!false) {
                     try {
                         performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                     } catch (Exception ignore) {}

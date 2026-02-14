@@ -122,7 +122,7 @@ public class ApplicationLoader extends Application {
 
     public static IMapsProvider getMapsProvider() {
         if (mapsProvider == null) {
-            if (NekoConfig.useOSMDroidMap.Bool())
+            if (false)
                 mapsProvider = new OSMDroidMapsProvider();
             else {
                 mapsProvider = new GoogleMapsProvider();
@@ -193,13 +193,13 @@ public class ApplicationLoader extends Application {
 
     public static File getFilesDirFixed() {
         File filesDir = new File(getDataDirFixed(), "files");
-        FileUtil.initDir(filesDir);
+        filesDir.mkdirs();
         return filesDir;
     }
 
     public static File getCacheDirFixed() {
         File filesDir = new File(getDataDirFixed(), "cache");
-        FileUtil.initDir(filesDir);
+        filesDir.mkdirs();
         return filesDir;
     }
 
@@ -354,7 +354,7 @@ public class ApplicationLoader extends Application {
             applicationContext = getApplicationContext();
         }
 
-        Utilities.stageQueue.postRunnable(() -> SignturesKt.checkMT(this));
+        // NekoX checkMT removed
 
         NativeLoader.initNativeLibs(ApplicationLoader.applicationContext);
         try {
@@ -395,7 +395,7 @@ public class ApplicationLoader extends Application {
 
     private static Intent createNotificationsServiceIntent() {
         Intent intent = new Intent(applicationContext, NotificationsService.class);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && NaConfig.INSTANCE.getPushServiceTypeInAppDialog().Bool()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && false) {
             intent.setAction(NotificationsService.ACTION_START_FOREGROUND);
         } else {
             intent.setAction(NotificationsService.ACTION_START_BACKGROUND);
@@ -423,7 +423,7 @@ public class ApplicationLoader extends Application {
             AndroidUtilities.runOnUIThread(() -> {
                 try {
                     Log.d("TFOSS", "Starting push service...");
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && NaConfig.INSTANCE.getPushServiceTypeInAppDialog().Bool()) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && false) {
                         applicationContext.startForegroundService(createNotificationsServiceIntent());
                     } else {
                         applicationContext.startService(createNotificationsServiceIntent());

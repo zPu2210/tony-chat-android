@@ -767,13 +767,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                         presentFragment(new ChatActivity(args));
                     }
                     drawerLayoutContainer.closeDrawer(false);
-                } else if (id == 13) {
-                    if (MessagesController.getInstance(currentAccount).isFrozen()) {
-                        AccountFrozenAlert.show(currentAccount);
-                        return;
-                    }
-                    Browser.openUrl(LaunchActivity.this, UpdateUtil.getTipsUrl());
-                    drawerLayoutContainer.closeDrawer(false);
                 } else if (id == 15) {
                     showSelectStatusDialog();
                 } else if (id == 16) {
@@ -805,16 +798,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
 
                     StoryRecorder.getInstance(LaunchActivity.this, currentAccount).open(null);
                     drawerLayoutContainer.closeDrawer(true);
-                } else if (id == DrawerLayoutAdapter.nkbtnWiki) {
-                    if (MessagesController.getInstance(currentAccount).isFrozen()) {
-                        AccountFrozenAlert.show(currentAccount);
-                        return;
-                    }
-                    Browser.openInTelegramBrowser(LaunchActivity.this, UpdateUtil.wikiUrl, null);
-                    drawerLayoutContainer.closeDrawer(false);
-                } else if (id == DrawerLayoutAdapter.nkbtnChatHistory) {
-                    presentFragment(new tw.nekomimi.nekogram.ChatHistoryActivity());
-                    drawerLayoutContainer.closeDrawer(false);
                 }
             }
         });
@@ -1104,7 +1087,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
 
 //        UIUtil.runOnIoDispatcher(() -> {
 //            ExternalGcm.checkUpdate(this);
-//            if (NekoConfig.autoUpdateSubInfo.Bool())
+//            if (true)
 //                for (SubInfo subInfo : SubManager.getSubList().find()) {
 //                    if (subInfo == null || !subInfo.enable) continue;
 //                    try {
@@ -1160,14 +1143,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
 
         AndroidUtilities.enableEdgeToEdge(this);
 
-        Utilities.globalQueue.postRunnable(() -> {
-            EmojiHelper.getInstance().checkEmojiPacks();
-            WallpaperHelper.getInstance().checkWallPaper();
-            PeerColorHelper.getInstance().checkPeerColor();
-            PagePreviewRulesHelper.getInstance().checkPagePreviewRules();
-            ChatExtraButtonsHelper.getInstance().checkChatExtraButtons();
-            InlineBotRulesHelper.getInstance().checkInlineBotRules();
-        });
+        // Removed: NekoX helper checks (emoji packs, wallpaper, peer color, etc.)
         BackupAgent.requestBackup(this);
 
         org.telegram.messenger.TranslateController.checkRestrictedLanguages(false);
@@ -1812,8 +1788,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
             NotificationCenter.getInstance(currentAccount).removeObserver(this, NotificationCenter.currentUserPremiumStatusChanged);
             NotificationCenter.getInstance(currentAccount).removeObserver(this, NotificationCenter.chatSwitchedForum);
             NotificationCenter.getInstance(currentAccount).removeObserver(this, NotificationCenter.storiesEnabledUpdate);
-            // Na: [ExternalStickerCache] remove observers
-            ExternalStickerCacheHelper.removeNotificationObservers(currentAccount);
         }
         currentAccount = UserConfig.selectedAccount;
         NotificationCenter.getInstance(currentAccount).addObserver(this, NotificationCenter.openBoostForUsersDialog);
@@ -1837,8 +1811,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         NotificationCenter.getInstance(currentAccount).addObserver(this, NotificationCenter.currentUserPremiumStatusChanged);
         NotificationCenter.getInstance(currentAccount).addObserver(this, NotificationCenter.chatSwitchedForum);
         NotificationCenter.getInstance(currentAccount).addObserver(this, NotificationCenter.storiesEnabledUpdate);
-        // Na: [ExternalStickerCache] add observers
-        ExternalStickerCacheHelper.addNotificationObservers(currentAccount);
     }
 
     private void checkLayout() {
@@ -2612,17 +2584,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                                 conferenceSlug = path.replace("call/", "");
                                             } else if (path.startsWith("addemoji/")) {
                                                 emoji = path.replace("addemoji/", "");
-                                            } else if (path.startsWith("nasettings/")) {
-                                                SettingsHelper.processDeepLink(this, data, fragment -> {
-                                                    AndroidUtilities.runOnUIThread(() -> presentFragment(fragment, false, false));
-                                                    if (AndroidUtilities.isTablet()) {
-                                                        actionBarLayout.showLastFragment();
-                                                        rightActionBarLayout.showLastFragment();
-                                                        drawerLayoutContainer.setAllowOpenDrawer(false, false);
-                                                    } else {
-                                                        drawerLayoutContainer.setAllowOpenDrawer(true, false);
-                                                    }
-                                                }, () -> showBulletin(factory -> factory.createErrorBulletin(LocaleController.getString("UnknownNekoSettingsOption", R.string.UnknownNekoSettingsOption))));
                                             } else if (path.startsWith("msg/") || path.startsWith("share/")) {
                                                 message = data.getQueryParameter("url");
                                                 if (message == null) {
@@ -3177,19 +3138,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                             FileLog.e(e);
                                         }
                                         checkAppUpdate(true, null, updateAlways);
-                                    } else if (url.startsWith("tg:neko") || url.startsWith("tg://neko")) {
-                                        url = url.replace("tg:neko", "tg://t.me/nasettings").replace("tg://neko", "tg://t.me/nasettings");
-                                        data = Uri.parse(url);
-                                        SettingsHelper.processDeepLink(this, data, fragment -> {
-                                            AndroidUtilities.runOnUIThread(() -> presentFragment(fragment, false, false));
-                                            if (AndroidUtilities.isTablet()) {
-                                                actionBarLayout.showLastFragment();
-                                                rightActionBarLayout.showLastFragment();
-                                                drawerLayoutContainer.setAllowOpenDrawer(false, false);
-                                            } else {
-                                                drawerLayoutContainer.setAllowOpenDrawer(true, false);
-                                            }
-                                        }, () -> showBulletin(factory -> factory.createErrorBulletin(LocaleController.getString("UnknownNekoSettingsOption", R.string.UnknownNekoSettingsOption))));
                                     } else if ((url.startsWith("tg:search") || url.startsWith("tg://search"))) {
                                         url = url.replace("tg:search", "tg://telegram.org").replace("tg://search", "tg://telegram.org");
                                         data = Uri.parse(url);
@@ -6459,40 +6407,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         if (req.source == null) {
             req.source = "";
         }
-        final int accountNum = currentAccount;
-        if (progress != null) progress.init();
-        UpdateHelper.getInstance().checkNewVersionAvailable((res, error) -> {
-            SharedConfig.lastUpdateCheckTime = System.currentTimeMillis();
-            SharedConfig.saveConfig();
-            AndroidUtilities.runOnUIThread(() -> {
-                if (res != null) {
-                    SharedConfig.setNewAppVersionAvailable(res);
-                    if (res.can_not_skip) {
-                        showUpdateActivity(accountNum, res, false);
-                    } else {
-                        drawerLayoutAdapter.notifyDataSetChanged();
-                        ApplicationLoader.applicationLoaderInstance.showUpdateAppPopup(LaunchActivity.this, res, accountNum);
-                    }
-                } else {
-                    if (force) {
-                        BaseFragment fragment = getLastFragment();
-                        if (fragment != null) {
-                            if (error == null) {
-                                BulletinFactory.of(fragment).createSimpleBulletin(R.raw.chats_infotip, LocaleController.getString(R.string.YourVersionIsLatest)).show();
-                            } else {
-                                AlertsCreator.createSimpleAlert(this, LocaleController.getString("ErrorOccurred", R.string.ErrorOccurred) + "\n" + error).show();
-                            }
-                        }
-                    }
-                    SharedConfig.setNewAppVersionAvailable(null);
-                    drawerLayoutAdapter.notifyDataSetChanged();
-                }
-                NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.appUpdateAvailable);
-                if (progress != null) {
-                    progress.end();
-                }
-            });
-        }, updateAlways);
         if (progress != null) {
             progress.init();
         }
@@ -7389,15 +7303,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
             }
         }
 
-        if (NaConfig.INSTANCE.getDisableProxyWhenVpnEnabled().Bool()) {
-            if (SharedConfig.isProxyEnabled() && ProxyUtil.isVPNEnabled()) {
-                SharedConfig.setProxyEnable(false);
-            } else if (!ProxyUtil.isVPNEnabled()) {
-                SharedConfig.setProxyEnable(true);
-            }
-            ProxyUtil.registerNetworkCallback();
-            NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.proxySettingsChanged);
-        }
 
         ConnectionsManager.getInstance(currentAccount).setAppPaused(false, false);
         updateCurrentConnectionState(currentAccount);

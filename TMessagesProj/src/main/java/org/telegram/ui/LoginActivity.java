@@ -1248,7 +1248,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
     }
 
     private void onFieldError(View view, boolean allowErrorSelection) {
-        if (!NekoConfig.disableVibration.Bool()) {
+        if (!false) {
             try {
                 view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
             } catch (Exception ignored) {}
@@ -5044,7 +5044,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
 
                             animateSuccess(()-> {
                                 try {
-                                    if (!NekoConfig.disableVibration.Bool())
+                                    if (!false)
                                         fragmentView.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                                 } catch (Exception ignored) {}
                                 new AlertDialog.Builder(getContext())
@@ -5307,7 +5307,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
 
         private void shakeWrongCode() {
             try {
-                if (!NekoConfig.disableVibration.Bool())
+                if (!false)
                     codeFieldContainer.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
             } catch (Exception ignore) {}
 
@@ -6300,7 +6300,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                 return;
             }
             try {
-                if (!NekoConfig.disableVibration.Bool())
+                if (!false)
                     emailOutlineView.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
             } catch (Exception ignore) {}
             if (clear) {
@@ -6911,7 +6911,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                 return;
             }
             try {
-                if (!NekoConfig.disableVibration.Bool())
+                if (!false)
                     codeFieldContainer.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
             } catch (Exception ignore) {}
             if (clear) {
@@ -7122,7 +7122,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
 
         private void shakeWrongCode() {
             try {
-                if (!NekoConfig.disableVibration.Bool())
+                if (!false)
                     codeFieldContainer.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
             } catch (Exception ignore) {}
 
@@ -7369,7 +7369,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                 return;
             }
             try {
-                if (!NekoConfig.disableVibration.Bool())
+                if (!false)
                     codeFieldContainer.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
             } catch (Exception ignore) {}
             if (clear) {
@@ -7707,7 +7707,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                 return;
             }
             try {
-                if (!NekoConfig.disableVibration.Bool())
+                if (!false)
                     codeField[num].performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
             } catch (Exception ignore) {}
             AndroidUtilities.shakeView(codeField[num]);
@@ -9587,7 +9587,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                 return;
             }
             try {
-                if (!NekoConfig.disableVibration.Bool())
+                if (!false)
                 codeField.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
             } catch (Exception ignore) {}
             final int a = currentType == AUTH_TYPE_WORD ? 0 : 1;
@@ -10686,118 +10686,6 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
     }
 
     public void doCustomApi() {
-        AtomicInteger targetApi = new AtomicInteger(NekoXConfig.customApi);
-        BottomBuilder builder = new BottomBuilder(getParentActivity());
-        EditText[] inputs = new EditText[2];
-        builder.addTitle(LocaleController.getString(R.string.CustomApi),
-                true,
-                LocaleController.getString(R.string.UseCustomApiNotice));
-        builder.addRadioItem(LocaleController.getString(R.string.CustomApiNo), NekoXConfig.customApi == -1 || NekoXConfig.customApi == 0, (cell) -> {
-            targetApi.set(0);
-            builder.doRadioCheck(cell);
-            for (EditText input : inputs) {
-                input.setVisibility(View.GONE);
-            }
-            return Unit.INSTANCE;
-        });
-        builder.addRadioItem(LocaleController.getString(R.string.CustomApiOfficial), NekoXConfig.customApi == 1, (cell) -> {
-            targetApi.set(1);
-            builder.doRadioCheck(cell);
-            for (EditText input : inputs) {
-                input.setVisibility(View.GONE);
-            }
-            return Unit.INSTANCE;
-        });
-        builder.addRadioItem(LocaleController.getString(R.string.CustomApiTGX), NekoXConfig.customApi == 2, (cell) -> {
-            targetApi.set(2);
-            builder.doRadioCheck(cell);
-            for (EditText input : inputs) {
-                input.setVisibility(View.GONE);
-            }
-            return Unit.INSTANCE;
-        });
-        builder.addRadioItem(LocaleController.getString(R.string.CustomApiInput), NekoXConfig.customApi > 2, (cell) -> {
-            targetApi.set(3);
-            builder.doRadioCheck(cell);
-            for (EditText input : inputs) {
-                input.setVisibility(View.VISIBLE);
-            }
-            return Unit.INSTANCE;
-        });
-        inputs[0] = builder.addEditText("App Id");
-        inputs[0].setInputType(InputType.TYPE_CLASS_NUMBER);
-        if (NekoXConfig.customAppId != 0) {
-            inputs[0].setText(NekoXConfig.customAppId + "");
-        }
-        inputs[0].addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (StrUtil.isBlank(s.toString())) {
-                    NekoXConfig.customAppId = 0;
-                } else if (!NumberUtil.isInteger(s.toString())) {
-                    inputs[0].setText("0");
-                } else {
-                    NekoXConfig.customAppId = NumberUtil.parseInt(s.toString());
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-        inputs[1] = builder.addEditText("App Hash");
-        inputs[1].setFilters(new InputFilter[]{new InputFilter.LengthFilter(BuildVars.OFFICAL_APP_HASH.length())});
-        if (StrUtil.isNotBlank(NekoXConfig.customAppHash)) {
-            inputs[1].setText(NekoXConfig.customAppHash);
-        }
-        inputs[1].addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                NekoXConfig.customAppHash = s.toString();
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-        if (NekoXConfig.customApi <= 2) {
-            for (EditText input : inputs) {
-                input.setVisibility(View.GONE);
-            }
-        }
-        builder.addCancelButton();
-        builder.addButton(LocaleController.getString(R.string.Set), (it) -> {
-            int target = targetApi.get();
-            if (target > 2) {
-                if (NekoXConfig.customAppId == 0) {
-                    inputs[0].requestFocus();
-                    AndroidUtilities.showKeyboard(inputs[0]);
-                    return Unit.INSTANCE;
-                } else if (StrUtil.isBlank(NekoXConfig.customAppHash)) {
-                    inputs[1].requestFocus();
-                    AndroidUtilities.showKeyboard(inputs[1]);
-                    return Unit.INSTANCE;
-                }
-            }
-            NekoXConfig.customApi = target;
-            NekoXConfig.saveCustomApi();
-            AlertDialog restart = new AlertDialog(getContext(), 0);
-            restart.setTitle(LocaleController.getString(R.string.NekoX));
-            restart.setMessage(LocaleController.getString(R.string.RestartAppToTakeEffect));
-            restart.setPositiveButton(LocaleController.getString(R.string.OK), (__, ___) -> {
-                ProcessPhoenix.triggerRebirth(getContext(), new Intent(getContext(), LaunchActivity.class));
-            });
-            restart.show();
-            return Unit.INSTANCE;
-        });
-        builder.show();
+        // NekoX custom API settings removed - stub only
     }
 }

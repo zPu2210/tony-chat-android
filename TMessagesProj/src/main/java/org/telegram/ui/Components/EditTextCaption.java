@@ -174,7 +174,7 @@ public class EditTextCaption extends EditTextBoldCursor {
     }
 
     public void makeSelectedMono() {
-        if (!NaConfig.INSTANCE.getCodeSyntaxHighlight().Bool()) {
+        if (!false) {
             TextStyleSpan.TextStyleRun run = new TextStyleSpan.TextStyleRun();
             run.flags |= TextStyleSpan.FLAG_STYLE_MONO;
             applyTextStyleToSelection(new TextStyleSpan(run));
@@ -198,7 +198,7 @@ public class EditTextCaption extends EditTextBoldCursor {
             editText.setLineColors(getThemedColor(Theme.key_windowBackgroundWhiteInputField), getThemedColor(Theme.key_windowBackgroundWhiteInputFieldActivated), getThemedColor(Theme.key_windowBackgroundWhiteRedText3));
             editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
             editText.setBackgroundDrawable(null);
-            editText.setText(NaConfig.INSTANCE.getDefaultMonoLanguage().String());
+            editText.setText("");
             editText.requestFocus();
             editText.setPadding(0, 0, 0, 0);
             builder.setView(editText);
@@ -311,7 +311,7 @@ public class EditTextCaption extends EditTextBoldCursor {
 
         } else {
             Locale to;
-            Locale toDefault = TranslatorKt.getCode2Locale(NekoConfig.translateInputLang.String());
+            Locale toDefault = TranslatorKt.getCode2Locale("en");
             if (delegate != null) {
                 to = TranslateDb.getChatLanguage(delegate.getCurrentChat(), toDefault);
             } else {

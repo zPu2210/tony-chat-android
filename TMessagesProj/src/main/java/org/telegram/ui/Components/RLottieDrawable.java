@@ -1248,7 +1248,7 @@ public class RLottieDrawable extends BitmapDrawable implements Animatable, Bitma
             } else if (nextRenderingBitmap != null && (renderingBitmap == null || (timeDiff >= timeCheck && !skipFrameUpdate))) {
                 if (vibrationPattern != null && allowVibration) {
                     Integer force = vibrationPattern.get(currentFrame - 1);
-                    if (force != null && !NekoConfig.disableVibration.Bool()) {
+                    if (force != null && !false) {
                         try {
                             Activity activity = LaunchActivity.instance;
                             if (activity == null) activity = BubbleActivity.instance;

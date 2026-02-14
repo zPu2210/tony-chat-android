@@ -515,7 +515,7 @@ public class PhotoAlbumPickerActivity extends BaseFragment implements Notificati
                             sendPopupWindow.dismiss();
                         }
                         if (num == 0) {
-                            translateComment(TranslateDb.getChatLanguage(chatId, TranslatorKt.getCode2Locale(NekoConfig.translateInputLang.String())));
+                            translateComment(TranslateDb.getChatLanguage(chatId, TranslatorKt.getCode2Locale("en")));
                         } else if (num == 1) {
                             AlertsCreator.createScheduleDatePickerDialog(getParentActivity(), chatActivity.getDialogId(), (notify, scheduleDate, scheduleRepeatPeriod) -> {
                                 sendSelectedPhotos(selectedPhotos, selectedPhotosOrder, notify, scheduleDate);
@@ -527,17 +527,7 @@ public class PhotoAlbumPickerActivity extends BaseFragment implements Notificati
                         }
                     });
                     itemCells[a].setOnLongClickListener(v -> {
-                        if (num == 0) {
-                            Translator.showTargetLangSelect(itemCells[num], true, (locale) -> {
-                                if (sendPopupWindow != null && sendPopupWindow.isShowing()) {
-                                    sendPopupWindow.dismiss();
-                                }
-                                translateComment(locale);
-                                TranslateDb.saveChatLanguage(chatId, locale);
-                                return Unit.INSTANCE;
-                            });
-                            return true;
-                        }
+                        // NekoX translator removed
                         return false;
                     });
                 }
@@ -559,7 +549,7 @@ public class PhotoAlbumPickerActivity extends BaseFragment implements Notificati
             view.getLocationInWindow(location);
             sendPopupWindow.showAtLocation(view, Gravity.LEFT | Gravity.TOP, location[0] + view.getMeasuredWidth() - sendPopupLayout.getMeasuredWidth() + AndroidUtilities.dp(8), location[1] - sendPopupLayout.getMeasuredHeight() - AndroidUtilities.dp(2));
             sendPopupWindow.dimBehind();
-            if (!NekoConfig.disableVibration.Bool()) {
+            if (!false) {
                 try {
                     view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                 } catch (Exception ignored) {}

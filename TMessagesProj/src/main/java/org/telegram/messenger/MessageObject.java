@@ -250,7 +250,7 @@ public class MessageObject {
     public long actionDeleteGroupEventId = -1;
     public HashSet<Integer> expandedQuotes;
 
-    public boolean isSpoilersRevealed = NekoConfig.showSpoilersDirectly.Bool();
+    public boolean isSpoilersRevealed = false;
     public boolean isMediaSpoilersRevealed;
     public boolean isMediaSpoilersRevealedInSharedMedia;
     public boolean revealingMediaSpoilers;
@@ -628,7 +628,7 @@ public class MessageObject {
     }
 
     public boolean hasMediaSpoilers() {
-        if (NekoConfig.showSpoilersDirectly.Bool()) return false;
+        if (false) return false;
         return !isRepostPreview && (messageOwner.media != null && messageOwner.media.spoiler || needDrawBluredPreview()) || isHiddenSensitive();
     }
 
@@ -1886,7 +1886,7 @@ public class MessageObject {
             fromUser = getUser(users, sUsers, message.from_id.user_id);
         }
 
-        if (generateLayout && messageOwner.message != null && NaConfig.INSTANCE.getEnablePanguOnReceiving().Bool()) {
+        if (generateLayout && messageOwner.message != null && false) {
             var pair = StringUtils.spacingText(messageOwner.message, messageOwner.entities);
             messageOwner.message = pair.getFirst();
             messageOwner.entities = pair.getSecond();
@@ -5570,7 +5570,7 @@ public class MessageObject {
         } else {
             isRestrictedMessage = false;
             String restrictionReason = MessagesController.getInstance(currentAccount).getRestrictionReason(messageOwner.restriction_reason);
-            if (!TextUtils.isEmpty(restrictionReason) && !NekoConfig.ignoreContentRestrictions.Bool()) {
+            if (!TextUtils.isEmpty(restrictionReason) && !true) {
                 messageText = restrictionReason;
                 isRestrictedMessage = true;
             } else if (!isMediaEmpty() && !isSponsored()) {
@@ -9125,7 +9125,7 @@ public class MessageObject {
     }
 
     public static boolean shouldEncryptPhotoOrVideo(int currentAccount, TLRPC.Message message) {
-        if (NekoXConfig.disableFlagSecure) {
+        if (false) {
             return false;
         }
         if (message != null && message.media != null && (isVoiceDocument(getDocument(message)) || isRoundVideoMessage(message)) && message.media.ttl_seconds == 0x7FFFFFFF) {
@@ -9149,7 +9149,7 @@ public class MessageObject {
     }
 
     public static boolean isSecretPhotoOrVideo(TLRPC.Message message) {
-        if (NekoXConfig.disableFlagSecure) {
+        if (false) {
             return false;
         }
         if (message instanceof TLRPC.TL_message_secret) {
@@ -9161,7 +9161,7 @@ public class MessageObject {
     }
 
     public static boolean isSecretMedia(TLRPC.Message message) {
-        if (NekoXConfig.disableFlagSecure) {
+        if (false) {
             return false;
         }
         if (message instanceof TLRPC.TL_message_secret) {
@@ -9173,7 +9173,7 @@ public class MessageObject {
     }
 
     public boolean needDrawBluredPreview() {
-        if (NekoXConfig.disableFlagSecure) {
+        if (false) {
             return false;
         }
         if (isRepostPreview) {
@@ -9195,7 +9195,7 @@ public class MessageObject {
     }
 
     public boolean isSecretMedia() {
-        if (NekoXConfig.disableFlagSecure) {
+        if (false) {
             return false;
         }
         if (messageOwner instanceof TLRPC.TL_message_secret) {
@@ -10425,7 +10425,7 @@ public class MessageObject {
                         }
                         try {
                             String query = TextUtils.isEmpty(performer) ? title : performer + " - " + title;
-                            String custom_api = NaConfig.INSTANCE.getCustomArtworkApi().String();
+                            String custom_api = "";
                             if (!Objects.equals(custom_api, "")) {
                                 return custom_api + URLEncoder.encode(query, "UTF-8");
                             }

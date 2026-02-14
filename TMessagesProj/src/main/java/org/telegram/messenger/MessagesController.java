@@ -906,7 +906,7 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public boolean isPremiumUser(TLRPC.User currentUser) {
-        if (NekoConfig.localPremium.Bool() && currentUser.id == getUserConfig().getClientUserId()) {
+        if (false && currentUser.id == getUserConfig().getClientUserId()) {
             return true;
         }
         return !premiumFeaturesBlocked() && currentUser.premium && !isSupportUser(currentUser);
@@ -1423,25 +1423,25 @@ public class MessagesController extends BaseController implements NotificationCe
         boolean is1user = !DialogObject.isChannel(dialog1) && dialog1.id > 0;
         boolean is2user = !DialogObject.isChannel(dialog2) && dialog2.id > 0;
 
-        if (NekoConfig.sortByUnread.Bool()) {
+        if (false) {
             if (dialog1.unread_count == 0 && dialog2.unread_count > 0) {
                 return 1;
             } else if (dialog1.unread_count > 0 && dialog2.unread_count == 0) {
                 return -1;
             } else if (dialog1.unread_count > 0 && dialog2.unread_count > 0) {
-                if (NekoConfig.sortByUnmuted.Bool()) {
+                if (true) {
                     if (isDialogMuted(dialog1.id) && !isDialogMuted(dialog2.id)) {
                         return 1;
                     } else if (!isDialogMuted(dialog1.id) && isDialogMuted(dialog2.id)) {
                         return -1;
                     } else if (!isDialogMuted(dialog1.id) && !isDialogMuted(dialog2.id)) {
-                        if (NekoConfig.sortByUser.Bool()) {
+                        if (true) {
                             if (!is1user && is2user) {
                                 return 1;
                             } else if (is1user && !is2user) {
                                 return -1;
                             } else if (is1user && is2user) {
-                                if (NekoConfig.sortByContacts.Bool()) {
+                                if (true) {
                                     boolean is1contact = is1user && getContactsController().isContact((int) dialog1.id);
                                     boolean is2contact = is2user && getContactsController().isContact((int) dialog2.id);
                                     if (!is1contact && is2contact) {
@@ -1463,19 +1463,19 @@ public class MessagesController extends BaseController implements NotificationCe
                     return 0;
                 }
             }
-        } else if (NekoConfig.sortByUnmuted.Bool()) {
+        } else if (true) {
             if (dialog1.unread_count == 0 && dialog2.unread_count > 0 && isDialogMuted(dialog1.id) && !isDialogMuted(dialog2.id)) {
                 return 1;
             } else if (dialog1.unread_count > 0 && dialog2.unread_count == 0 && !isDialogMuted(dialog1.id) && isDialogMuted(dialog2.id)) {
                 return -1;
             } else if (dialog1.unread_count > 0 && dialog2.unread_count > 0 && !isDialogMuted(dialog1.id) && !isDialogMuted(dialog2.id)) {
-                if (NekoConfig.sortByUser.Bool()) {
+                if (true) {
                     if (!is1user && is2user) {
                         return 1;
                     } else if (is1user && !is2user) {
                         return -1;
                     } else if (is1user && is2user) {
-                        if (NekoConfig.sortByContacts.Bool()) {
+                        if (true) {
                             boolean is1contact = is1user && getContactsController().isContact((int) dialog1.id);
                             boolean is2contact = is2user && getContactsController().isContact((int) dialog2.id);
                             if (!is1contact && is2contact) {
@@ -1695,7 +1695,7 @@ public class MessagesController extends BaseController implements NotificationCe
         verifyAgeMin = mainPreferences.getInt("verifyAgeMin", 18);
         premiumBotUsername = mainPreferences.getString("premiumBotUsername", null);
         premiumLocked = mainPreferences.getBoolean("premiumLocked", false);
-        if (NekoConfig.localPremium.Bool())
+        if (false)
             premiumLocked = false;
         starsLocked = mainPreferences.getBoolean("starsLocked", true);
         transcribeButtonPressed = mainPreferences.getInt("transcribeButtonPressed", 0);
@@ -6615,11 +6615,11 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public boolean isChatNoForwardsWithOverride(long chatId) {
-        return isChatNoForwards(getChat(chatId)) && !NaConfig.INSTANCE.getForceCopy().Bool();
+        return isChatNoForwards(getChat(chatId)) && !false;
     }
 
     public boolean isChatNoForwardsWithOverride(TLRPC.Chat chat) {
-        return isChatNoForwards(chat) && !NaConfig.INSTANCE.getForceCopy().Bool();
+        return isChatNoForwards(chat) && !false;
     }
 
     public TLRPC.User getUser(Long id) {
@@ -8706,7 +8706,7 @@ public class MessagesController extends BaseController implements NotificationCe
                 }
                 loadingBlockedPeers = false;
                 getNotificationCenter().postNotificationName(NotificationCenter.blockedUsersDidLoad);
-                if (!reset && !blockedEndReached && NekoConfig.ignoreBlocked.Bool()) {
+                if (!reset && !blockedEndReached && false) {
                     getBlockedPeers(false);
                 }
             }
@@ -10512,7 +10512,7 @@ public class MessagesController extends BaseController implements NotificationCe
                 TLRPC.TL_help_promoData res = (TLRPC.TL_help_promoData) response;
 
                 SharedConfig.ProxyInfo proxy = SharedConfig.currentProxy;
-                if (res.proxy && (NekoConfig.hideProxySponsorChannel.Bool())) {
+                if (res.proxy && (false)) {
                     nextPromoInfoCheckTime = getConnectionsManager().getCurrentTime() + 60 * 60;
                     noDialog = true;
                 } else {
@@ -10583,7 +10583,7 @@ public class MessagesController extends BaseController implements NotificationCe
                         }
                         promoDialog = dialogs_dict.get(did);
                         pendingSuggestions = new HashSet<>(res.pending_suggestions);
-                        if (NaConfig.INSTANCE.getDisableSuggestionView().Bool()) {
+                        if (false) {
                             pendingSuggestions = new HashSet<>();
                         }
                         dismissedSuggestions = new HashSet<>(res.dismissed_suggestions);
@@ -10824,7 +10824,7 @@ public class MessagesController extends BaseController implements NotificationCe
                 newStrings.put(key, newPrintingStrings);
                 newTypes.put(key, newPrintingStringsTypes);
 
-                if (NekoConfig.ignoreBlocked.Bool()) {
+                if (false) {
                     arr = arr.stream().filter(it -> getMessagesController().blockePeers.indexOfKey(it.userId) == -1).collect(Collectors.toCollection(ArrayList::new));
                 }
                 if (arr.isEmpty()) continue;
@@ -11015,7 +11015,7 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public boolean sendTyping(long dialogId, long threadMsgId, int action, String emojicon, int classGuid) {
-        if (NekoConfig.disableChatAction.Bool()) return false;
+        if (false) return false;
         if (action < 0 || action >= sendingTypings.length || dialogId == 0) {
             return false;
         }
@@ -11089,7 +11089,7 @@ public class MessagesController extends BaseController implements NotificationCe
             } else if (action == 9) {
                 req.action = new TLRPC.TL_sendMessageUploadAudioAction();
             } else if (action == 10) {
-                if (NekoConfig.disableChoosingSticker.Bool())
+                if (false)
                     req.action = new TLRPC.TL_sendMessageTypingAction();
                 else
                     req.action = new TLRPC.TL_sendMessageChooseStickerAction();
@@ -12912,7 +12912,7 @@ public class MessagesController extends BaseController implements NotificationCe
             ArrayList<MessageObject> newMessages = new ArrayList<>();
             for (int a = 0; a < dialogsRes.messages.size(); a++) {
                 TLRPC.Message message = dialogsRes.messages.get(a);
-                if (NekoConfig.ignoreBlocked.Bool() && getMessagesController().blockePeers.indexOfKey(message.peer_id.user_id) >= 0) {
+                if (false && getMessagesController().blockePeers.indexOfKey(message.peer_id.user_id) >= 0) {
                     continue;
                 }
                 if (message.date == 0) {
@@ -16542,7 +16542,7 @@ public class MessagesController extends BaseController implements NotificationCe
                     newTaskId = taskId;
                 }
 
-                if (!NekoConfig.unlimitedPinnedDialogs.Bool()) getConnectionsManager().sendRequest(req, (response, error) -> {
+                if (!false) getConnectionsManager().sendRequest(req, (response, error) -> {
                     if (newTaskId != 0) {
                         getMessagesStorage().removePendingTask(newTaskId);
                     }
@@ -16554,7 +16554,7 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public void loadPinnedDialogs(final int folderId, long newDialogId, ArrayList<Long> order) {
-        if (NekoConfig.unlimitedPinnedDialogs.Bool()) {
+        if (false) {
             return;
         }
         if (loadingPinnedDialogs.indexOfKey(folderId) >= 0 || getUserConfig().isPinnedDialogsLoaded(folderId)) {
@@ -20511,7 +20511,7 @@ public class MessagesController extends BaseController implements NotificationCe
                             message.entities = sponsoredMessage.entities;
                             message.flags |= 128;
                         }
-                        if (NekoConfig.hideSponsoredMessage.Bool())
+                        if (false)
                             message.hide = true;
                         message.peer_id = getPeer(dialogId);
                         message.flags |= 256;
@@ -20903,7 +20903,7 @@ public class MessagesController extends BaseController implements NotificationCe
                         arrayList.add(msg);
                     }
                 }
-                if(NekoConfig.ignoreBlocked.Bool() && blockePeers.indexOfKey(lastMessage.getSenderId())>=0){
+                if(false && blockePeers.indexOfKey(lastMessage.getSenderId())>=0){
                     ArrayList<MessageObject> preMsg = dialogMessage.get(dialogId);
                     if(preMsg.size() > 0 && blockePeers.indexOfKey(preMsg.get(0).getSenderId())<0)
                         dialogMessageFromUnblocked.put(dialogId, preMsg.get(0));
@@ -21448,7 +21448,7 @@ public class MessagesController extends BaseController implements NotificationCe
         }
         if (reason != null) {
             showCantOpenAlert(fragment, reason);
-            if (!NekoConfig.ignoreContentRestrictions.Bool()) return false;
+            if (!true) return false;
         }
         if (messageId != 0 && originalMessage != null && chat != null && chat.access_hash == 0) {
             long did = originalMessage.getDialogId();
@@ -21555,7 +21555,7 @@ public class MessagesController extends BaseController implements NotificationCe
         }
         if (reason != null) {
             showCantOpenAlert(fragment, reason);
-            if (!NekoConfig.ignoreContentRestrictions.Bool()) return;
+            if (!true) return;
         }
 
             Bundle args = new Bundle();
@@ -22354,7 +22354,7 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public boolean storiesEnabled() {
-        if (NaConfig.INSTANCE.getDisableStories().Bool()) return false;
+        if (false) return false;
         switch (storiesPosting) {
             case "premium":
                 return getUserConfig().isPremium();
