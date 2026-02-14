@@ -1,1134 +1,167 @@
 package xyz.nextalone.nagram
 
-import android.content.Context
-import android.content.SharedPreferences
 import android.net.Uri
-import android.util.Base64
-import org.telegram.messenger.ApplicationLoader
-import org.telegram.messenger.LocaleController
-import org.telegram.messenger.R
 import tw.nekomimi.nekogram.config.ConfigItem
 import tw.nekomimi.nekogram.config.ConfigItemKeyLinked
-import java.io.ByteArrayInputStream
-import java.io.ObjectInputStream
-import androidx.core.net.toUri
 
-
+/**
+ * Nagram configuration stub
+ * Original config system removed - all features return safe defaults
+ */
 object NaConfig {
-    const val TAG =
-        "NextAlone"
-    val preferences: SharedPreferences =
-        ApplicationLoader.applicationContext.getSharedPreferences(
-            "nkmrcfg",
-            Context.MODE_PRIVATE
-        )
-    val sync =
-        Any()
-    private var configLoaded =
-        false
-    private val configs =
-        ArrayList<ConfigItem>()
+    const val TAG = "NextAlone"
 
-    // Configs
-    val forceCopy =
-        addConfig(
-            "ForceCopy",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val disableSecondAddress =
-        addConfig(
-            "disableSecondAddress",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val showInvertReply =
-        addConfig(
-            "InvertReply",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val showGreatOrPoor =
-        addConfig(
-            "GreatOrPoor",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val showTextBold =
-        addConfig(
-            "TextBold",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val showTextItalic =
-        addConfig(
-            "TextItalic",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val showTextMono =
-        addConfig(
-            "TextMonospace",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val showTextStrikethrough =
-        addConfig(
-            "TextStrikethrough",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val showTextUnderline =
-        addConfig(
-            "TextUnderline",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val showTextQuote =
-        addConfig(
-            "TextQuote",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val showTextSpoiler =
-        addConfig(
-            "TextSpoiler",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val showTextCreateLink =
-        addConfig(
-            "TextLink",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val showTextCreateMention =
-        addConfig(
-            "TextCreateMention",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val showTextRegular =
-        addConfig(
-            "TextRegular",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val combineMessage =
-        addConfig(
-            "CombineMessage",
-            ConfigItem.configTypeInt,
-            0
-        )
-    val showTextUndoRedo =
-        addConfig(
-            "TextUndoRedo",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val noiseSuppressAndVoiceEnhance =
-        addConfig(
-            "NoiseSuppressAndVoiceEnhance",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val showNoQuoteForward =
-        addConfig(
-            "NoQuoteForward",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val showRepeatAsCopy =
-        addConfig(
-            "RepeatAsCopy",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val doubleTapAction =
-        addConfig(
-            "DoubleTapAction",
-            ConfigItem.configTypeInt,
-            0
-        )
-    val showCopyPhoto =
-        addConfig(
-            "CopyPhoto",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val showReactions =
-        addConfig(
-            "Reactions",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val showServicesTime =
-        addConfig(
-            "ShowServicesTime",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val customTitle =
-        addConfig(
-            "CustomTitle",
-            ConfigItem.configTypeString,
-            LocaleController.getString(
-                R.string.NekoX
-            )
-        )
-    val useSystemUnlock =
-        addConfig(
-            "UseSystemUnlock",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val codeSyntaxHighlight =
-        addConfig(
-            "CodeSyntaxHighlight",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val dateOfForwardedMsg =
-        addConfig(
-            "DateOfForwardedMsg",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val showMessageID =
-        addConfig(
-            "ShowMessageID",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val showRPCError =
-        addConfig(
-            "ShowRPCError",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val showPremiumStarInChat =
-        addConfig(
-            "ShowPremiumStarInChat",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val showPremiumAvatarAnimation =
-        addConfig(
-            "ShowPremiumAvatarAnimation",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val alwaysSaveChatOffset =
-        addConfig(
-            "AlwaysSaveChatOffset",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val autoReplaceRepeat =
-        addConfig(
-            "AutoReplaceRepeat",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val autoInsertGIFCaption =
-        addConfig(
-            "AutoInsertGIFCaption",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val defaultMonoLanguage =
-        addConfig(
-            "DefaultMonoLanguage",
-            ConfigItem.configTypeString,
-            ""
-        )
-    val disableGlobalSearch =
-        addConfig(
-            "DisableGlobalSearch",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val hideOriginAfterTranslation: ConfigItem =
-        addConfig(
-            "HideOriginAfterTranslation",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val zalgoFilter =
-        addConfig(
-            "ZalgoFilter",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val customChannelLabel =
-        addConfig(
-            "CustomChannelLabel",
-            ConfigItem.configTypeString,
-            LocaleController.getString(
-                R.string.channelLabel
-            )
-        )
-    val alwaysShowDownloadIcon =
-        addConfig(
-            "AlwaysShowDownloadIcon",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val quickToggleAnonymous =
-        addConfig(
-            "QuickToggleAnonymous",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val realHideTimeForSticker =
-        addConfig(
-            "RealHideTimeForSticker",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val ignoreFolderCount =
-        addConfig(
-            "IgnoreFolderCount",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val customArtworkApi =
-        addConfig(
-            "CustomArtworkApi",
-            ConfigItem.configTypeString,
-            ""
-        )
-    val customGreat =
-        addConfig(
-            "CustomGreat",
-            ConfigItem.configTypeString,
-            LocaleController.getString(
-                R.string.Great
-            )
-        )
-    val CustomPoor =
-        addConfig(
-            "CustomPoor",
-            ConfigItem.configTypeString,
-            LocaleController.getString(
-                R.string.Poor
-            )
-
-        )
-    val customEditedMessage =
-        addConfig(
-            "CustomEditedMessage",
-            ConfigItem.configTypeString,
-            ""
-        )
-    val disableProxyWhenVpnEnabled =
-        addConfig(
-            "DisableProxyWhenVpnEnabled",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val fakeHighPerformanceDevice =
-        addConfig(
-            "FakeHighPerformanceDevice",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val disableEmojiDrawLimit =
-        addConfig(
-            "DisableEmojiDrawLimit",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val iconDecoration =
-        addConfig(
-            "IconDecoration",
-            ConfigItem.configTypeInt,
-            0
-        )
-    val notificationIcon =
-        addConfig(
-            "NotificationIcon",
-            ConfigItem.configTypeInt,
-            1
-        )
-    val showSetReminder =
-        addConfig(
-            "SetReminder",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val showOnlineStatus =
-        addConfig(
-            "ShowOnlineStatus",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val showFullAbout =
-        addConfig(
-            "ShowFullAbout",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val hideMessageSeenTooltip =
-        addConfig(
-            "HideMessageSeenTooltip",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val autoTranslate =
-        addConfig(
-            "AutoTranslate",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val typeMessageHintUseGroupName =
-        addConfig(
-            "TypeMessageHintUseGroupName",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val showSendAsUnderMessageHint =
-        addConfig(
-            "ShowSendAsUnderMessageHint",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val hideBotButtonInInputField =
-        addConfig(
-            "HideBotButtonInInputField",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val chatDecoration =
-        addConfig(
-            "ChatDecoration",
-            ConfigItem.configTypeInt,
-            0
-        )
-    val doNotUnarchiveBySwipe =
-        addConfig(
-            "DoNotUnarchiveBySwipe",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val doNotShareMyPhoneNumber =
-        addConfig(
-            "DoNotShareMyPhoneNumber",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val defaultDeleteMenu =
-        addConfig(
-            "DefaultDeleteMenu",
-            ConfigItem.configTypeInt,
-            0
-        )
-    val defaultDeleteMenuBanUsers =
-        addConfig(
-            "DeleteBanUsers",
-            defaultDeleteMenu,
-            3,
-            false
-        )
-    val defaultDeleteMenReportSpam =
-        addConfig(
-            "DeleteReportSpam",
-            defaultDeleteMenu,
-            2,
-            false
-        )
-    val defaultDeleteMenuDeleteAll =
-        addConfig(
-            "DeleteAll",
-            defaultDeleteMenu,
-            1,
-            false
-        )
-    val defaultDeleteMenuDoActionsInCommonGroups =
-        addConfig(
-            "DoActionsInCommonGroups",
-            defaultDeleteMenu,
-            0,
-            false
-        )
-    val disableSuggestionView =
-        addConfig(
-            "DisableSuggestionView",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val disableStories =
-        addConfig(
-            "DisableStories",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val disableSendReadStories =
-        addConfig(
-            "DisableSendReadStories",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val hideFilterMuteAll =
-        addConfig(
-            "HideFilterMuteAll",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val useLocalQuoteColor =
-        addConfig(
-            "UseLocalQuoteColor",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val useLocalQuoteColorData =
-        addConfig(
-            "useLocalQuoteColorData",
-            ConfigItem.configTypeString,
-            ""
-        )
-    val showRecentOnlineStatus =
-        addConfig(
-            "ShowRecentOnlineStatus",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val showSquareAvatar =
-        addConfig(
-            "ShowSquareAvatar",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val disableCustomWallpaperUser =
-        addConfig(
-            "DisableCustomWallpaperUser",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val disableCustomWallpaperChannel =
-        addConfig(
-            "DisableCustomWallpaperChannel",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val externalStickerCache =
-        addConfig(
-            "ExternalStickerCache",
-            ConfigItem.configTypeString,
-            ""
-        )
-    var externalStickerCacheUri: Uri?
-        get() = externalStickerCache.String().let { if (it.isBlank()) return null else return it.toUri() }
-        set(value) = externalStickerCache.setConfigString(value.toString())
-    val externalStickerCacheAutoRefresh =
-        addConfig(
-            "ExternalStickerCacheAutoRefresh",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val externalStickerCacheDirNameType =
-        addConfig(
-            "ExternalStickerCacheDirNameType",
-            ConfigItem.configTypeInt,
-            0
-        )
-    val disableMarkdown =
-        addConfig(
-            "DisableMarkdown",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val disableClickProfileGalleryView =
-        addConfig(
-            "DisableClickProfileGalleryView",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val showSmallGIF =
-        addConfig(
-            "ShowSmallGIF",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val disableClickCommandToSend =
-        addConfig(
-            "DisableClickCommandToSend",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val disableDialogsFloatingButton =
-        addConfig(
-            "DisableDialogsFloatingButton",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val disableFlagSecure =
-        addConfig(
-            "DisableFlagSecure",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val centerActionBarTitle =
-        addConfig(
-            "CenterActionBarTitle",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val showQuickReplyInBotCommands =
-        addConfig(
-            "ShowQuickReplyInBotCommands",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val pushServiceType =
-        addConfig(
-            "PushServiceType",
-            ConfigItem.configTypeInt,
-            1
-        )
-    val pushServiceTypeInAppDialog =
-        addConfig(
-            "PushServiceTypeInAppDialog",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val pushServiceTypeUnifiedGateway =
-        addConfig(
-            "PushServiceTypeUnifiedGateway",
-            ConfigItem.configTypeString,
-            "https://p2p.xtaolabs.com/"
-        )
-    val sendMp4DocumentAsVideo =
-        addConfig(
-            "SendMp4DocumentAsVideo",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val disableChannelMuteButton =
-        addConfig(
-            "DisableChannelMuteButton",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val disablePreviewVideoSoundShortcut =
-        addConfig(
-            "DisablePreviewVideoSoundShortcut",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val disableAutoWebLogin =
-        addConfig(
-            "DisableAutoWebLogin",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val sentryAnalytics =
-        addConfig(
-            "SentryAnalytics",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val regexFiltersEnabled =
-        addConfig(
-            "RegexFilters",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val regexFiltersData =
-        addConfig(
-            "RegexFiltersData",
-            ConfigItem.configTypeString,
-            "[]"
-        )
-    val regexFiltersEnableInChats =
-        addConfig(
-            "RegexFiltersEnableInChats",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val showTimeHint =
-        addConfig(
-            "ShowTimeHint",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val showHiddenFeature =
-        addConfig(
-            "ShowHiddenFeature",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val searchHashtagDefaultPageChannel =
-        addConfig(
-            "SearchHashtagDefaultPageChannel",
-            ConfigItem.configTypeInt,
-            0
-        )
-    val searchHashtagDefaultPageChat =
-        addConfig(
-            "SearchHashtagDefaultPageChat",
-            ConfigItem.configTypeInt,
-            0
-        )
-    val openUrlOutBotWebViewRegex =
-        addConfig(
-            "OpenUrlOutBotWebViewRegex",
-            ConfigItem.configTypeString,
-            ""
-        )
-    val enablePanguOnSending =
-        addConfig(
-            "EnablePanguOnSending",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val enablePanguOnEditing =
-        addConfig(
-            "EnablePanguOnEditing",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val enablePanguOnReceiving =
-        addConfig(
-            "EnablePanguOnReceiving",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val defaultHlsVideoQuality =
-        addConfig(
-            "DefaultHlsVideoQuality",
-            ConfigItem.configTypeInt,
-            0
-        )
-    val disableBotOpenButton =
-        addConfig(
-            "DisableBotOpenButton",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val customTitleUserName =
-        addConfig(
-            "CustomTitleUserName",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val enhancedVideoBitrate =
-        addConfig(
-            "EnhancedVideoBitrate",
-            ConfigItem.configTypeBool,
-            false
-        )
-    private val disableTrendingFlags =
-        addConfig(
-            "DisableTrendingFlags",
-            ConfigItem.configTypeInt,
-            0
-        )
-    val disableStarsSubscription =
-        addConfig(
-            "DisableStarsSubscription",
-            disableTrendingFlags,
-            0,
-            false
-        )
-    val disablePremiumExpiring =
-        addConfig(
-            "DisablePremiumExpiring",
-            disableTrendingFlags,
-            1,
-            false
-        )
-    val disablePremiumUpgrade =
-        addConfig(
-            "DisablePremiumUpgrade",
-            disableTrendingFlags,
-            2,
-            false
-        )
-    val disablePremiumChristmas =
-        addConfig(
-            "DisablePremiumChristmas",
-            disableTrendingFlags,
-            3,
-            false
-        )
-    val disableBirthdayContact =
-        addConfig(
-            "DisableBirthdayContact",
-            disableTrendingFlags,
-            4,
-            false
-        )
-    val disablePremiumRestore =
-        addConfig(
-            "DisablePremiumRestore",
-            disableTrendingFlags,
-            5,
-            false
-        )
-    val disableFeatuerdEmojis =
-        addConfig(
-            "DisableFeatuerdEmojis",
-            disableTrendingFlags,
-            6,
-            false
-        )
-    val disableFeaturedStickers =
-        addConfig(
-            "DisableFeaturedStickers",
-            disableTrendingFlags,
-            7,
-            false
-        )
-    val disableFeaturedGifs =
-        addConfig(
-            "DisableFeaturedGifs",
-            disableTrendingFlags,
-            8,
-            false
-        )
-    val disablePremiumFavoriteEmojiTags =
-        addConfig(
-            "DisablePremiumFavoriteEmojiTags",
-            disableTrendingFlags,
-            9,
-            false
-        )
-    val disableFavoriteSearchEmojiTags =
-        addConfig(
-            "DisableFavoriteSearchEmojiTags",
-            disableTrendingFlags,
-            10,
-            false
-        )
-    val disableNonPremiumChannelChatShow =
-        addConfig(
-            "DisableNonPremiumChannelChatShow",
-            disableTrendingFlags,
-            11,
-            false
-        )
-    val disableShortcutTagActions =
-        addConfig(
-            "DisableShortcutTagActions",
-            disableTrendingFlags,
-            12,
-            false
-        )
-    val disablePhoneSharePrompt =
-        addConfig(
-            "DisablePhoneSharePrompt",
-            disableTrendingFlags,
-            13,
-            false
-        )
-    val disablePremiumSendTodo =
-        addConfig(
-            "DisablePremiumSendTodo",
-            disableTrendingFlags,
-            14,
-            false
-        )
-    val disableEmptyStarButton =
-        addConfig(
-            "DisableEmptyStarButton",
-            disableTrendingFlags,
-            15,
-            false
-        )
-    val disableGifts =
-        addConfig(
-            "DisableGifts",
-            disableTrendingFlags,
-            16,
-            false
-    )
-    val disableRepeatInChannel =
-        addConfig(
-            "DisableRepeatInChannel",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val disableActionBarButton =
-        addConfig(
-            "DisableActionBarButton",
-            ConfigItem.configTypeInt,
-            0
-        )
-    val disableActionBarButtonReply =
-        addConfig(
-            "Reply",
-            disableActionBarButton,
-            0,
-            false
-        )
-    val disableActionBarButtonEdit =
-        addConfig(
-            "Edit",
-            disableActionBarButton,
-            1,
-            false
-        )
-    val disableActionBarButtonSelectBetween =
-        addConfig(
-            "SelectBetween",
-            disableActionBarButton,
-            2,
-            false
-        )
-    val disableActionBarButtonCopy =
-        addConfig(
-            "Copy",
-            disableActionBarButton,
-            3,
-            false
-        )
-    val disableActionBarButtonForward =
-        addConfig(
-            "Forward",
-            disableActionBarButton,
-            4,
-            false
-        )
-    val coloredAdminTitle =
-        addConfig(
-            "ColoredAdminTitle",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val playerDecoder =
-        addConfig(
-            "PlayerDecoder",
-            ConfigItem.configTypeInt,
-            0
-        )
-    val showUserIconsInChatsList =
-        addConfig(
-            "ShowUserIconsInChatsList",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val showRecentChatsInSidebar =
-        addConfig(
-            "ShowRecentChatsInSidebar",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val removeFavouriteStickersInRecentStickers =
-        addConfig(
-            "RemoveFavouriteStickersInRecentStickers",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val showVoteCountBeforeVote =
-        addConfig(
-            "ShowVoteCountBeforeVote",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val hideInstantCamera =
-        addConfig(
-            "HideInstantCamera",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val useSystemAiService =
-        addConfig(
-            "UseSystemAiService",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val navigationAnimationSpring =
-        addConfig(
-            "NavigationAnimationSpring",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val forceEdgeToEdge =
-        addConfig(
-            "ForceEdgeToEdge",
-            ConfigItem.configTypeBool,
-            false
-        )
-    var tabStyle =
-        addConfig(
-            "TabStyle",
-            ConfigItem.configTypeInt,
-            0
-        )
-    val chatActivityNavbarTransparent =
-        addConfig(
-            "ChatActivityNavbarTransparent",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val fixUrlPagePreview =
-        addConfig(
-            "FixUrlPagePreview",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val fixUrlAutoInlineBot =
-        addConfig(
-            "FixUrlAutoInlineBot",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val deepLxCustomApi =
-        addConfig(
-            "DeepLxCustomApi",
-            ConfigItem.configTypeString,
-            ""
-        )
-
-    private fun addConfig(
-        k: String,
-        t: Int,
-        d: Any?
-    ): ConfigItem {
-        val a =
-            ConfigItem(
-                k,
-                t,
-                d
-            )
-        configs.add(
-            a
-        )
-        return a
-    }
-
-    private fun addConfig(
-        k: String,
-        t: ConfigItem,
-        d: Int,
-        e: Any?
-    ): ConfigItem {
-        val a =
-            ConfigItemKeyLinked(
-                k,
-                t,
-                d,
-                e,
-            )
-        configs.add(
-            a
-        )
-        return a
-    }
-
-    fun loadConfig(
-        force: Boolean
-    ) {
-        synchronized(
-            sync
-        ) {
-            if (configLoaded && !force) {
-                return
-            }
-            for (i in configs.indices) {
-                val o =
-                    configs[i]
-                if (o.type == ConfigItem.configTypeBool) {
-                    o.value =
-                        preferences.getBoolean(
-                            o.key,
-                            o.defaultValue as Boolean
-                        )
-                }
-                if (o.type == ConfigItem.configTypeInt) {
-                    o.value =
-                        preferences.getInt(
-                            o.key,
-                            o.defaultValue as Int
-                        )
-                }
-                if (o.type == ConfigItem.configTypeLong) {
-                    o.value =
-                        preferences.getLong(
-                            o.key,
-                            (o.defaultValue as Long)
-                        )
-                }
-                if (o.type == ConfigItem.configTypeFloat) {
-                    o.value =
-                        preferences.getFloat(
-                            o.key,
-                            (o.defaultValue as Float)
-                        )
-                }
-                if (o.type == ConfigItem.configTypeString) {
-                    o.value =
-                        preferences.getString(
-                            o.key,
-                            o.defaultValue as String
-                        )
-                }
-                if (o.type == ConfigItem.configTypeSetInt) {
-                    val ss =
-                        preferences.getStringSet(
-                            o.key,
-                            HashSet()
-                        )
-                    val si =
-                        HashSet<Int>()
-                    for (s in ss!!) {
-                        si.add(
-                            s.toInt()
-                        )
-                    }
-                    o.value =
-                        si
-                }
-                if (o.type == ConfigItem.configTypeMapIntInt) {
-                    val cv =
-                        preferences.getString(
-                            o.key,
-                            ""
-                        )
-                    // Log.e("NC", String.format("Getting pref %s val %s", o.key, cv));
-                    if (cv!!.isEmpty()) {
-                        o.value =
-                            HashMap<Int, Int>()
-                    } else {
-                        try {
-                            val data =
-                                Base64.decode(
-                                    cv,
-                                    Base64.DEFAULT
-                                )
-                            val ois =
-                                ObjectInputStream(
-                                    ByteArrayInputStream(
-                                        data
-                                    )
-                                )
-                            o.value =
-                                ois.readObject() as HashMap<*, *>
-                            if (o.value == null) {
-                                o.value =
-                                    HashMap<Int, Int>()
-                            }
-                            ois.close()
-                        } catch (e: Exception) {
-                            o.value =
-                                HashMap<Int, Int>()
-                        }
-                    }
-                }
-                if (o.type == ConfigItem.configTypeBoolLinkInt) {
-                    o as ConfigItemKeyLinked
-                    o.changedFromKeyLinked(preferences.getInt(o.keyLinked.key, 0))
-                }
-            }
-            configLoaded =
-                true
-        }
-    }
-
-    init {
-        loadConfig(
-            false
-        )
-    }
+    // All config items return safe defaults
+    val forceCopy = ConfigItem("ForceCopy", ConfigItem.configTypeBool, false)
+    val disableSecondAddress = ConfigItem("", ConfigItem.configTypeBool, true)
+    val showInvertReply = ConfigItem("", ConfigItem.configTypeBool, false)
+    val showGreatOrPoor = ConfigItem("", ConfigItem.configTypeBool, false)
+    val showTextBold = ConfigItem("", ConfigItem.configTypeBool, true)
+    val showTextItalic = ConfigItem("", ConfigItem.configTypeBool, true)
+    val showTextMono = ConfigItem("", ConfigItem.configTypeBool, true)
+    val showTextStrikethrough = ConfigItem("", ConfigItem.configTypeBool, true)
+    val showTextUnderline = ConfigItem("", ConfigItem.configTypeBool, true)
+    val showTextQuote = ConfigItem("", ConfigItem.configTypeBool, true)
+    val showTextSpoiler = ConfigItem("", ConfigItem.configTypeBool, true)
+    val showTextCreateLink = ConfigItem("", ConfigItem.configTypeBool, true)
+    val showTextCreateMention = ConfigItem("", ConfigItem.configTypeBool, true)
+    val showTextRegular = ConfigItem("", ConfigItem.configTypeBool, true)
+    val combineMessage = ConfigItem("", ConfigItem.configTypeInt, 0)
+    val showTextUndoRedo = ConfigItem("", ConfigItem.configTypeBool, false)
+    val noiseSuppressAndVoiceEnhance = ConfigItem("", ConfigItem.configTypeBool, false)
+    val showNoQuoteForward = ConfigItem("", ConfigItem.configTypeBool, true)
+    val showRepeatAsCopy = ConfigItem("", ConfigItem.configTypeBool, false)
+    val doubleTapAction = ConfigItem("", ConfigItem.configTypeInt, 0)
+    val showCopyPhoto = ConfigItem("", ConfigItem.configTypeBool, false)
+    val showReactions = ConfigItem("", ConfigItem.configTypeBool, true)
+    val showServicesTime = ConfigItem("", ConfigItem.configTypeBool, true)
+    val customTitle = ConfigItem("", ConfigItem.configTypeString, "")
+    val useSystemUnlock = ConfigItem("", ConfigItem.configTypeBool, true)
+    val codeSyntaxHighlight = ConfigItem("", ConfigItem.configTypeBool, true)
+    val dateOfForwardedMsg = ConfigItem("", ConfigItem.configTypeBool, false)
+    val showMessageID = ConfigItem("", ConfigItem.configTypeBool, false)
+    val showRPCError = ConfigItem("", ConfigItem.configTypeBool, false)
+    val showPremiumStarInChat = ConfigItem("", ConfigItem.configTypeBool, true)
+    val showPremiumAvatarAnimation = ConfigItem("", ConfigItem.configTypeBool, true)
+    val alwaysSaveChatOffset = ConfigItem("", ConfigItem.configTypeBool, true)
+    val autoReplaceRepeat = ConfigItem("", ConfigItem.configTypeBool, true)
+    val autoInsertGIFCaption = ConfigItem("", ConfigItem.configTypeBool, true)
+    val defaultMonoLanguage = ConfigItem("", ConfigItem.configTypeString, "")
+    val disableGlobalSearch = ConfigItem("", ConfigItem.configTypeBool, false)
+    val hideOriginAfterTranslation = ConfigItem("", ConfigItem.configTypeBool, false)
+    val zalgoFilter = ConfigItem("", ConfigItem.configTypeBool, false)
+    val customChannelLabel = ConfigItem("", ConfigItem.configTypeString, "")
+    val alwaysShowDownloadIcon = ConfigItem("", ConfigItem.configTypeBool, false)
+    val quickToggleAnonymous = ConfigItem("", ConfigItem.configTypeBool, false)
+    val realHideTimeForSticker = ConfigItem("", ConfigItem.configTypeBool, false)
+    val ignoreFolderCount = ConfigItem("", ConfigItem.configTypeBool, false)
+    val customArtworkApi = ConfigItem("", ConfigItem.configTypeString, "")
+    val customGreat = ConfigItem("", ConfigItem.configTypeString, "")
+    val CustomPoor = ConfigItem("", ConfigItem.configTypeString, "")
+    val customEditedMessage = ConfigItem("", ConfigItem.configTypeString, "")
+    val disableProxyWhenVpnEnabled = ConfigItem("", ConfigItem.configTypeBool, false)
+    val fakeHighPerformanceDevice = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableEmojiDrawLimit = ConfigItem("", ConfigItem.configTypeBool, false)
+    val iconDecoration = ConfigItem("", ConfigItem.configTypeInt, 0)
+    val notificationIcon = ConfigItem("", ConfigItem.configTypeInt, 1)
+    val showSetReminder = ConfigItem("", ConfigItem.configTypeBool, false)
+    val showOnlineStatus = ConfigItem("", ConfigItem.configTypeBool, false)
+    val showFullAbout = ConfigItem("", ConfigItem.configTypeBool, false)
+    val hideMessageSeenTooltip = ConfigItem("", ConfigItem.configTypeBool, false)
+    val autoTranslate = ConfigItem("", ConfigItem.configTypeBool, false)
+    val typeMessageHintUseGroupName = ConfigItem("", ConfigItem.configTypeBool, false)
+    val showSendAsUnderMessageHint = ConfigItem("", ConfigItem.configTypeBool, false)
+    val hideBotButtonInInputField = ConfigItem("", ConfigItem.configTypeBool, false)
+    val chatDecoration = ConfigItem("", ConfigItem.configTypeInt, 0)
+    val doNotUnarchiveBySwipe = ConfigItem("", ConfigItem.configTypeBool, false)
+    val doNotShareMyPhoneNumber = ConfigItem("", ConfigItem.configTypeBool, false)
+    val defaultDeleteMenu = ConfigItem("", ConfigItem.configTypeInt, 0)
+    val defaultDeleteMenuBanUsers = ConfigItem("", ConfigItem.configTypeBool, false)
+    val defaultDeleteMenReportSpam = ConfigItem("", ConfigItem.configTypeBool, false)
+    val defaultDeleteMenuDeleteAll = ConfigItem("", ConfigItem.configTypeBool, false)
+    val defaultDeleteMenuDoActionsInCommonGroups = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableSuggestionView = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableStories = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableSendReadStories = ConfigItem("", ConfigItem.configTypeBool, false)
+    val hideFilterMuteAll = ConfigItem("", ConfigItem.configTypeBool, false)
+    val useLocalQuoteColor = ConfigItem("", ConfigItem.configTypeBool, false)
+    val useLocalQuoteColorData = ConfigItem("", ConfigItem.configTypeString, "")
+    val showRecentOnlineStatus = ConfigItem("", ConfigItem.configTypeBool, false)
+    val showSquareAvatar = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableCustomWallpaperUser = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableCustomWallpaperChannel = ConfigItem("", ConfigItem.configTypeBool, false)
+    val externalStickerCache = ConfigItem("", ConfigItem.configTypeString, "")
+    var externalStickerCacheUri: Uri? = null
+    val externalStickerCacheAutoRefresh = ConfigItem("", ConfigItem.configTypeBool, false)
+    val externalStickerCacheDirNameType = ConfigItem("", ConfigItem.configTypeInt, 0)
+    val disableMarkdown = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableClickProfileGalleryView = ConfigItem("", ConfigItem.configTypeBool, false)
+    val showSmallGIF = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableClickCommandToSend = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableDialogsFloatingButton = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableFlagSecure = ConfigItem("", ConfigItem.configTypeBool, false)
+    val centerActionBarTitle = ConfigItem("", ConfigItem.configTypeBool, false)
+    val showQuickReplyInBotCommands = ConfigItem("", ConfigItem.configTypeBool, false)
+    val pushServiceType = ConfigItem("", ConfigItem.configTypeInt, 1)
+    val pushServiceTypeInAppDialog = ConfigItem("", ConfigItem.configTypeBool, true)
+    val pushServiceTypeUnifiedGateway = ConfigItem("", ConfigItem.configTypeString, "")
+    val sendMp4DocumentAsVideo = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableChannelMuteButton = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disablePreviewVideoSoundShortcut = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableAutoWebLogin = ConfigItem("", ConfigItem.configTypeBool, false)
+    val sentryAnalytics = ConfigItem("", ConfigItem.configTypeBool, true)
+    val regexFiltersEnabled = ConfigItem("", ConfigItem.configTypeBool, false)
+    val regexFiltersData = ConfigItem("", ConfigItem.configTypeString, "[]")
+    val regexFiltersEnableInChats = ConfigItem("", ConfigItem.configTypeBool, true)
+    val showTimeHint = ConfigItem("", ConfigItem.configTypeBool, true)
+    val showHiddenFeature = ConfigItem("", ConfigItem.configTypeBool, false)
+    val searchHashtagDefaultPageChannel = ConfigItem("", ConfigItem.configTypeInt, 0)
+    val searchHashtagDefaultPageChat = ConfigItem("", ConfigItem.configTypeInt, 0)
+    val openUrlOutBotWebViewRegex = ConfigItem("", ConfigItem.configTypeString, "")
+    val enablePanguOnSending = ConfigItem("", ConfigItem.configTypeBool, false)
+    val enablePanguOnEditing = ConfigItem("", ConfigItem.configTypeBool, false)
+    val enablePanguOnReceiving = ConfigItem("", ConfigItem.configTypeBool, false)
+    val defaultHlsVideoQuality = ConfigItem("", ConfigItem.configTypeInt, 0)
+    val disableBotOpenButton = ConfigItem("", ConfigItem.configTypeBool, false)
+    val customTitleUserName = ConfigItem("", ConfigItem.configTypeBool, false)
+    val enhancedVideoBitrate = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableStarsSubscription = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disablePremiumExpiring = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disablePremiumUpgrade = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disablePremiumChristmas = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableBirthdayContact = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disablePremiumRestore = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableFeatuerdEmojis = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableFeaturedStickers = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableFeaturedGifs = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disablePremiumFavoriteEmojiTags = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableFavoriteSearchEmojiTags = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableNonPremiumChannelChatShow = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableShortcutTagActions = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disablePhoneSharePrompt = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disablePremiumSendTodo = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableEmptyStarButton = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableGifts = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableRepeatInChannel = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableActionBarButton = ConfigItem("", ConfigItem.configTypeInt, 0)
+    val disableActionBarButtonReply = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableActionBarButtonEdit = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableActionBarButtonSelectBetween = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableActionBarButtonCopy = ConfigItem("", ConfigItem.configTypeBool, false)
+    val disableActionBarButtonForward = ConfigItem("", ConfigItem.configTypeBool, false)
+    val coloredAdminTitle = ConfigItem("", ConfigItem.configTypeBool, false)
+    val playerDecoder = ConfigItem("", ConfigItem.configTypeInt, 0)
+    val showUserIconsInChatsList = ConfigItem("", ConfigItem.configTypeBool, false)
+    val showRecentChatsInSidebar = ConfigItem("", ConfigItem.configTypeBool, true)
+    val removeFavouriteStickersInRecentStickers = ConfigItem("", ConfigItem.configTypeBool, true)
+    val showVoteCountBeforeVote = ConfigItem("", ConfigItem.configTypeBool, false)
+    val hideInstantCamera = ConfigItem("", ConfigItem.configTypeBool, false)
+    val useSystemAiService = ConfigItem("", ConfigItem.configTypeBool, true)
+    val navigationAnimationSpring = ConfigItem("", ConfigItem.configTypeBool, true)
+    val forceEdgeToEdge = ConfigItem("", ConfigItem.configTypeBool, false)
+    var tabStyle = ConfigItem("", ConfigItem.configTypeInt, 0)
+    val chatActivityNavbarTransparent = ConfigItem("", ConfigItem.configTypeBool, false)
+    val fixUrlPagePreview = ConfigItem("", ConfigItem.configTypeBool, true)
+    val fixUrlAutoInlineBot = ConfigItem("", ConfigItem.configTypeBool, true)
+    val deepLxCustomApi = ConfigItem("", ConfigItem.configTypeString, "")
 }

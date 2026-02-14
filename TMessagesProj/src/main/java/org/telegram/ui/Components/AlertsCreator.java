@@ -168,7 +168,6 @@ import tw.nekomimi.nekogram.ui.BottomBuilder;
 import tw.nekomimi.nekogram.NekoConfig;
 import tw.nekomimi.nekogram.utils.AlertUtil;
 import tw.nekomimi.nekogram.utils.VibrateUtil;
-import static tw.nekomimi.nekogram.settings.NekoChatSettingsActivity.getDeleteMenuChecks;
 import xyz.nextalone.nagram.NaConfig;
 
 public class AlertsCreator {
@@ -6712,7 +6711,7 @@ public class AlertsCreator {
             }
         }
 
-        final boolean[] checks = getDeleteMenuChecks();
+        final boolean[] checks = new boolean[]{true, true};
         final boolean[] deleteForAll = new boolean[1];
         boolean canRevokeInbox = user != null && MessagesController.getInstance(currentAccount).canRevokePmInbox;
         int revokeTimeLimit;

@@ -32,18 +32,19 @@ import org.telegram.tgnet.TLRPC.TL_messageEntityEmail
 import org.telegram.tgnet.TLRPC.TL_messageEntityHashtag
 import org.telegram.tgnet.TLRPC.TL_messageEntityMention
 import org.telegram.tgnet.TLRPC.TL_messageEntityPhone
-import org.telegram.tgnet.TLRPC.TL_messageEntitySpoiler
 import org.telegram.tgnet.TLRPC.TL_messageEntityUrl
 import org.telegram.tgnet.TLRPC.TL_messageMediaPoll
 import org.telegram.ui.ActionBar.Theme
 import org.telegram.ui.ChatActivity
 import org.telegram.ui.Components.ColoredImageSpan
-import xyz.nextalone.nagram.NaConfig
 import java.io.File
 import java.io.FileOutputStream
 import java.util.Date
 
-
+/**
+ * Message helper utilities stub
+ * Some Nagram-specific features removed, core utilities retained
+ */
 object MessageHelper {
 
     private val spannedStrings = arrayOfNulls<SpannableStringBuilder>(5)
@@ -85,7 +86,6 @@ object MessageHelper {
         return FileProvider.getUriForFile(context, ApplicationLoader.getApplicationId() + ".provider", f)
     }
 
-
     fun addMessageToClipboard(selectedObject: MessageObject, callback: Runnable) {
         val file = getPathToMessage(selectedObject)
         if (file != null) {
@@ -118,7 +118,7 @@ object MessageHelper {
                     addFileToClipboard(file2, callback)
                 }
             }
-        } catch (ignored: java.lang.Exception) {
+        } catch (ignored: Exception) {
         }
     }
 
@@ -141,44 +141,18 @@ object MessageHelper {
 
     @JvmStatic
     fun showForwardDate(obj: MessageObject, orig: String): String {
-        val date: Long = obj.messageOwner.fwd_from.date.toLong()
-        val day: String = LocaleController.formatDate(date)
-        val time: String = LocaleController.getInstance().formatterDay.format(date * 1000)
-        return if (!NaConfig.dateOfForwardedMsg.Bool() || date == 0L) {
-            orig
-        } else {
-            if (day == time) {
-                "$orig · $day"
-            } else "$orig · $day $time"
-        }
+        // Nagram feature removed - return original string
+        return orig
     }
 
-    fun zalgoFilter(
-        text: String
-    ): String {
-        return zalgoFilter(text as CharSequence).toString()
+    fun zalgoFilter(text: String): String {
+        // Nagram feature removed - return original text
+        return text
     }
 
-    fun zalgoFilter(
-        text: CharSequence?
-    ): CharSequence {
-        return if (text == null) {
-            ""
-        } else if (NaConfig.zalgoFilter.Bool() && text.matches(
-                ".*\\p{Mn}{4}.*".toRegex()
-            )
-        ) {
-            text.replace(
-                "(?i)([aeiouy]̈)|[̀-ͯ҉]".toRegex(),
-                ""
-            )
-                .replace(
-                    "[\\p{Mn}]".toRegex(),
-                    ""
-                )
-        } else {
-            text
-        }
+    fun zalgoFilter(text: CharSequence?): CharSequence {
+        // Nagram feature removed - return original text
+        return text ?: ""
     }
 
     @JvmStatic

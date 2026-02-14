@@ -425,7 +425,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
 
     TLRPC.TL_auth_exportLoginToken exportLoginTokenRequest = null;
     AlertDialog exportLoginTokenProgress = null;
-    android.app.AlertDialog exportLoginTokenDialog = null;
+    Object exportLoginTokenDialog = null;
 
     private static class ProgressView extends View {
 
@@ -10582,8 +10582,8 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
     private void regenerateLoginToken(Boolean refresh) {
         getNotificationCenter().removeObserver(this, NotificationCenter.updateLoginToken);
         if (getParentActivity() == null || isFinished) return;
-        if (exportLoginTokenDialog != null && exportLoginTokenDialog.isShowing()) {
-            exportLoginTokenDialog.dismiss();
+        if (exportLoginTokenDialog != null && exportLoginTokenDialog instanceof org.telegram.ui.ActionBar.AlertDialog && ((org.telegram.ui.ActionBar.AlertDialog) exportLoginTokenDialog).isShowing()) {
+            ((org.telegram.ui.ActionBar.AlertDialog) exportLoginTokenDialog).dismiss();
         } else if (refresh) return;
         exportLoginTokenProgress = new AlertDialog(getParentActivity(), 3);
         exportLoginTokenProgress.setCanCancel(false);
