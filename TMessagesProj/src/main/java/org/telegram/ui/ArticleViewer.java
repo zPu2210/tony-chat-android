@@ -226,7 +226,6 @@ import cn.hutool.core.util.StrUtil;
 import kotlin.Unit;
 import tw.nekomimi.nekogram.ui.BottomBuilder;
 import tw.nekomimi.nekogram.NekoConfig;
-// import tw.nekomimi.nekogram.parts.ArticleTransKt; // Removed in Tony Chat
 import tw.nekomimi.nekogram.transtale.TranslateDb;
 import tw.nekomimi.nekogram.utils.AlertUtil;
 import tw.nekomimi.nekogram.utils.ProxyUtil;

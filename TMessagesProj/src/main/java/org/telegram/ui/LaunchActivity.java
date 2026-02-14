@@ -282,7 +282,6 @@ import tw.nekomimi.nekogram.NekoConfig;
 import tw.nekomimi.nekogram.NekoXConfig;
 import tw.nekomimi.nekogram.settings.NekoSettingsActivity;
 import tw.nekomimi.nekogram.utils.AlertUtil;
-//import tw.nekomimi.nekogram.utils.MonetHelper;
 import tw.nekomimi.nekogram.utils.ProxyUtil;
 import tw.nekomimi.nekogram.utils.UIUtil;
 import tw.nekomimi.nekogram.utils.UpdateUtil;
