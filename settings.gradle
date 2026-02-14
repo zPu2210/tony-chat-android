@@ -1,0 +1,4 @@
+include ':TMessagesProj'
+include ':openpgp-api'
+include ':tonychat-core'
+include ':tonychat-ui'
