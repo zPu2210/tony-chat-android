@@ -65,9 +65,6 @@ import org.telegram.ui.Components.URLSpanNoUnderline;
 import java.util.concurrent.atomic.AtomicReference;
 
 import kotlin.Unit;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.ui.BottomBuilder;
-import xyz.nextalone.nagram.NaConfig;
 
 public class AboutLinkCell extends FrameLayout {
 
@@ -413,32 +410,8 @@ public class AboutLinkCell extends FrameLayout {
 
                 if (getContext() != null) {
                     ClickableSpan pressedLinkFinal = (ClickableSpan) pressedLink.getSpan();
-                    BottomBuilder builder = new BottomBuilder(parentFragment.getParentActivity());
-                    builder.addTitle(url);
-                    builder.addItems(new String[]{LocaleController.getString(R.string.Open), LocaleController.getString(R.string.Copy)},
-                            new int[]{R.drawable.msg_openin, R.drawable.msg_copy},
-                            (which, __, ___) -> {
-                                if (which == 0) {
-                                    onLinkClick(pressedLinkFinal, layout, yOffset);
-                                } else if (which == 1) {
-                                    AndroidUtilities.addToClipboard(url);
-                                    if (AndroidUtilities.shouldShowClipboardToast()) {
-                                        if (url.startsWith("@")) {
-                                            BulletinFactory.of(parentFragment).createSimpleBulletin(R.raw.copy,
-                                                    LocaleController.getString(R.string.UsernameCopied)).show();
-                                        } else if (url.startsWith("#") || url.startsWith("$")) {
-                                            BulletinFactory.of(parentFragment).createSimpleBulletin(R.raw.copy,
-                                                    LocaleController.getString(R.string.HashtagCopied)).show();
-                                        } else {
-                                            BulletinFactory.of(parentFragment).createSimpleBulletin(R.raw.copy,
-                                                    LocaleController.getString(R.string.LinkCopied)).show();
-                                        }
-                                    }
-                                }
-                                return Unit.INSTANCE;
-                            });
-                    builder.setOnPreDismissListener(di -> resetPressedLink());
-                    builder.show();
+                    // BottomBuilder removed - use simple action
+                    onLinkClick(pressedLinkFinal, layout, yOffset);
                 }
 
                 pressedLink = null;

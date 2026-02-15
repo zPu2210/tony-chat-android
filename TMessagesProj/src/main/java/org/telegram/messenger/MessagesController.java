@@ -42,6 +42,7 @@ import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
 import android.view.Gravity;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -134,12 +135,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.thread.ThreadUtil;
-import tw.nekomimi.nekogram.ui.InternalFilters;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.NekoXConfig;
-import tw.nekomimi.nekogram.utils.AlertUtil;
-import tw.nekomimi.nekogram.utils.UIUtil;
-import xyz.nextalone.nagram.NaConfig;
 
 public class MessagesController extends BaseController implements NotificationCenter.NotificationCenterDelegate {
 
@@ -2437,7 +2432,7 @@ public class MessagesController extends BaseController implements NotificationCe
                 suggestedFilters.addAll(((Vector<TLRPC.TL_dialogFilterSuggested>) response).objects);
             }
             s:
-            for (TLRPC.TL_dialogFilterSuggested suggested : InternalFilters.internalFilters) {
+            for (TLRPC.TL_dialogFilterSuggested suggested : new ArrayList<TLRPC.TL_dialogFilterSuggested>()) {
                 for (DialogFilter filter : dialogFilters) {
                     if (suggested.filter.flags == filter.flags) continue s;
                 }
@@ -8742,7 +8737,7 @@ public class MessagesController extends BaseController implements NotificationCe
                 totalBlockedCount--;
                 blockePeers.delete(peer_id);
 
-                UIUtil.runOnUIThread(() -> getNotificationCenter().postNotificationName(NotificationCenter.blockedUsersDidLoad));
+                AndroidUtilities.runOnUIThread(() -> getNotificationCenter().postNotificationName(NotificationCenter.blockedUsersDidLoad));
 
             });
 
@@ -9599,7 +9594,7 @@ public class MessagesController extends BaseController implements NotificationCe
                 TLRPC.Updates updates = (TLRPC.Updates) response;
                 processUpdates(updates, false);
             } else {
-                AlertUtil.showToast(error);
+                FileLog.e("setTTL error: " + error);
             }
         });
         TLRPC.ChatFull chatFull = null;
@@ -10124,7 +10119,7 @@ public class MessagesController extends BaseController implements NotificationCe
                 lastStatusUpdateTime = System.currentTimeMillis();
                 statusSettingState = 0;
             } else {
-                AlertUtil.showToast(error);
+                FileLog.e("updateStatus error: " + error);
             }
             statusRequest = 0;
         });
@@ -21111,10 +21106,7 @@ public class MessagesController extends BaseController implements NotificationCe
         try {
             Collections.sort(allDialogs, dialogComparator);
         } catch (Exception e) {
-            NekoConfig.sortByUnread.setConfigBool(false);
-            NekoConfig.sortByUnmuted.setConfigBool(false);
-            NekoConfig.sortByUser.setConfigBool(false);
-            NekoConfig.sortByContacts.setConfigBool(false);
+            // Dialog sort configs removed
             try {
                 Collections.sort(allDialogs, dialogComparator);
             } catch (Exception ex) {
@@ -21407,7 +21399,9 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public static void showCantOpenAlert(BaseFragment fragment, String reason) {
-        AlertUtil.showToast(reason);
+        if (fragment != null && fragment.getParentActivity() != null) {
+            Toast.makeText(fragment.getParentActivity(), reason, Toast.LENGTH_SHORT).show();
+        }
     }
 
     public boolean checkCanOpenChat(Bundle bundle, BaseFragment fragment) {

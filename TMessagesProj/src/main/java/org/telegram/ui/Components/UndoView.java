@@ -70,7 +70,6 @@ import org.telegram.ui.PaymentFormActivity;
 
 import java.util.ArrayList;
 
-import tw.nekomimi.nekogram.NekoConfig;
 
 @SuppressWarnings("FieldCanBeLocal")
 @Deprecated // use Bulletin instead

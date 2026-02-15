@@ -265,28 +265,8 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import cn.hutool.core.util.StrUtil;
 import kotlin.Unit;
 import kotlin.text.StringsKt;
-import tw.nekomimi.nekogram.helpers.SettingsHelper;
-import tw.nekomimi.nekogram.helpers.remote.ChatExtraButtonsHelper;
-import tw.nekomimi.nekogram.helpers.remote.EmojiHelper;
-import tw.nekomimi.nekogram.helpers.remote.InlineBotRulesHelper;
-import tw.nekomimi.nekogram.helpers.remote.PagePreviewRulesHelper;
-import tw.nekomimi.nekogram.helpers.remote.PeerColorHelper;
-import tw.nekomimi.nekogram.helpers.remote.UpdateHelper;
-import tw.nekomimi.nekogram.helpers.remote.WallpaperHelper;
-import tw.nekomimi.nekogram.settings.NekoGhostModeActivity;
-import tw.nekomimi.nekogram.ui.BottomBuilder;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.NekoXConfig;
-import tw.nekomimi.nekogram.settings.NekoSettingsActivity;
-import tw.nekomimi.nekogram.utils.AlertUtil;
-import tw.nekomimi.nekogram.utils.ProxyUtil;
-import tw.nekomimi.nekogram.utils.UIUtil;
-import tw.nekomimi.nekogram.utils.UpdateUtil;
-import xyz.nextalone.nagram.NaConfig;
-import xyz.nextalone.nagram.helper.ExternalStickerCacheHelper;
 
 public class LaunchActivity extends BasePermissionsActivity implements INavigationLayout.INavigationLayoutDelegate, NotificationCenter.NotificationCenterDelegate, DialogsActivity.DialogsActivityDelegate, IPipActivity {
     public final static String EXTRA_FORCE_NOT_INTERNAL_APPS = "force_not_internal_apps";
@@ -682,7 +662,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                     presentFragment(new ProxyListActivity());
                     drawerLayoutContainer.closeDrawer(false);
                 } else if (id == DrawerLayoutAdapter.nkbtnGhostMode) {
-                    presentFragment(new NekoGhostModeActivity());
+                    // NekoGhostModeActivity removed
                     drawerLayoutContainer.closeDrawer(false);
                 } else if (!UserConfig.hasPremiumOnAccounts()) {
                     if (actionBarLayout.getFragmentStack().size() > 0) {
@@ -748,7 +728,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 } else if (id == 8) {
                     openSettings(false);
                 } else if (id == 9) {
-                    Browser.openUrl(LaunchActivity.this, NekoXConfig.FAQ_URL);
+                    Browser.openUrl(LaunchActivity.this, "https://telegram.org/faq");
                     drawerLayoutContainer.closeDrawer(false);
                 } else if (id == 10) {
                     presentFragment(new CallLogActivity());
@@ -3649,16 +3629,17 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
 
                     fragment = null;
                 } else if (open_settings == 100) {
-                    fragment = new NekoSettingsActivity();
+                    // NekoSettingsActivity removed
+                    fragment = null;
                 } else if (ApplicationLoader.applicationLoaderInstance != null) {
                     fragment = ApplicationLoader.applicationLoaderInstance.openSettings(open_settings);
                 } else {
                     fragment = null;
                 }
                 boolean closePreviousFinal = closePrevious;
-                if (open_settings == 6) {
+                if (open_settings == 6 && fragment != null) {
                     getActionBarLayout().presentFragment(new INavigationLayout.NavigationParams(fragment).setNoAnimation(true));
-                } else {
+                } else if (fragment != null) {
                     AndroidUtilities.runOnUIThread(() -> presentFragment(fragment, closePreviousFinal, false));
                 }
                 if (AndroidUtilities.isTablet()) {
@@ -4295,7 +4276,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                     }
                     getActionBarLayout().presentFragment(fragment, removeLast, false, true, false);
                 } else {
-                    AlertUtil.showToast(error);
+                    Toast.makeText(ApplicationLoader.applicationContext, error.text, Toast.LENGTH_SHORT).show();
                     if (documentsUrisArray == null) {
                         documentsUrisArray = new ArrayList<>();
                     }
@@ -5483,7 +5464,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                     input = new TLRPC.TL_inputStickerSetAnimatedEmoji();
                 } else if (sticker.startsWith("dice/")) {
                     TLRPC.TL_inputStickerSetDice stickerset = new TLRPC.TL_inputStickerSetDice();
-                    stickerset.emoticon = StrUtil.subAfter(sticker, "dice/", true);
+                    stickerset.emoticon = sticker.substring(sticker.lastIndexOf("dice/") + "dice/".length());
                     input = stickerset;
                 } else {
                     TLRPC.TL_inputStickerSetShortName stickerset = new TLRPC.TL_inputStickerSetShortName();
@@ -6390,7 +6371,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
             return;
         }
         long updateCheckDelay;
-        if (NekoXConfig.autoUpdateReleaseChannel == 3) {
+        if (0 == 3) {
             updateCheckDelay = 30 * 60 * 1000;
         } else {
             updateCheckDelay = 24 * 60 * 60 * 1000;

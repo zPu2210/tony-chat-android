@@ -67,7 +67,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Objects;
 
-import xyz.nextalone.nagram.NaConfig;
 
 public class ReactionsLayoutInBubble {
 

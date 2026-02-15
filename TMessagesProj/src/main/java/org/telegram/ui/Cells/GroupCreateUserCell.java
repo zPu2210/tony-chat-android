@@ -55,7 +55,6 @@ import org.telegram.ui.Components.CubicBezierInterpolator;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.Premium.PremiumGradient;
 
-import xyz.nextalone.nagram.NaConfig;
 
 public class GroupCreateUserCell extends FrameLayout {
 

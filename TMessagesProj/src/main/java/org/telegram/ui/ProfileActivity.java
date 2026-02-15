@@ -345,20 +345,7 @@ import java.util.zip.ZipOutputStream;
 import java.util.concurrent.atomic.AtomicReference;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.RuntimeUtil;
-import cn.hutool.core.util.StrUtil;
 import kotlin.Unit;
-import tw.nekomimi.nekogram.BackButtonMenuRecent;
-import tw.nekomimi.nekogram.settings.RegexFiltersSettingActivity;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.NekoXConfig;
-import tw.nekomimi.nekogram.settings.NekoSettingsActivity;
-import tw.nekomimi.nekogram.utils.EnvUtil;
-import tw.nekomimi.nekogram.utils.FileUtil;
-import tw.nekomimi.nekogram.utils.LangsKt;
-import tw.nekomimi.nekogram.utils.ShareUtil;
-import tw.nekomimi.nekogram.utils.UIUtil;
-import xyz.nextalone.nagram.NaConfig;
-import xyz.nextalone.nagram.helper.MessageHelper;
 
 public class ProfileActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate, DialogsActivity.DialogsActivityDelegate, SharedMediaLayout.SharedMediaPreloaderDelegate, ImageUpdater.ImageUpdaterDelegate, SharedMediaLayout.Delegate {
     private final static int PHONE_OPTION_CALL = 0,
@@ -2626,7 +2613,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 } else if (id == event_log) {
                     presentFragment(new ChannelAdminLogActivity(currentChat));
                 } else if (id == message_filter){
-                    presentFragment(new RegexFiltersSettingActivity(chatId != 0 ? -chatId : userId));
+                    // RegexFiltersSettingActivity removed
                 } else if (id == aliasChannelName) {
                     // NekoX channel alias removed
                 } else if (id == delete_topic) {
@@ -2724,7 +2711,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         } else {
                             AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity(), resourcesProvider);
                             builder.setTitle(LocaleController.getString(R.string.AddBot));
-                            String chatName = chat == null ? "" : MessageHelper.INSTANCE.zalgoFilter(chat.title);
+                            String chatName = chat == null ? "" : chat.title;
                             builder.setMessage(AndroidUtilities.replaceTags(formatString("AddMembersAlertNamesText", R.string.AddMembersAlertNamesText, UserObject.getUserName(user), chatName)));
                             builder.setNegativeButton(LocaleController.getString(R.string.Cancel), null);
                             builder.setPositiveButton(LocaleController.getString(R.string.AddBot), (di, i) -> {
@@ -4497,11 +4484,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             } else if (position == devicesRow) {
                 presentFragment(new SessionsActivity(0));
             } else if (position == nekoRow) {
-                presentFragment(new NekoSettingsActivity());
+                // NekoSettingsActivity removed
             } else if (position == questionRow) {
                 Browser.openUrl(getParentActivity(), "https://t.me/NekogramX");
             } else if (position == faqRow) {
-                Browser.openUrl(getParentActivity(), NekoXConfig.FAQ_URL);
+                Browser.openUrl(getParentActivity(), "https://telegram.org/faq");
             } else if (position == policyRow) {
                 Browser.openUrl(getParentActivity(), "https://github.com/NekoX-Dev/NekoX/wiki/Privacy-Policy");
             } else if (position == sendLogsRow) {
@@ -5948,7 +5935,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         contentView.blurBehindViews.add(sharedMediaLayout);
         updateTtlIcon();
 
-        BackButtonMenuRecent.addToRecentDialogs(currentAccount, userId != 0 ? userId : -chatId);
+        // BackButtonMenuRecent removed
 
         blurredView = new View(context) {
             @Override
@@ -6307,7 +6294,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             String text = null;
             if (userId != 0) {
                 TLRPC.User user = getMessagesController().getUser(userId);
-                if (user == null || StrUtil.isBlank(user.username)) {
+                if (user == null || TextUtils.isEmpty(user.username)) {
                     return;
                 }
                 if (botInfo != null && userInfo != null && !TextUtils.isEmpty(userInfo.about) && id == share) {
@@ -6322,7 +6309,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 }
                 if (chatInfo != null && !TextUtils.isEmpty(chatInfo.about) && id == share) {
                     text = String.format("%s\nhttps://" + getMessagesController().linkPrefix + "/%s", chatInfo.about, ChatObject.getPublicUsername(chat));
-                } else if (StrUtil.isNotBlank(chat.username)) {
+                } else if (!TextUtils.isEmpty(chat.username)) {
                     text = String.format("https://" + getMessagesController().linkPrefix + "/%s", ChatObject.getPublicUsername(chat));
                 } else if (id == qr_code && ChatObject.canUserDoAdminAction(chat, ChatObject.ACTION_INVITE)) {
                     if (chatInfo != null && chatInfo.exported_invite != null) {
@@ -11944,7 +11931,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         title = Emoji.replaceEmoji(title, nameTextView[a].getPaint().getFontMetricsInt(), false);
                     } catch (Exception ignore) {
                     }
-                    if (nameTextView[a].setText(MessageHelper.INSTANCE.zalgoFilter(title))) {
+                    if (nameTextView[a].setText(title)) {
                         changed = true;
                     }
                 }
@@ -13230,7 +13217,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
 
                     }
                     if (finished[0]) {
-                        ShareUtil.shareFile(activity, zipFile);
+                        // Share feature removed
                     } else {
                         if (activity != null) {
                             Toast.makeText(activity, LocaleController.getString(R.string.ErrorOccurred), Toast.LENGTH_SHORT).show();
@@ -13815,18 +13802,18 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     if (position == userInfoRow) {
 //                        TLRPC.User user = userInfo.user != null ? userInfo.user : getMessagesController().getUser(userInfo.id);
 //                        boolean addlinks = isBot || (user != null && user.premium && userInfo.about != null);
-                        aboutLinkCell.setTextAndValue(MessageHelper.INSTANCE.zalgoFilter(userInfo.about), LocaleController.getString(R.string.UserBio), true);
+                        aboutLinkCell.setTextAndValue(userInfo.about, LocaleController.getString(R.string.UserBio), true);
                     } else if (position == channelInfoRow) {
                         String text = chatInfo.about;
                         while (text.contains("\n\n\n")) {
                             text = text.replace("\n\n\n", "\n\n");
                         }
-                        aboutLinkCell.setTextAndValue(MessageHelper.INSTANCE.zalgoFilter(text), LocaleController.getString(R.string.DescriptionPlaceholder), true /* ChatObject.isChannel(currentChat) && !currentChat.megagroup */);
+                        aboutLinkCell.setTextAndValue(text, LocaleController.getString(R.string.DescriptionPlaceholder), true /* ChatObject.isChannel(currentChat) && !currentChat.megagroup */);
                     } else if (position == bioRow) {
                         String value;
                         if (userInfo == null || !TextUtils.isEmpty(userInfo.about)) {
                             value = userInfo == null ? LocaleController.getString(R.string.Loading) : userInfo.about;
-                            aboutLinkCell.setTextAndValue(MessageHelper.INSTANCE.zalgoFilter(value), LocaleController.getString(R.string.UserBio), true || getUserConfig().isPremium());
+                            aboutLinkCell.setTextAndValue(value, LocaleController.getString(R.string.UserBio), true || getUserConfig().isPremium());
                             currentBio = userInfo != null ? userInfo.about : null;
                         } else {
                             aboutLinkCell.setTextAndValue(LocaleController.getString(R.string.UserBio), LocaleController.getString(R.string.UserBioDetail), false);

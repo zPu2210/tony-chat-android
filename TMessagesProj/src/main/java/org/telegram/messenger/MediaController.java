@@ -128,11 +128,6 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.NekoXConfig;
-import tw.nekomimi.nekogram.SaveToDownloadReceiver;
-import xyz.nextalone.nagram.NaConfig;
-import xyz.nextalone.nagram.helper.AudioEnhance;
 
 public class MediaController implements AudioManager.OnAudioFocusChangeListener, NotificationCenter.NotificationCenterDelegate, SensorEventListener {
 
@@ -4977,7 +4972,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
         private final int notificationId;
 
         public MediaLoader(Context context, AccountInstance accountInstance, ArrayList<MessageObject> messages, MessagesStorage.IntCallback onFinish) {
-            notificationId = SaveToDownloadReceiver.createNotificationId();
+            notificationId = 0;
             currentAccount = accountInstance;
             messageObjects = messages;
             onFinishRunnable = onFinish;
@@ -4998,7 +4993,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
         public void start(Context context) {
             AndroidUtilities.runOnUIThread(() -> {
                 if (!finished) {
-                    SaveToDownloadReceiver.showNotification(context, notificationId, messageObjects.size(), () -> cancelled = true);
+                    // SaveToDownloadReceiver removed
                 }
             }, 250);
 
@@ -5133,7 +5128,6 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
             }
             AndroidUtilities.runOnUIThread(() -> {
                 try {
-                    SaveToDownloadReceiver.cancelNotification(notificationId);
                     finished = true;
                     if (onFinishRunnable != null) {
                         AndroidUtilities.runOnUIThread(() -> onFinishRunnable.run(copiedFiles));
@@ -5172,7 +5166,6 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                     @SuppressLint("DiscouragedPrivateApi") Method getInt = FileDescriptor.class.getDeclaredMethod("getInt$");
                     int fdint = (Integer) getInt.invoke(inputStream.getFD());
                     if (AndroidUtilities.isInternalUri(fdint)) {
-                        AndroidUtilities.runOnUIThread(() -> SaveToDownloadReceiver.cancelNotification(notificationId));
                         return false;
                     }
                 } catch (Throwable e) {
@@ -5187,7 +5180,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                     if (a + 4096 >= size || lastProgress <= SystemClock.elapsedRealtime() - 500) {
                         lastProgress = SystemClock.elapsedRealtime();
                         final int progress = (int) (finishedProgress + 100.0f / messageObjects.size() * a / size);
-                        AndroidUtilities.runOnUIThread(() -> SaveToDownloadReceiver.updateNotification(notificationId, progress));
+                        // SaveToDownloadReceiver removed
                     }
                 }
                 if (!cancelled) {
@@ -5214,7 +5207,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                     }
                     finishedProgress += 100.0f / messageObjects.size();
                     final int progress = (int) (finishedProgress);
-                    AndroidUtilities.runOnUIThread(() -> SaveToDownloadReceiver.updateNotification(notificationId, progress));
+                    // SaveToDownloadReceiver removed
                     return true;
                 }
             } catch (Exception e) {
@@ -5238,7 +5231,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                     Long totalSize = (Long) args[2];
                     float loadProgress = loadedSize / (float) totalSize;
                     final int progress = (int) (finishedProgress + loadProgress / messageObjects.size() * 100);
-                    AndroidUtilities.runOnUIThread(() -> SaveToDownloadReceiver.updateNotification(notificationId, progress));
+                    // SaveToDownloadReceiver removed
                 }
             }
         }
@@ -5280,7 +5273,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
         final boolean[] cancelled = new boolean[]{false};
         if (sourceFile.exists()) {
 
-            int notificationId = SaveToDownloadReceiver.createNotificationId();
+            int notificationId = 0;
             final boolean[] finished = new boolean[1];
             if (context != null && type != 0) {
                 try {
@@ -5291,7 +5284,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                     dialog.setOnCancelListener(d -> cancelled[0] = true);
                     AndroidUtilities.runOnUIThread(() -> {
                         if (!finished[0]) {
-                            SaveToDownloadReceiver.showNotification(context, notificationId, 1, () -> cancelled[0] = true);
+                            // SaveToDownloadReceiver removed
                         }
                     }, 250);
                 } catch (Exception e) {
@@ -5353,7 +5346,6 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                                 @SuppressLint("DiscouragedPrivateApi") Method getInt = FileDescriptor.class.getDeclaredMethod("getInt$");
                                 int fdint = (Integer) getInt.invoke(inputStream.getFD());
                                 if (AndroidUtilities.isInternalUri(fdint)) {
-                                    AndroidUtilities.runOnUIThread(() -> SaveToDownloadReceiver.cancelNotification(notificationId));
                                     return;
                                 }
                             } catch (Throwable e) {
@@ -5368,7 +5360,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                                     if (lastProgress <= System.currentTimeMillis() - 500) {
                                         lastProgress = System.currentTimeMillis();
                                         final int progress = (int) ((float) a / (float) size * 100);
-                                        AndroidUtilities.runOnUIThread(() -> SaveToDownloadReceiver.updateNotification(notificationId, progress));
+                                        // SaveToDownloadReceiver removed
                                     }
                                 //}
                             }
@@ -5399,7 +5391,6 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                 //if (finalProgress != null) {
                     AndroidUtilities.runOnUIThread(() -> {
                         try {
-                            SaveToDownloadReceiver.cancelNotification(notificationId);
                             finished[0] = true;
                         } catch (Exception e) {
                             FileLog.e(e);

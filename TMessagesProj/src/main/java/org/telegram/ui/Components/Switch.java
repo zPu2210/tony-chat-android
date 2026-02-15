@@ -38,7 +38,6 @@ import org.telegram.messenger.AndroidUtilities;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Cells.BaseCell;
 
-import tw.nekomimi.nekogram.utils.VibrateUtil;
 
 public class Switch extends View {
 

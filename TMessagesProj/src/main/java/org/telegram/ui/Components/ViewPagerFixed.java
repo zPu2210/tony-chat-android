@@ -59,8 +59,6 @@ import org.telegram.ui.Stories.recorder.HintView2;
 
 import java.util.ArrayList;
 
-import xyz.nextalone.nagram.NaConfig;
-import xyz.nextalone.nagram.TabStyle;
 
 public class ViewPagerFixed extends FrameLayout {
 
@@ -1611,7 +1609,7 @@ public class ViewPagerFixed extends FrameLayout {
                 ((DefaultItemAnimator) listView.getItemAnimator()).setDelayAnimations(false);
             }
 
-            listView.setSelectorType(0 >= TabStyle.PILLS.getValue() ? 9 : tabsSelectorType);
+            listView.setSelectorType(tabsSelectorType);
             if (tabsSelectorType == 3) {
                 listView.setSelectorRadius(0);
             } else {
@@ -1994,34 +1992,19 @@ public class ViewPagerFixed extends FrameLayout {
 //                        selectorDrawable.setBounds(indicatorX, (int) (height - AndroidUtilities.dpr(4) + hideProgress * AndroidUtilities.dpr(4)), indicatorX + indicatorWidth, (int) (height + hideProgress * AndroidUtilities.dpr(4)));
 //                        selectorDrawable.draw(canvas);
                         // --- Tab Style Start ---
-                        int tabStyle = 0;
-                        int inlinePadding = 0;
+                        // TabStyle removed - use default underline style
                         int topBound = (int) (height - AndroidUtilities.dpr(4) + hideProgress * AndroidUtilities.dpr(4));
                         int bottomBound = (int) (height + hideProgress * AndroidUtilities.dpr(4));
-                        float rtpRad = 0;
-                        if (tabStyle >= TabStyle.PILLS.getValue()) {
-                            int padding = tabStyle == TabStyle.PILLS.getValue() ? 8 : 10;
-                            inlinePadding = AndroidUtilities.dp(padding);
-                            topBound = (int) (height / 2f - AndroidUtilities.dp(15) * (1f - hideProgress));
-                            bottomBound = (int) (height / 2f + AndroidUtilities.dp(15) * (1f - hideProgress));
-                            selectorDrawable.setColor(ColorUtils.setAlphaComponent(Theme.getColor(Theme.key_actionBarDefaultIcon, resourcesProvider), 50));
-                        } else {
-                            selectorDrawable.setColor(Theme.getColor(tabLineColorKey, resourcesProvider));
-                        }
+                        selectorDrawable.setColor(Theme.getColor(tabLineColorKey, resourcesProvider));
                         float rad = AndroidUtilities.dpf2(3);
-                        if (tabStyle == TabStyle.PILLS.getValue()) {
-                            rad = rtpRad = AndroidUtilities.dpf2(40);
-                        }
-                        selectorDrawable.setCornerRadii(new float[]{rad, rad, rad, rad, rtpRad, rtpRad, rtpRad, rtpRad});
+                        selectorDrawable.setCornerRadii(new float[]{rad, rad, rad, rad, 0, 0, 0, 0});
                         selectorDrawable.setBounds(
-                                indicatorX - inlinePadding,
+                                indicatorX,
                                 topBound,
-                                indicatorX + indicatorWidth + inlinePadding,
+                                indicatorX + indicatorWidth,
                                 bottomBound
                         );
-                        if (tabStyle != TabStyle.PURE.getValue()) {
-                            selectorDrawable.draw(canvas);
-                        }
+                        selectorDrawable.draw(canvas);
                         // --- Tab Style End ---
                     }
                 }

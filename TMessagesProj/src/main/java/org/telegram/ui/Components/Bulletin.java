@@ -85,7 +85,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import xyz.nextalone.nagram.NaConfig;
 
 public class Bulletin {
 

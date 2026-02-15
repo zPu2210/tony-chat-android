@@ -61,7 +61,6 @@ import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.LineProgressView;
 import org.telegram.ui.GradientClip;
 
-import tw.nekomimi.nekogram.NekoConfig;
 
 public class WebActionBar extends FrameLayout {
 

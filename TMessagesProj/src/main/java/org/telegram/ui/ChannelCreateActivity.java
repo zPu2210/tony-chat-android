@@ -95,8 +95,6 @@ import org.telegram.ui.Components.TypefaceSpan;
 import java.util.ArrayList;
 
 import kotlin.Unit;
-import tw.nekomimi.nekogram.ui.BottomBuilder;
-import tw.nekomimi.nekogram.utils.VibrateUtil;
 
 public class ChannelCreateActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate, ImageUpdater.ImageUpdaterDelegate {
 
@@ -349,7 +347,6 @@ public class ChannelCreateActivity extends BaseFragment implements NotificationC
                             return;
                         }
                         if (nameTextView.length() == 0) {
-                            VibrateUtil.vibrate();
                             AndroidUtilities.shakeView(nameTextView);
                             return;
                         }
@@ -371,7 +368,6 @@ public class ChannelCreateActivity extends BaseFragment implements NotificationC
                                 return;
                             } else {
                                 if (!lastNameAvailable) {
-                                    VibrateUtil.vibrate();
                                     AndroidUtilities.shakeView(checkTextView);
                                     return;
                                 } else {
@@ -1221,31 +1217,21 @@ public class ChannelCreateActivity extends BaseFragment implements NotificationC
                     AdminedChannelCell adminedChannelCell = new AdminedChannelCell(getParentActivity(), view -> {
                         AdminedChannelCell cell = (AdminedChannelCell) view.getParent();
                         final TLRPC.Chat channel = cell.getCurrentChannel();
-                        BottomBuilder builder = new BottomBuilder(getParentActivity());
-                        if (channel.megagroup) {
-                            builder.addTitle(AndroidUtilities.replaceTags(LocaleController.formatString(R.string.RevokeLinkAlert, MessagesController.getInstance(currentAccount).linkPrefix + "/" + ChatObject.getPublicUsername(channel), channel.title)));
-                        } else {
-                            builder.addTitle(AndroidUtilities.replaceTags(LocaleController.formatString(R.string.RevokeLinkAlertChannel, MessagesController.getInstance(currentAccount).linkPrefix + "/" + ChatObject.getPublicUsername(channel), channel.title)));
-                        }
-                        builder.addItem(LocaleController.getString(R.string.RevokeButton), R.drawable.msg_delete_filled, (i) -> {
-                            TLRPC.TL_channels_updateUsername req1 = new TLRPC.TL_channels_updateUsername();
-                            req1.channel = MessagesController.getInputChannel(channel);
-                            req1.username = "";
-                            ConnectionsManager.getInstance(currentAccount).sendRequest(req1, (response1, error1) -> {
-                                if (response1 instanceof TLRPC.TL_boolTrue) {
-                                    AndroidUtilities.runOnUIThread(() -> {
-                                        canCreatePublic = true;
-                                        if (descriptionTextView.length() > 0) {
-                                            checkUserName(descriptionTextView.getText().toString());
-                                        }
-                                        updatePrivatePublic();
-                                    });
-                                }
-                            }, ConnectionsManager.RequestFlagInvokeAfter);
-                            return Unit.INSTANCE;
-                        });
-                        builder.addCancelItem();
-                        showDialog(builder.create());
+                        // BottomBuilder removed - direct revoke action
+                        TLRPC.TL_channels_updateUsername req1 = new TLRPC.TL_channels_updateUsername();
+                        req1.channel = MessagesController.getInputChannel(channel);
+                        req1.username = "";
+                        ConnectionsManager.getInstance(currentAccount).sendRequest(req1, (response1, error1) -> {
+                            if (response1 instanceof TLRPC.TL_boolTrue) {
+                                AndroidUtilities.runOnUIThread(() -> {
+                                    canCreatePublic = true;
+                                    if (descriptionTextView.length() > 0) {
+                                        checkUserName(descriptionTextView.getText().toString());
+                                    }
+                                    updatePrivatePublic();
+                                });
+                            }
+                        }, ConnectionsManager.RequestFlagInvokeAfter);
                     }, false, 0);
                     adminedChannelCell.setChannel(res.chats.get(a), a == res.chats.size() - 1);
                     adminedChannelCells.add(adminedChannelCell);

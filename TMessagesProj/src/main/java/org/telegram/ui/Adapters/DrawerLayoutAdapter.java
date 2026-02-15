@@ -47,12 +47,7 @@ import org.telegram.ui.Components.SideMenultItemAnimator;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import cn.hutool.core.util.StrUtil;
 import kotlin.jvm.functions.Function0;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.NekoXConfig;
-import tw.nekomimi.nekogram.helpers.PasscodeHelper;
-import xyz.nextalone.nagram.NaConfig;
 
 public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter implements NotificationCenter.NotificationCenterDelegate {
 
@@ -269,7 +264,7 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter imple
     private void resetItems() {
         accountNumbers.clear();
         for (int a : SharedConfig.activeAccounts) {
-            if (PasscodeHelper.isAccountHidden(a)) continue;
+            if (false) continue;
             if (UserConfig.getInstance(a).isClientActivated()) {
                 accountNumbers.add(a);
             }
@@ -348,7 +343,7 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter imple
         if (false) {
             boolean isGhost = false;
             items.add(new CheckItem(nkbtnGhostMode, LocaleController.getString("GhostMode", R.string.GhostMode), R.drawable.icon_ghost, () -> isGhost, () -> {
-                NekoConfig.setGhostMode(!isGhost);
+                // ghost mode removed;
                 NotificationCenter.getInstance(UserConfig.selectedAccount).postNotificationName(NotificationCenter.mainUserInfoChanged);
                 return true;
             }));

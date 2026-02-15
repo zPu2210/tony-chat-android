@@ -36,7 +36,6 @@ import org.telegram.ui.ProxyListActivity;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import tw.nekomimi.nekogram.utils.StrUtil;
 import org.telegram.ui.Components.RadioButton;
 
 public class LanguageCell extends FrameLayout {
@@ -91,8 +90,8 @@ public class LanguageCell extends FrameLayout {
     }
 
     public void setLanguage(BaseFragment fragment,LocaleController.LocaleInfo language, String desc, boolean divider) {
-        StrUtil.setText(fragment, textView, desc != null ? desc : language.name);
-        StrUtil.setText(fragment, textView2, language.nameEnglish);
+        textView.setText(desc != null ? desc : language.name);
+        textView2.setText(language.nameEnglish);
         currentLocale = language;
         needDivider = divider;
     }

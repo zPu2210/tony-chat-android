@@ -38,8 +38,6 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import tw.nekomimi.nekogram.helpers.remote.WallpaperHelper;
-import xyz.nextalone.nagram.NaConfig;
 
 public class ChatThemeController extends BaseController {
 
@@ -373,11 +371,9 @@ public class ChatThemeController extends BaseController {
     }
 
     public TLRPC.WallPaper getDialogWallpaper(long dialogId) {
-        TLRPC.WallPaper info = WallpaperHelper.getInstance().getDialogWallpaper(dialogId);
+        // WallpaperHelper removed
+        TLRPC.WallPaper info = null;
         if (dialogId >= 0) {
-            if (false) {
-                return null;
-            }
             if (info != null) {
                 return info;
             }

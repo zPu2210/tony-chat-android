@@ -83,7 +83,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import tw.nekomimi.nekogram.helpers.remote.InlineBotRulesHelper;
 
 public class MentionsAdapter extends RecyclerListView.SelectionAdapter implements NotificationCenter.NotificationCenterDelegate {
 
@@ -1011,7 +1010,7 @@ public class MentionsAdapter extends RecyclerListView.SelectionAdapter implement
             isValidEmoji = spans == null || spans.length == 0;
         }
 
-        var inlineBot = InlineBotRulesHelper.getInstance().doRegex(text);
+        // InlineBotRulesHelper removed
         if (allowStickers && isValidEmoji && (currentChat == null || ChatObject.canSendStickers(currentChat))) {
             stickersToLoad.clear();
             if (SharedConfig.suggestStickers == 2 || !isValidEmoji) {
@@ -1149,8 +1148,6 @@ public class MentionsAdapter extends RecyclerListView.SelectionAdapter implement
             }
 //            searchForStickers(null, false);
             searchForContextBot(username, query);
-        } else if (inlineBot != null) {
-            searchForContextBot(inlineBot, text, true);
         } else if (allowStickers && parentFragment != null && parentFragment.getCurrentEncryptedChat() == null && (currentChat == null || ChatObject.canSendStickers(currentChat)) && text.trim().length() >= 2 && text.trim().indexOf(' ') < 0) {
 //            searchForStickers(text.trim(), false);
             searchForContextBot(null, null);

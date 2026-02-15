@@ -94,7 +94,6 @@ import org.telegram.ui.Components.spoilers.SpoilersTextView;
 
 import java.util.ArrayList;
 
-import tw.nekomimi.nekogram.NekoConfig;
 
 public class FilterChatlistActivity extends BaseFragment {
 

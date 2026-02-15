@@ -15,7 +15,6 @@ import android.view.View;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.R;
 
-import tw.nekomimi.nekogram.NekoConfig;
 
 public class ZoomControlView extends View {
 

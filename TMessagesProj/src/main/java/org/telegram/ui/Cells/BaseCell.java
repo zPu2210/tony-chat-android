@@ -29,7 +29,6 @@ import org.telegram.messenger.SharedConfig;
 import org.telegram.ui.Components.SizeNotifierFrameLayout;
 import org.telegram.ui.Components.blur3.DownscaleScrollableNoiseSuppressor;
 
-import tw.nekomimi.nekogram.NekoConfig;
 
 public abstract class BaseCell extends ViewGroup implements SizeNotifierFrameLayout.IViewWithInvalidateCallback {
 

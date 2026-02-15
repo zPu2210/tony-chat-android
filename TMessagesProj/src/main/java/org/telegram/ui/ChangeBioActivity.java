@@ -49,7 +49,6 @@ import org.telegram.ui.Components.NumberTextView;
 
 import java.util.ArrayList;
 
-import tw.nekomimi.nekogram.utils.VibrateUtil;
 
 public class ChangeBioActivity extends BaseFragment {
 
@@ -118,7 +117,6 @@ public class ChangeBioActivity extends BaseFragment {
                 }
                 CharSequence result = super.filter(source, start, end, dest, dstart, dend);
                 if (result != null && source != null && result.length() != source.length()) {
-                    VibrateUtil.vibrate();
                     AndroidUtilities.shakeView(checkTextView);
                 }
                 return result;

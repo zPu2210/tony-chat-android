@@ -40,7 +40,6 @@ import org.telegram.ui.DialogsActivity;
 
 import java.util.ArrayList;
 
-import tw.nekomimi.nekogram.folder.FolderIconHelper;
 
 public class FiltersListBottomSheet extends BottomSheet implements NotificationCenter.NotificationCenterDelegate {
 
@@ -428,7 +427,7 @@ public class FiltersListBottomSheet extends BottomSheet implements NotificationC
                 CharSequence title = filter.name;
                 title = Emoji.replaceEmoji(title, cell.getTextView().getPaint().getFontMetricsInt(), false);
                 title = MessageObject.replaceAnimatedEmoji(title, filter.entities, cell.getTextView().getPaint().getFontMetricsInt());
-                cell.setTextAndIcon(title, 0, new FolderDrawable(getContext(), FolderIconHelper.getTabIcon(filter.emoticon), filter.color), false);
+                cell.setTextAndIcon(title, 0, new FolderDrawable(getContext(), R.drawable.msg_folders, filter.color), false);
                 cell.getTextView().setEmojiColor(Theme.getColor(Theme.key_featuredStickers_addButton, resourcesProvider));
                 boolean isChecked = true;
                 for (int i = 0; i < selectedDialogs.size(); ++i) {

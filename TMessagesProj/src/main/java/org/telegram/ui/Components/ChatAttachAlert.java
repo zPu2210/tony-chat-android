@@ -150,13 +150,6 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import kotlin.Unit;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.transtale.TranslateDb;
-import tw.nekomimi.nekogram.transtale.Translator;
-import tw.nekomimi.nekogram.transtale.TranslatorKt;
-import tw.nekomimi.nekogram.utils.AlertUtil;
-import tw.nekomimi.nekogram.utils.VibrateUtil;
-import xyz.nextalone.nagram.NaConfig;
 
 import java.util.Objects;
 
@@ -3521,30 +3514,6 @@ public class ChatAttachAlert extends BottomSheet implements NotificationCenter.N
                 }
             }
             final boolean self = UserObject.isUserSelf(user);
-            if (chatActivity != null) {
-                final long finalDialogId = dialogId;
-                options.add(R.drawable.ic_translate, getString(R.string.Translate), () -> {
-                    if (messageSendPreview != null) {
-                        messageSendPreview.dismiss(false);
-                    }
-                    translateComment(parentFragment.getParentActivity(), TranslateDb.getChatLanguage(finalDialogId, TranslatorKt.getCode2Locale("en")));
-                });
-                // TODO: nekox
-//                itemCells[a].setOnLongClickListener(v -> {
-//                    if (num == 0) {
-//                        Translator.showTargetLangSelect(itemCells[num], true, (locale) -> {
-//                            if (sendPopupWindow != null && sendPopupWindow.isShowing()) {
-//                                sendPopupWindow.dismiss();
-//                            }
-//                            translateComment(parentFragment.getParentActivity(), locale);
-//                            TranslateDb.saveChatLanguage(finalDialogId, locale);
-//                            return Unit.INSTANCE;
-//                        });
-//                        return true;
-//                    }
-//                    return false;
-//                });
-            }
             if (editingMessageObject == null && (chatActivity == null || !ChatObject.isMonoForum(chatActivity.getCurrentChat())) && ((chatActivity != null && chatActivity.canScheduleMessage()) || currentAttachLayout.canScheduleMessages())) {
                 final long finalDialogId = dialogId;
                 options.add(R.drawable.msg_calendar2, getString(self ? R.string.SetReminder : R.string.ScheduleMessage), () -> {
@@ -3822,55 +3791,6 @@ public class ChatAttachAlert extends BottomSheet implements NotificationCenter.N
         return currentAttachLayout == photoLayout && photoLayout.cameraExpanded;
     }
 
-    private void translateComment(Context ctx, Locale target) {
-
-
-        TranslateDb db = TranslateDb.forLocale(target);
-        String origin = commentTextView.getText().toString();
-
-        if (db.contains(origin)) {
-
-            String translated = db.query(origin);
-            commentTextView.getEditText().setText(translated);
-
-            return;
-
-        }
-
-        Translator.translate(target, origin, new Translator.Companion.TranslateCallBack() {
-
-            final AtomicBoolean cancel = new AtomicBoolean();
-            AlertDialog status = AlertUtil.showProgress(ctx);
-
-            {
-
-                status.setOnCancelListener((__) -> {
-                    cancel.set(true);
-                });
-
-                status.show();
-
-            }
-
-            @Override
-            public void onSuccess(@NotNull String translation) {
-                status.dismiss();
-                commentTextView.getEditText().setText(translation);
-            }
-
-            @Override
-            public void onFailed(boolean unsupported, @NotNull String message) {
-                status.dismiss();
-                AlertUtil.showTransFailedDialog(ctx, unsupported, message, () -> {
-                    status = AlertUtil.showProgress(ctx);
-                    status.show();
-                    Translator.translate(origin, this);
-                });
-            }
-
-        });
-
-    }
 
     @Override
     public void show() {

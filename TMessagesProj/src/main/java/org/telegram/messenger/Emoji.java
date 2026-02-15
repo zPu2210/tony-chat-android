@@ -45,9 +45,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.helpers.remote.EmojiHelper;
-import xyz.nextalone.nagram.NaConfig;
 
 public class Emoji {
 
@@ -92,8 +89,9 @@ public class Emoji {
     private static boolean isSelectedEmojiPack;
 
     private static void reloadCache() {
-        emojiFile = EmojiHelper.getInstance().getCurrentEmojiPackOffline();
-        isSelectedEmojiPack = !EmojiHelper.getInstance().getEmojiPack().equals("default") && emojiFile != null && emojiFile.exists();
+        // EmojiHelper removed
+        emojiFile = null;
+        isSelectedEmojiPack = false;
     }
 
     public static boolean isSelectedCustomPack() {
@@ -150,15 +148,7 @@ public class Emoji {
                 if (false || isSelectedEmojiPack) {
                     int emojiSize = 66;
                     bitmap = Bitmap.createBitmap(emojiSize, emojiSize, Bitmap.Config.ARGB_8888);
-                    Canvas canvas = new Canvas(bitmap);
-                    EmojiHelper.drawEmojiFont(
-                            canvas,
-                            0,
-                            0,
-                            EmojiHelper.getInstance().getCurrentTypeface(),
-                            fixEmoji(EmojiData.data[page][page2]),
-                            emojiSize
-                    );
+                    // EmojiHelper removed - fallback to standard loading
                 } else {
                     bitmap = loadBitmap("emoji/" + String.format(Locale.US, "%d_%d.png", page, page2));
                     try {

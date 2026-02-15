@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -50,6 +51,7 @@ import org.telegram.messenger.browser.Browser;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;
+import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.ActionBar.ThemeDescription;
@@ -84,9 +86,6 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import kotlin.Unit;
-import tw.nekomimi.nekogram.ui.BottomBuilder;
-import tw.nekomimi.nekogram.utils.AlertUtil;
-import tw.nekomimi.nekogram.utils.ProxyUtil;
 
 public class FilteredSearchView extends FrameLayout implements NotificationCenter.NotificationCenterDelegate {
 
@@ -1162,29 +1161,26 @@ public class FilteredSearchView extends FrameLayout implements NotificationCente
             @Override
             public void onLinkPress(String urlFinal, boolean longPress) {
                 if (longPress) {
-                    BottomBuilder builder = new BottomBuilder(parentActivity);
-                    builder.addTitle(urlFinal);
-                    builder.addItems(
-                            new String[]{LocaleController.getString(R.string.Open), LocaleController.getString(R.string.Copy), LocaleController.getString(R.string.ShareQRCode)},
-                            new int[]{R.drawable.msg_openin, R.drawable.msg_copy, R.drawable.msg_qrcode}, (which, text, __) -> {
-                                if (which == 0 || which == 2) {
-                                    if (which == 0) {
-                                        openUrl(urlFinal);
-                                    } else {
-                                        ProxyUtil.showQrDialog(parentActivity, urlFinal);
-                                    }
-                                } else if (which == 1) {
-                                    String url1 = urlFinal;
-                                    if (url1.startsWith("mailto:")) {
-                                        url1 = url1.substring(7);
-                                    } else if (url1.startsWith("tel:")) {
-                                        url1 = url1.substring(4);
-                                    }
-                                    AndroidUtilities.addToClipboard(url1);
-                                    AlertUtil.showToast(LocaleController.getString( R.string.LinkCopied));
-                                }
-                                return Unit.INSTANCE;
-                            });
+                    // BottomBuilder removed - use simple actions
+                    AlertDialog.Builder builder = new AlertDialog.Builder(parentActivity);
+                    builder.setTitle(urlFinal);
+                    builder.setItems(new String[]{
+                        LocaleController.getString(R.string.Open),
+                        LocaleController.getString(R.string.Copy)
+                    }, (dialog, which) -> {
+                        if (which == 0) {
+                            openUrl(urlFinal);
+                        } else if (which == 1) {
+                            String url1 = urlFinal;
+                            if (url1.startsWith("mailto:")) {
+                                url1 = url1.substring(7);
+                            } else if (url1.startsWith("tel:")) {
+                                url1 = url1.substring(4);
+                            }
+                            AndroidUtilities.addToClipboard(url1);
+                            Toast.makeText(ApplicationLoader.applicationContext, LocaleController.getString(R.string.LinkCopied), Toast.LENGTH_SHORT).show();
+                        }
+                    });
                     parentFragment.showDialog(builder.create());
                 } else {
                     openUrl(urlFinal);

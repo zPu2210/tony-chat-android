@@ -256,17 +256,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.Random;
 
 import kotlin.Unit;
-import tw.nekomimi.nekogram.BackButtonMenuRecent;
-import tw.nekomimi.nekogram.helpers.PasscodeHelper;
-import tw.nekomimi.nekogram.ui.BottomBuilder;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.NekoXConfig;
-import tw.nekomimi.nekogram.utils.PrivacyUtil;
-import tw.nekomimi.nekogram.utils.ProxyUtil;
-import tw.nekomimi.nekogram.utils.UIUtil;
-import tw.nekomimi.nekogram.utils.UpdateUtil;
-import tw.nekomimi.nekogram.utils.VibrateUtil;
-import xyz.nextalone.nagram.NaConfig;
 
 public class DialogsActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate, FloatingDebugProvider {
 
@@ -3785,7 +3774,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
             int accounts = 0;
             for (int a : SharedConfig.activeAccounts) {
-                if (PasscodeHelper.isAccountHidden(a)) continue;
+                if (false) continue;
                 TLRPC.User u = AccountInstance.getInstance(a).getUserConfig().getCurrentUser();
                 if (u != null) {
                     AccountSelectCell cell = new AccountSelectCell(context, false);
@@ -3873,7 +3862,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
                         @Override
                         public void didFindQr(String text) {
-                            ProxyUtil.showLinkAlert(getParentActivity(), text);
+                            // Proxy link alert removed
                         }
 
                         @Override
@@ -5342,9 +5331,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         if (!onlySelect && folderId == 0) {
             View backButton = actionBar.getBackButton();
             backButton.setOnLongClickListener(e -> {
-                if (searching || filterTabsView != null && filterTabsView.isEditing() || actionBar.isActionModeShowed()) return false;
-                BackButtonMenuRecent.show(currentAccount, this, backButton);
-                return true;
+                // Back button menu recent removed
+                return false;
             });
         }
 
@@ -5540,12 +5528,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             contentView.addView(dialogStoriesCell, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, DialogStoriesCell.HEIGHT_IN_DP));
         }
 
-        if (new Random().nextInt(100) < 50)
-            PrivacyUtil.postCheckAll(getParentActivity(), currentAccount);
-        else if (new Random().nextInt(100) < 20) {
-            UpdateUtil.postCheckFollowChannel(getParentActivity(), currentAccount);
-            UpdateUtil.postCheckFollowTipsChannel(getParentActivity(), currentAccount);
-        }
+        // Privacy and update checks removed
 
         updateStoriesVisibility(false);
         return fragmentView;
@@ -8703,12 +8686,12 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     }
 
     private void onArchiveLongPress(View view) {
-        if (!false) {
+        if (true) {
             try {
                 view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
             } catch (Exception ignored) {}
         }
-        BottomSheet.NekoXBuilder builder = new BottomSheet.NekoXBuilder(getParentActivity());
+        BottomSheet.Builder builder = new BottomSheet.Builder(getParentActivity());
         final boolean hasUnread = getMessagesStorage().getArchiveUnreadCount() != 0;
 
         int[] icons = new int[]{

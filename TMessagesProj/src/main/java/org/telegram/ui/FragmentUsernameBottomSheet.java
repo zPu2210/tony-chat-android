@@ -16,9 +16,11 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.telegram.PhoneFormat.PhoneFormat;
 import org.telegram.messenger.AndroidUtilities;
+import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.BillingController;
 import org.telegram.messenger.Emoji;
 import org.telegram.messenger.LocaleController;
@@ -41,7 +43,6 @@ import org.telegram.ui.Components.LinkSpanDrawable;
 import org.telegram.ui.Components.RLottieImageView;
 import org.telegram.ui.Stories.recorder.ButtonWithCounterView;
 
-import tw.nekomimi.nekogram.utils.AlertUtil;
 
 public class FragmentUsernameBottomSheet {
 
@@ -181,7 +182,8 @@ public class FragmentUsernameBottomSheet {
                 ButtonWithCounterView button3 = new ButtonWithCounterView(context, false, resourcesProvider);
                 button3.setText(getString(R.string.Copy), false);
                 button3.setOnClickListener(v -> {
-                    AlertUtil.copyAndAlert("@" + name);
+                    AndroidUtilities.addToClipboard("@" + name);
+                    Toast.makeText(ApplicationLoader.applicationContext, LocaleController.getString(R.string.TextCopied), Toast.LENGTH_SHORT).show();
                     sheet.dismiss();
                 });
                 layout.addView(button3, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 48, 6, 6, 6, 0));

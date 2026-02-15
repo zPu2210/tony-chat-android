@@ -155,10 +155,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import kotlin.Unit;
-import tw.nekomimi.nekogram.ui.BottomBuilder;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.utils.AlertUtil;
-import tw.nekomimi.nekogram.utils.ProxyUtil;
 
 public class ChannelAdminLogActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
 
@@ -3069,17 +3065,13 @@ public class ChannelAdminLogActivity extends BaseFragment implements Notificatio
                         } else {
                             final String urlFinal = ((URLSpan) url).getURL();
                             if (longPress) {
-                                BottomBuilder builder = new BottomBuilder(getParentActivity());
-                                builder.addTitle(urlFinal);
-                                builder.addItems(
-                                        new String[]{LocaleController.getString("Open", R.string.Open), LocaleController.getString("Copy", R.string.Copy), LocaleController.getString("ShareQRCode", R.string.ShareQRCode)},
-                                        new int[]{R.drawable.msg_openin, R.drawable.msg_copy, R.drawable.msg_qrcode}, (which, text, __) -> {
-                                            if (which == 0 || which == 2) {
-                                                if (which == 0) {
-                                                    Browser.openUrl(getParentActivity(), urlFinal);
-                                                } else {
-                                                    ProxyUtil.showQrDialog(getParentActivity(), urlFinal);
-                                                }
+                                org.telegram.ui.ActionBar.BottomSheet.Builder builder = new org.telegram.ui.ActionBar.BottomSheet.Builder(getParentActivity());
+                                builder.setTitle(urlFinal, true);
+                                builder.setItems(
+                                        new CharSequence[]{LocaleController.getString("Open", R.string.Open), LocaleController.getString("Copy", R.string.Copy)},
+                                        new int[]{R.drawable.msg_openin, R.drawable.msg_copy}, (dialogInterface, which) -> {
+                                            if (which == 0) {
+                                                Browser.openUrl(getParentActivity(), urlFinal);
                                             } else if (which == 1) {
                                                 String url1 = urlFinal;
                                                 if (url1.startsWith("mailto:")) {
@@ -3088,11 +3080,9 @@ public class ChannelAdminLogActivity extends BaseFragment implements Notificatio
                                                     url1 = url1.substring(4);
                                                 }
                                                 AndroidUtilities.addToClipboard(url1);
-                                                AlertUtil.showToast(LocaleController.getString("LinkCopied", R.string.LinkCopied));
                                             }
-                                            return Unit.INSTANCE;
                                         });
-                                showDialog(builder.create());
+                                builder.show();
                             } else {
                                 if (url instanceof URLSpanReplacement) {
                                     showOpenUrlAlert(((URLSpanReplacement) url).getURL(), true);

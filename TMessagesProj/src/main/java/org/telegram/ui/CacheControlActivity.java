@@ -150,11 +150,6 @@ import java.util.HashSet;
 import java.util.Objects;
 
 import kotlin.Unit;
-import tw.nekomimi.nekogram.helpers.remote.EmojiHelper;
-import tw.nekomimi.nekogram.ui.BottomBuilder;
-import tw.nekomimi.nekogram.utils.EnvUtil;
-import tw.nekomimi.nekogram.utils.FileUtil;
-import tw.nekomimi.nekogram.utils.UIUtil;
 
 public class CacheControlActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
 
@@ -432,7 +427,7 @@ public class CacheControlActivity extends BaseFragment implements NotificationCe
                 return;
             }
             stickersCacheSize += cacheEmojiSize;
-            cacheCustomEmojiSize = EmojiHelper.getInstance().getEmojiSize();
+            cacheCustomEmojiSize = 0;
             if (canceled) {
                 return;
             }
@@ -445,7 +440,7 @@ public class CacheControlActivity extends BaseFragment implements NotificationCe
             totalSize = lastTotalSizeCalculated = cacheSize + cacheTempSize + videoSize + logsSize + audioSize + photoSize + documentsSize + musicSize + storiesSize + stickersCacheSize;
             lastTotalSizeCalculatedTime = System.currentTimeMillis();
 
-            File path = EnvUtil.getTelegramPath();
+            File path = new File(ApplicationLoader.getFilesDirFixed().getAbsolutePath());
             try {
                 StatFs stat = new StatFs(path.getPath());
                 long blockSize;
@@ -1102,7 +1097,7 @@ public class CacheControlActivity extends BaseFragment implements NotificationCe
                 if (file != null) {
                     cleanDirJava(file.getAbsolutePath(), 3, null, updateProgress);
                 }
-                EmojiHelper.getInstance().deleteAll();
+                // EmojiHelper removed
                 clearDirI[0]++;
                 next.run();
             }
@@ -1138,12 +1133,18 @@ public class CacheControlActivity extends BaseFragment implements NotificationCe
                 imagesCleared = true;
 
                     try {
-                        FileUtil.delete(new File(ApplicationLoader.getDataDirFixed(), "cache"));
+                        File cacheDir = new File(ApplicationLoader.getDataDirFixed(), "cache");
+                        if (cacheDir.exists()) {
+                            Utilities.clearDir(cacheDir.getAbsolutePath(), 0, Long.MAX_VALUE, false);
+                        }
                     } catch (Exception ignored) {
                     }
 
                     try {
-                        FileUtil.delete(new File(EnvUtil.getTelegramPath(), "logs"));
+                        File logsDir = new File(new File(ApplicationLoader.getFilesDirFixed().getAbsolutePath()), "logs");
+                        if (logsDir.exists()) {
+                            Utilities.clearDir(logsDir.getAbsolutePath(), 0, Long.MAX_VALUE, false);
+                        }
                     } catch (Exception ignored) {
                     }
             } else if (type == FileLoader.MEDIA_DIR_AUDIO) {
@@ -1170,7 +1171,7 @@ public class CacheControlActivity extends BaseFragment implements NotificationCe
                 stickersCacheSize = getDirectorySize(new File(FileLoader.checkDirectory(FileLoader.MEDIA_DIR_CACHE), "acache"), documentsMusicType);
                 cacheEmojiSize = getDirectorySize(FileLoader.checkDirectory(FileLoader.MEDIA_DIR_CACHE), 3);
                 stickersCacheSize += cacheEmojiSize;
-                cacheCustomEmojiSize = EmojiHelper.getInstance().getEmojiSize();
+                cacheCustomEmojiSize = 0;
                 stickersCacheSize += cacheCustomEmojiSize;
             }
         }

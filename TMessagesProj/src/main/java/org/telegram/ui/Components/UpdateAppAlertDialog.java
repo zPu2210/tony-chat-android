@@ -33,7 +33,6 @@ import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ActionBar.BottomSheet;
 import org.telegram.ui.ActionBar.Theme;
 
-import tw.nekomimi.nekogram.TextViewEffects;
 
 public class UpdateAppAlertDialog extends BottomSheet {
 
@@ -266,7 +265,7 @@ public class UpdateAppAlertDialog extends BottomSheet {
         messageTextView.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.TOP);
         linearLayout.addView(messageTextView, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | Gravity.CENTER_HORIZONTAL, 23, 0, 23, 5));
 
-        TextView changelogTextView = new TextViewEffects(getContext());
+        TextView changelogTextView = new TextView(getContext());
         changelogTextView.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
         changelogTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
         changelogTextView.setMovementMethod(new AndroidUtilities.LinkMovementMethodMy());

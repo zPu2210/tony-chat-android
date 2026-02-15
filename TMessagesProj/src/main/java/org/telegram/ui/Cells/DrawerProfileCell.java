@@ -85,7 +85,6 @@ import org.telegram.ui.Components.SnowflakesEffect;
 import org.telegram.ui.ThemeActivity;
 import java.util.ArrayList;
 
-import tw.nekomimi.nekogram.NekoConfig;
 
 
 public class DrawerProfileCell extends FrameLayout implements NotificationCenter.NotificationCenterDelegate {

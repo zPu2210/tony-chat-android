@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
-import tw.nekomimi.nekogram.utils.AlertUtil;
 
 public class SecretChatHelper extends BaseController {
 
@@ -2010,7 +2009,6 @@ public class SecretChatHelper extends BaseController {
                         });
                     } else {
                         delayedEncryptedChatUpdates.clear();
-                        AlertUtil.showToast(error1);
                         AndroidUtilities.runOnUIThread(() -> {
                             if (!((Activity) context).isFinishing()) {
                                 startingSecretChat = false;
@@ -2030,7 +2028,6 @@ public class SecretChatHelper extends BaseController {
                 }, ConnectionsManager.RequestFlagFailOnServerErrors);
             } else {
                 delayedEncryptedChatUpdates.clear();
-                AlertUtil.showToast(error);
                 AndroidUtilities.runOnUIThread(() -> {
                     startingSecretChat = false;
                     if (!((Activity) context).isFinishing()) {

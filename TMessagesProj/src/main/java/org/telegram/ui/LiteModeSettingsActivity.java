@@ -70,7 +70,6 @@ import org.telegram.ui.Components.ThanosEffect;
 
 import java.util.ArrayList;
 
-import tw.nekomimi.nekogram.NekoConfig;
 
 public class LiteModeSettingsActivity extends BaseFragment {
 

@@ -80,15 +80,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.ssl.SSLException;
 
-import cn.hutool.core.util.StrUtil;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.NekoXConfig;
-import tw.nekomimi.nekogram.utils.AyuGhostUtils;
-import tw.nekomimi.nekogram.utils.DnsFactory;
-import tw.nekomimi.nekogram.ErrorDatabase;
 
-import tw.nekomimi.nekogram.utils.ProxyUtil;
-import xyz.nextalone.nagram.NaConfig;
 
 public class ConnectionsManager extends BaseController {
 
@@ -244,7 +236,10 @@ public class ConnectionsManager extends BaseController {
             deviceModel = Build.MANUFACTURER + Build.MODEL;
             String versionName = BuildConfig.VERSION_NAME;
             if (versionName.contains("-")) {
-                versionName = StrUtil.subBefore(versionName, "-", false);
+                int dashIndex = versionName.indexOf("-");
+                if (dashIndex > 0) {
+                    versionName = versionName.substring(0, dashIndex);
+                }
             }
             appVersion = versionName + " (" + BuildConfig.VERSION_CODE + ")";
             systemVersion = "SDK " + Build.VERSION.SDK_INT;
@@ -283,7 +278,7 @@ public class ConnectionsManager extends BaseController {
         if (getUserConfig().getCurrentUser() != null) {
             userPremium = getUserConfig().getCurrentUser().premium;
         }
-        init(BuildConfig.VERSION_CODE, TLRPC.LAYER, NekoXConfig.currentAppId(), deviceModel, systemVersion, appVersion, langCode, systemLangCode, configPath, FileLog.getNetworkLogPath(), pushString, fingerprint, timezoneOffset, getUserConfig().getClientUserId(), userPremium, enablePushConnection);
+        init(BuildConfig.VERSION_CODE, TLRPC.LAYER, BuildVars.APP_ID, deviceModel, systemVersion, appVersion, langCode, systemLangCode, configPath, FileLog.getNetworkLogPath(), pushString, fingerprint, timezoneOffset, getUserConfig().getClientUserId(), userPremium, enablePushConnection);
     }
 
     private String getRegId() {
@@ -343,8 +338,8 @@ public class ConnectionsManager extends BaseController {
                         object instanceof TLRPC.TL_messages_setEncryptedTyping)) {
             return false;
         }
-        // --- 不发送已读消息 ---
-        if (!true && !AyuGhostUtils.getAllowReadPacket() &&
+        // --- 不发送已读消息 --- (removed)
+        if (false &&
                 (object instanceof TLRPC.TL_messages_readHistory ||
                         object instanceof TLRPC.TL_messages_readMessageContents ||
                         object instanceof TLRPC.TL_channels_readHistory ||
@@ -381,16 +376,8 @@ public class ConnectionsManager extends BaseController {
             peer = null;
         }
         if (peer == null) return origCallback;
-        var dialogId = AyuGhostUtils.getDialogId(peer);
         return (response, error) -> {
             origCallback.run(response, error);
-            getMessagesStorage().getDialogMaxMessageId(dialogId, maxId -> {
-                TLRPC.TL_messages_readHistory request = new TLRPC.TL_messages_readHistory();
-                request.peer = peer;
-                request.max_id = maxId;
-                AyuGhostUtils.setAllowReadPacket(true, 1);
-                sendRequest(request, (a1, a2) -> {});
-            });
         };
     }
 
@@ -518,9 +505,7 @@ public class ConnectionsManager extends BaseController {
                         if (BuildVars.LOGS_ENABLED && error.code != -2000) {
                             FileLog.e(object + " got error " + error.code + " " + error.text);
                         }
-                        if (false) {
-                            ErrorDatabase.showErrorToast(object, errorText);
-                        }
+                        // ErrorDatabase removed
                     }
                     if ((connectionType & ConnectionTypeDownload) != 0 && VideoPlayer.activePlayers.isEmpty()) {
                         long ping_time = native_getCurrentPingTime(currentAccount);
@@ -994,7 +979,7 @@ public class ConnectionsManager extends BaseController {
             ResolvedDomain resolvedDomain = dnsCache.get(hostName);
             if (resolvedDomain != null && SystemClock.elapsedRealtime() - resolvedDomain.ttl < 5 * 60 * 1000) {
                 String addr = resolvedDomain.getAddress();
-                native_onHostNameResolved(hostName, address, addr, ProxyUtil.isIpv6Address(addr));
+                native_onHostNameResolved(hostName, address, addr, false);
             } else {
                 ResolveHostByNameTask task = resolvingHostnameTasks.get(hostName);
                 if (task == null) {
@@ -1283,7 +1268,7 @@ public class ConnectionsManager extends BaseController {
             InetAddress[] result;
 
             try {
-                result = DnsFactory.lookup(currentHostName);
+                result = InetAddress.getAllByName(currentHostName);
             } catch (Exception e) {
                 result = new InetAddress[0];
             }
@@ -1298,7 +1283,7 @@ public class ConnectionsManager extends BaseController {
                 dnsCache.put(currentHostName, result);
                 for (int a = 0, N = addresses.size(); a < N; a++) {
                     String address = result.getAddress();
-                    native_onHostNameResolved(currentHostName, addresses.get(a), address, ProxyUtil.isIpv6Address(address));
+                    native_onHostNameResolved(currentHostName, addresses.get(a), address, false);
                 }
             } else {
                 for (int a = 0, N = addresses.size(); a < N; a++) {
@@ -1323,7 +1308,7 @@ public class ConnectionsManager extends BaseController {
 
             String domain = native_isTestBackend(currentAccount) != 0 ? "tapv3.stel.com" : AccountInstance.getInstance(currentAccount).getMessagesController().dcDomainName;
             try {
-                List<String> arrayList = DnsFactory.getTxts(domain);
+                List<String> arrayList = new ArrayList<>();
                 Collections.sort(arrayList, (o1, o2) -> {
                     int l1 = o1.length();
                     int l2 = o2.length();

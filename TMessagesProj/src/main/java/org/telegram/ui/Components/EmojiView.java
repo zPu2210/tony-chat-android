@@ -147,9 +147,6 @@ import java.util.Objects;
 
 import me.vkryl.android.animator.BoolAnimator;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.ui.PinnedStickerHelper;
-import xyz.nextalone.nagram.NaConfig;
 
 public class EmojiView extends FrameLayout implements NotificationCenter.NotificationCenterDelegate, InAppKeyboardInsetView {
 
@@ -6613,9 +6610,6 @@ public class EmojiView extends FrameLayout implements NotificationCenter.Notific
                             TLRPC.TL_messages_stickerSet set = (TLRPC.TL_messages_stickerSet) object;
                             if (set.set != null) {
                                 String title = set.set.title;
-                                if (PinnedStickerHelper.getInstance(currentAccount).isPinned(set.set.id)) {
-                                    title += " " + LocaleController.getString("SetPinnedSuffix", R.string.SetPinnedSuffix);
-                                }
                                 cell.setText(title, 0);
                                 if (set.set.creator && !StickersAlert.DISABLE_STICKER_EDITOR) {
                                     cell.setEdit(v -> {

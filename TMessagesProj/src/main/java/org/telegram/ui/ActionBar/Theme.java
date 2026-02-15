@@ -152,8 +152,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.helpers.MonetHelper;
 
 public class Theme {
 
@@ -4784,9 +4782,9 @@ public class Theme {
             themeInfo = new ThemeInfo();
             themeInfo.name = "Monet Light";
             themeInfo.assetName = "monet_light.attheme";
-            themeInfo.previewBackgroundColor = MonetHelper.getColor("n1_50");
-            themeInfo.previewInColor = MonetHelper.getColor("a2_50");
-            themeInfo.previewOutColor = MonetHelper.getColor("a1_600");
+            themeInfo.previewBackgroundColor = 0;
+            themeInfo.previewInColor = 0;
+            themeInfo.previewOutColor = 0;
             themeInfo.sortIndex = 6;
             themes.add(themeInfo);
             themesDict.put("Monet Light", themeInfo);
@@ -4794,9 +4792,9 @@ public class Theme {
             themeInfo = new ThemeInfo();
             themeInfo.name = "Monet Dark";
             themeInfo.assetName = "monet_dark.attheme";
-            themeInfo.previewBackgroundColor = MonetHelper.getColor("n1_900");
-            themeInfo.previewInColor = MonetHelper.getColor("n2_800");
-            themeInfo.previewOutColor = MonetHelper.getColor("a1_100");
+            themeInfo.previewBackgroundColor = 0;
+            themeInfo.previewInColor = 0;
+            themeInfo.previewOutColor = 0;
             themeInfo.sortIndex = 7;
             themes.add(themeInfo);
             themesDict.put("Monet Dark", themeInfo);
@@ -4804,9 +4802,9 @@ public class Theme {
             themeInfo = new ThemeInfo();
             themeInfo.name = "Monet AMOLED";
             themeInfo.assetName = "monet_dark.attheme";
-            themeInfo.previewBackgroundColor = MonetHelper.getColor("n1_1000");
-            themeInfo.previewInColor = MonetHelper.getColor("n2_800");
-            themeInfo.previewOutColor = MonetHelper.getColor("a1_100");
+            themeInfo.previewBackgroundColor = 0;
+            themeInfo.previewInColor = 0;
+            themeInfo.previewOutColor = 0;
             themeInfo.sortIndex = 8;
             themes.add(themeInfo);
             themesDict.put("Monet AMOLED", themeInfo);
@@ -8257,7 +8255,7 @@ public class Theme {
                                         value = Utilities.parseInt(param);
                                     }
                                 } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && (param.startsWith("a") || param.startsWith("n") || param.startsWith("monet"))) {
-                                    value = MonetHelper.getColor(param, monetAmoled);
+                                    value = 0;
                                 } else {
                                     value = Utilities.parseInt(param);
                                 }

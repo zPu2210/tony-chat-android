@@ -64,11 +64,6 @@ import org.telegram.ui.Stories.recorder.HintView2;
 
 import java.util.ArrayList;
 
-import tw.nekomimi.nekogram.NekoXConfig;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.folder.FolderIconHelper;
-import xyz.nextalone.nagram.NaConfig;
-import xyz.nextalone.nagram.TabStyle;
 
 public class FilterTabsView extends FrameLayout {
 
@@ -132,7 +127,7 @@ public class FilterTabsView extends FrameLayout {
         }
 
         public int getWidth(boolean store) {
-            iconWidth = FolderIconHelper.getTotalIconWidth();
+            iconWidth = 0;
             int width = titleWidth = (int) Math.ceil(HintView2.measureCorrectly(title, textPaint));
             width += iconWidth;
             int c;
@@ -294,7 +289,7 @@ public class FilterTabsView extends FrameLayout {
 
         @Override
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            int w = currentTab.getWidth(false) + FolderIconHelper.getPaddingTab() + additionalTabWidth;
+            int w = currentTab.getWidth(false) + AndroidUtilities.dp(32) + additionalTabWidth;
             setMeasuredDimension(w, MeasureSpec.getSize(heightMeasureSpec));
         }
 
@@ -451,12 +446,12 @@ public class FilterTabsView extends FrameLayout {
             }
 
             int iconX = 0;
-            if (0 != 0) {
-                int emoticonSize = FolderIconHelper.getIconWidth();
+            if (false) {
+                int emoticonSize = AndroidUtilities.dp(28);
                 if (!TextUtils.equals(currentTab.emoticon, currentEmoticon)) {
                     currentEmoticon = currentTab.emoticon;
                     android.graphics.Rect bounds = new android.graphics.Rect(0, 0, emoticonSize, emoticonSize);
-                    icon = getResources().getDrawable(FolderIconHelper.getTabIcon(currentTab.emoticon)).mutate();
+                    icon = getResources().getDrawable(R.drawable.msg_folders).mutate();
                     icon.setBounds(bounds);
                 }
                 if (icon != null) {
@@ -784,10 +779,10 @@ public class FilterTabsView extends FrameLayout {
                 }
 
                 if (lastEmoticon != null && !currentTab.emoticon.equals(lastEmoticon)) {
-                    int emoticonWidth = FolderIconHelper.getIconWidth();
+                    int emoticonWidth = AndroidUtilities.dp(28);
                     android.graphics.Rect bounds = new android.graphics.Rect(0, 0, emoticonWidth, emoticonWidth);
-                    iconAnimateOutDrawable = getResources().getDrawable(FolderIconHelper.getTabIcon(lastEmoticon)).mutate();
-                    iconAnimateInDrawable = getResources().getDrawable(FolderIconHelper.getTabIcon(currentTab.emoticon)).mutate();
+                    iconAnimateOutDrawable = getResources().getDrawable(R.drawable.msg_folders).mutate();
+                    iconAnimateInDrawable = getResources().getDrawable(R.drawable.msg_folders).mutate();
                     iconAnimateOutDrawable.setBounds(bounds);
                     iconAnimateInDrawable.setBounds(bounds);
                     iconAnimateOutDrawable.setTint(textPaint.getColor());
@@ -1134,7 +1129,7 @@ public class FilterTabsView extends FrameLayout {
         };
         itemAnimator.setDelayAnimations(false);
         listView.setItemAnimator(itemAnimator);
-        listView.setSelectorType(0 >= TabStyle.PILLS.getValue() ? 9 : 8);
+        listView.setSelectorType(0 >= 0 ? 9 : 8);
         listView.setSelectorRadius(6);
         listView.setSelectorDrawableColor(Theme.getColor(selectorColorKey));
         listView.setLayoutManager(layoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false) {
@@ -1371,7 +1366,7 @@ public class FilterTabsView extends FrameLayout {
         Tab tab = new Tab(id, text, emoticon, noanimate);
         tab.isDefault = isDefault;
         tab.isLocked = isLocked;
-        allTabsWidth += tab.getWidth(true) + FolderIconHelper.getPaddingTab();
+        allTabsWidth += tab.getWidth(true) + AndroidUtilities.dp(32);
         tabs.add(tab);
     }
 
@@ -1454,7 +1449,7 @@ public class FilterTabsView extends FrameLayout {
             int tabWidth = tabs.get(a).getWidth(false);
             positionToWidth.put(a, tabWidth);
             positionToX.put(a, xOffset + additionalTabWidth / 2);
-            xOffset += tabWidth + FolderIconHelper.getPaddingTab() + additionalTabWidth;
+            xOffset += tabWidth + AndroidUtilities.dp(32) + additionalTabWidth;
         }
     }
 
@@ -1485,10 +1480,10 @@ public class FilterTabsView extends FrameLayout {
                         int prevW = positionToWidth.get(idx1);
                         int newW = positionToWidth.get(idx2);
                         if (additionalTabWidth != 0) {
-                            indicatorX = (int) (prevX + (newX - prevX) * animatingIndicatorProgress) + (FolderIconHelper.getPaddingTab() >> 1);
+                            indicatorX = (int) (prevX + (newX - prevX) * animatingIndicatorProgress) + (AndroidUtilities.dp(32) >> 1);
                         } else {
                             int x = positionToX.get(position);
-                            indicatorX = (int) (prevX + (newX - prevX) * animatingIndicatorProgress) - (x - holder.itemView.getLeft()) + (FolderIconHelper.getPaddingTab() >> 1);
+                            indicatorX = (int) (prevX + (newX - prevX) * animatingIndicatorProgress) - (x - holder.itemView.getLeft()) + (AndroidUtilities.dp(32) >> 1);
                         }
                         indicatorWidth = (int) (prevW + (newW - prevW) * animatingIndicatorProgress);
                     }
@@ -1502,7 +1497,7 @@ public class FilterTabsView extends FrameLayout {
                     indicatorX = (int) (tabView.getX() + (viewWidth - indicatorWidth) / 2);
                 }
             }
-            if (indicatorWidth != 0 && 0 != TabStyle.PURE.getValue()) {
+            if (indicatorWidth != 0 && 0 != 1) {
                 canvas.save();
                 canvas.translate(listView.getTranslationX(), 0);
                 canvas.scale(listView.getScaleX(), 1f, listView.getPivotX() + listView.getX(), listView.getPivotY());
@@ -1512,7 +1507,7 @@ public class FilterTabsView extends FrameLayout {
                 int topBound = height - AndroidUtilities.dpr(4);
                 int bottomBound = height;
                 float rtpRad = 0;
-                if (0 >= TabStyle.PILLS.getValue()) {
+                if (0 >= 0) {
                     inlinePadding = AndroidUtilities.dp(10);
                     topBound = height / 2 - AndroidUtilities.dp(15);
                     bottomBound = height / 2 + AndroidUtilities.dp(15);
@@ -1521,7 +1516,7 @@ public class FilterTabsView extends FrameLayout {
                     selectorDrawable.setColor(Theme.getColor(tabLineColorKey));
                 }
                 float rad = AndroidUtilities.dpf2(3);
-                if (0 == TabStyle.PILLS.getValue()) {
+                if (0 == 0) {
                     rad = rtpRad = AndroidUtilities.dpf2(40);
                 }
                 selectorDrawable.setCornerRadii(new float[]{rad, rad, rad, rad, rtpRad, rtpRad, rtpRad, rtpRad});
@@ -1769,7 +1764,7 @@ public class FilterTabsView extends FrameLayout {
                 if (!false)
                     findDefaultTab().setTitle(LocaleController.getString(R.string.FilterAllChats), null, false);
                 for (int b = 0; b < N; b++) {
-                    allTabsWidth += tabs.get(b).getWidth(true) + FolderIconHelper.getPaddingTab();
+                    allTabsWidth += tabs.get(b).getWidth(true) + AndroidUtilities.dp(32);
                 }
                 break;
             }
@@ -1801,7 +1796,7 @@ public class FilterTabsView extends FrameLayout {
             if (!false)
                 findDefaultTab().setTitle(LocaleController.getString(R.string.FilterAllChats), null, false);
             for (int b = 0, N = tabs.size(); b < N; b++) {
-                allTabsWidth += tabs.get(b).getWidth(true) + FolderIconHelper.getPaddingTab();
+                allTabsWidth += tabs.get(b).getWidth(true) + AndroidUtilities.dp(32);
             }
         }
     }

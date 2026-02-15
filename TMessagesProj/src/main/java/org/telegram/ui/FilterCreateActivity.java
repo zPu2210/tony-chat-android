@@ -108,8 +108,6 @@ import org.telegram.ui.Components.spoilers.SpoilersTextView;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import tw.nekomimi.nekogram.folder.FolderIconHelper;
-import tw.nekomimi.nekogram.folder.IconSelectorAlert;
 
 public class FilterCreateActivity extends BaseFragment {
 
@@ -935,9 +933,8 @@ public class FilterCreateActivity extends BaseFragment {
             return;
         }
         int flags = newFilterFlags & MessagesController.DIALOG_FILTER_FLAG_ALL_CHATS;
-        var result = FolderIconHelper.getEmoticonFromFlags(flags);
-        String newName = result.first;
-        String newEmoticon = result.second;
+        String newName = "Folder";
+        String newEmoticon = "";
         if (newName != null && newName.length() > MAX_NAME_LENGTH) {
             newName = "";
         }
@@ -1475,12 +1472,8 @@ public class FilterCreateActivity extends BaseFragment {
                             return AnimatedEmojiDrawable.CACHE_TYPE_TOGGLEABLE_EDIT;
                         }
                     };
-                    cell.setOnChangeIcon(mContext, view1 -> IconSelectorAlert.show(FilterCreateActivity.this, (emoticon) -> {
-                        newFilterEmoticon = emoticon;
-                        ((EditEmojiTextCell) view1.getParent()).setIcon(FolderIconHelper.getTabIcon(newFilterEmoticon), newFilterEmoticon);
-                        checkDoneButton(true);
-                    }));
-                    cell.setIcon(FolderIconHelper.getTabIcon(newFilterEmoticon), newFilterEmoticon);
+                    // IconSelectorAlert removed
+                    cell.setIcon(R.drawable.msg_folders, newFilterEmoticon);
                     cell.setAllowEntities(false);
                     cell.editTextEmoji.getEditText().setEmojiColor(getThemedColor(Theme.key_featuredStickers_addButton));
                     cell.editTextEmoji.setEmojiViewCacheType(AnimatedEmojiDrawable.CACHE_TYPE_TOGGLEABLE_EDIT);

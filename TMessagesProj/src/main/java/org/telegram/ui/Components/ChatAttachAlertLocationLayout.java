@@ -95,9 +95,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import kotlin.Unit;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.location.NekoLocation;
-import tw.nekomimi.nekogram.ui.BottomBuilder;
 
 public class ChatAttachAlertLocationLayout extends ChatAttachAlert.AttachAlertLayout implements NotificationCenter.NotificationCenterDelegate {
 
@@ -1681,9 +1678,7 @@ public class ChatAttachAlertLocationLayout extends ChatAttachAlert.AttachAlertLa
             for (int i = providers.size() - 1; i >= 0; i--) {
                 l = lm.getLastKnownLocation(providers.get(i));
                 if (l != null) {
-                    if (true) {
-                        NekoLocation.transform(l);
-                    }
+                    // NekoLocation removed
                     break;
                 }
             }
@@ -1848,20 +1843,11 @@ public class ChatAttachAlertLocationLayout extends ChatAttachAlert.AttachAlertLa
                 if (activity != null) {
                     checkPermission = false;
                     if (activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    BottomBuilder builder = new BottomBuilder(activity);
-                    builder.addTitle(LocaleController.getString("PermissionNoLocation", R.string.PermissionNoLocation), true);
-                    builder.addItem(LocaleController.getString("Ok", R.string.OK),R.drawable.msg_check, __ -> {
                         String[] permissions = parentAlert.isStoryLocationPicker && parentAlert.storyLocationPickerPhotoFile != null && Build.VERSION.SDK_INT >= 29 ?
                                 new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_MEDIA_LOCATION} :
                                 new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
                         activity.requestPermissions(permissions, BasePermissionsActivity.REQUEST_CODE_GEOLOCATION);
-                        return Unit.INSTANCE;
-                    });
-                    builder.addItem(LocaleController.getString("Decline", R.string.Decline), R.drawable.msg_block, __ -> {
                         parentAlert.dismiss();
-                        return Unit.INSTANCE;
-                    });
-                    builder.show();
                     }
                 }
             }

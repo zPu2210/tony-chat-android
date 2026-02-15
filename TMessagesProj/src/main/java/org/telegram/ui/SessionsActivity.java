@@ -569,7 +569,7 @@ public class SessionsActivity extends BaseFragment implements NotificationCenter
                             req.hash = authorization.hash;
                             ConnectionsManager.getInstance(currentAccount).sendRequest(req, (response, error) -> AndroidUtilities.runOnUIThread(() -> {
                                 if (error != null) {
-                                    AlertUtil.showToast(error);
+                                    Toast.makeText(ApplicationLoader.applicationContext, error.text, Toast.LENGTH_SHORT).show();
                                     return;
                                 }
                                 sessions.remove(authorization);
@@ -589,7 +589,8 @@ public class SessionsActivity extends BaseFragment implements NotificationCenter
 
                     String finalTitle = title;
                     builder.addItem(LocaleController.getString("Copy", R.string.Copy), R.drawable.baseline_content_copy_24, __ -> {
-                        AlertUtil.copyAndAlert(finalTitle);
+                        AndroidUtilities.addToClipboard(finalTitle);
+                        Toast.makeText(ApplicationLoader.applicationContext, LocaleController.getString(R.string.TextCopied), Toast.LENGTH_SHORT).show();
                         return Unit.INSTANCE;
                     });
 

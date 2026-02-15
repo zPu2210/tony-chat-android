@@ -5,7 +5,6 @@ import android.view.WindowManager;
 
 import java.util.HashMap;
 
-import tw.nekomimi.nekogram.NekoXConfig;
 
 public class FlagSecureReason {
 

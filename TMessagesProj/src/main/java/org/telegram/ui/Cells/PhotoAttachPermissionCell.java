@@ -23,7 +23,6 @@ import org.telegram.messenger.R;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.LayoutHelper;
 
-import tw.nekomimi.nekogram.NekoXConfig;
 
 public class PhotoAttachPermissionCell extends FrameLayout {
 

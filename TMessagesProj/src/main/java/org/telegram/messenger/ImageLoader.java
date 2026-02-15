@@ -88,8 +88,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
-import tw.nekomimi.nekogram.utils.EnvUtil;
-import tw.nekomimi.nekogram.utils.FileUtil;
 
 /**
  * image filter types
@@ -2400,12 +2398,12 @@ public class ImageLoader {
         FileLog.d("selected SD card = " + SharedConfig.storageCacheDir);
 
         try {
-            telegramPath = EnvUtil.getTelegramPath();
+            telegramPath = new File(ApplicationLoader.getFilesDirFixed().getAbsolutePath());
 
             if (telegramPath.isDirectory()) {
                 try {
                     File imagePath = new File(telegramPath, "images");
-                    FileUtil.initDir(imagePath);
+                    imagePath.mkdirs();
                     if (imagePath.isDirectory() && canMoveFiles(cachePath, imagePath, FileLoader.MEDIA_DIR_IMAGE)) {
                         mediaDirs.put(FileLoader.MEDIA_DIR_IMAGE, imagePath);
                         if (BuildVars.LOGS_ENABLED) {
@@ -2418,7 +2416,7 @@ public class ImageLoader {
 
                 try {
                     File videoPath = new File(telegramPath, "videos");
-                    FileUtil.initDir(videoPath);
+                    videoPath.mkdirs();
                     if (videoPath.isDirectory() && canMoveFiles(cachePath, videoPath, FileLoader.MEDIA_DIR_VIDEO)) {
                         mediaDirs.put(FileLoader.MEDIA_DIR_VIDEO, videoPath);
                         if (BuildVars.LOGS_ENABLED) {
@@ -2431,7 +2429,7 @@ public class ImageLoader {
 
                 try {
                     File audioPath = new File(telegramPath, "audios");
-                    FileUtil.initDir(audioPath);
+                    audioPath.mkdirs();
                     if (audioPath.isDirectory() && canMoveFiles(cachePath, audioPath, FileLoader.MEDIA_DIR_AUDIO)) {
                         AndroidUtilities.createEmptyFile(new File(audioPath, ".nomedia"));
                         mediaDirs.put(FileLoader.MEDIA_DIR_AUDIO, audioPath);
@@ -2445,7 +2443,7 @@ public class ImageLoader {
 
                 try {
                     File documentPath = new File(telegramPath, "documents");
-                    FileUtil.initDir(documentPath);
+                    documentPath.mkdirs();
                     if (documentPath.isDirectory() && canMoveFiles(cachePath, documentPath, FileLoader.MEDIA_DIR_DOCUMENT)) {
                         AndroidUtilities.createEmptyFile(new File(documentPath, ".nomedia"));
                         mediaDirs.put(FileLoader.MEDIA_DIR_DOCUMENT, documentPath);
@@ -2459,7 +2457,7 @@ public class ImageLoader {
 
                 try {
                     File storyPath = new File(telegramPath, "stories");
-                    FileUtil.initDir(storyPath);
+                    storyPath.mkdirs();
                     if (storyPath.isDirectory() && canMoveFiles(cachePath, storyPath, FileLoader.MEDIA_DIR_STORIES)) {
                         AndroidUtilities.createEmptyFile(new File(storyPath, ".nomedia"));
                         mediaDirs.put(FileLoader.MEDIA_DIR_STORIES, storyPath);

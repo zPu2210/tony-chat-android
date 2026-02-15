@@ -33,7 +33,6 @@ import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.LinkSpanDrawable;
 import org.telegram.ui.Components.spoilers.SpoilersTextView;
 
-import tw.nekomimi.nekogram.NekoConfig;
 
 public class TextDetailCell extends FrameLayout {
 

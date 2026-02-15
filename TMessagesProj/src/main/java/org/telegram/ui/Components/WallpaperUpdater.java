@@ -39,7 +39,6 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 import kotlin.Unit;
-import tw.nekomimi.nekogram.ui.BottomBuilder;
 
 public class WallpaperUpdater {
 
@@ -62,9 +61,8 @@ public class WallpaperUpdater {
     }
 
     public void showAlert(final boolean fromTheme) {
-        BottomBuilder builder = new BottomBuilder(parentActivity);
-        builder.addTitle(LocaleController.getString(R.string.ChoosePhoto), true);
-
+        // BottomBuilder removed - simplified wallpaper selection
+        org.telegram.ui.ActionBar.BottomSheet.Builder builder = new org.telegram.ui.ActionBar.BottomSheet.Builder(parentActivity);
         CharSequence[] items;
         int[] icons;
         if (fromTheme) {
@@ -75,7 +73,7 @@ public class WallpaperUpdater {
             icons = new int[]{R.drawable.menu_camera, R.drawable.profile_photos};
         }
 
-        builder.addItems(items, icons, (i, t, c) -> {
+        builder.setItems(items, icons, (dialog, i) -> {
             try {
                 if (i == 0) {
                     try {
@@ -107,7 +105,6 @@ public class WallpaperUpdater {
             } catch (Exception e) {
                 FileLog.e(e);
             }
-            return Unit.INSTANCE;
         });
         builder.show();
     }

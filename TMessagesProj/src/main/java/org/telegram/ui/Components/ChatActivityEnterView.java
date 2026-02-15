@@ -9,8 +9,6 @@
 package org.telegram.ui.Components;
 
 import org.telegram.ui.Stars.StarsIntroActivity;
-import static xyz.nextalone.nagram.helper.MessageHelper.canSendAsDice;
-import static xyz.nextalone.nagram.helper.MessageHelper.containsMarkdown;
 import static org.telegram.messenger.AndroidUtilities.dp;
 import static org.telegram.messenger.AndroidUtilities.dpf2;
 import static org.telegram.messenger.AndroidUtilities.lerp;
@@ -224,24 +222,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ReUtil;
-import cn.hutool.core.util.StrUtil;
 import kotlin.Unit;
 import kotlin.text.StringsKt;
 import top.qwq2333.nullgram.utils.StringUtils;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.cc.CCConverter;
-import tw.nekomimi.nekogram.cc.CCTarget;
-import tw.nekomimi.nekogram.helpers.remote.ChatExtraButtonsHelper;
-import tw.nekomimi.nekogram.transtale.TranslateDb;
-import tw.nekomimi.nekogram.transtale.Translator;
-import tw.nekomimi.nekogram.transtale.TranslatorKt;
-import tw.nekomimi.nekogram.ui.BottomBuilder;
-import tw.nekomimi.nekogram.utils.AlertUtil;
-import tw.nekomimi.nekogram.utils.PGPUtil;
-import tw.nekomimi.nekogram.utils.UIUtil;
-import xyz.nextalone.nagram.NaConfig;
-import xyz.nextalone.nagram.helper.Dialogs;
-import xyz.nextalone.nagram.ui.syntaxhighlight.SyntaxHighlight;
 
 import me.vkryl.android.animator.BoolAnimator;
 import me.vkryl.android.animator.FactorAnimator;
@@ -4709,7 +4692,7 @@ public class ChatActivityEnterView extends FrameLayout implements
 
         } else {
 
-            if (StrUtil.isNotBlank("")) {
+            if (!TextUtils.isEmpty("")) {
 
                 cell.setTextAndIcon(LocaleController.getString("Sign", R.string.Sign), R.drawable.baseline_vpn_key_24);
                 cell.setOnClickListener(v -> {
@@ -4812,38 +4795,7 @@ public class ChatActivityEnterView extends FrameLayout implements
     }
 
     private int addChatExtraButtons(long chatId, int a, ActionBarPopupWindow.ActionBarPopupWindowLayout menuPopupLayout) {
-        ArrayList<ChatExtraButtonsHelper.ChatExtraButtonInfo> buttonInfos = ChatExtraButtonsHelper.getInstance().getChatExtraButtons(chatId);
-        if (buttonInfos == null) {
-            return a;
-        }
-        for (ChatExtraButtonsHelper.ChatExtraButtonInfo info : buttonInfos) {
-            ActionBarMenuSubItem cell = new ActionBarMenuSubItem(getContext(), false, true);
-
-            switch (info.type) {
-                case ChatExtraButtonsHelper.CHAT_BUTTON_TYPE_LINK:
-                    cell.setTextAndIcon(
-                            info.name.isEmpty() ? LocaleController.getString(R.string.OpenUrlTitle) : info.name,
-                            R.drawable.msg_openin
-                    );
-                    break;
-                case ChatExtraButtonsHelper.CHAT_BUTTON_TYPE_SEARCH:
-                    cell.setTextAndIcon(
-                            info.name.isEmpty() ? LocaleController.getString(R.string.Search) : info.name,
-                            R.drawable.msg_search
-                    );
-                    break;
-            }
-
-            cell.setOnClickListener(v -> {
-                if (menuPopupWindow != null && menuPopupWindow.isShowing()) {
-                    menuPopupWindow.dismiss();
-                }
-                Browser.openUrl(getContext(), Uri.parse(info.url), true, true);
-            });
-
-            cell.setMinimumWidth(AndroidUtilities.dp(196));
-            menuPopupLayout.addView(cell, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 48, LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT, 0, 48 * a++, 0, 0));
-        }
+        // ChatExtraButtonsHelper removed - extra buttons feature removed
         return a;
     }
 
@@ -5193,7 +5145,7 @@ public class ChatActivityEnterView extends FrameLayout implements
             });
         }
         if (sendWithoutSoundButtonValue) {
-            if (containsMarkdown(messageEditText.getText())) {
+            if (false) {
                 boolean withoutMarkdown = false;
                 int markdownButtonDrawable = withoutMarkdown ? R.drawable.round_code_white : R.drawable.round_code_off_white;
                 String markdownButtonStr = withoutMarkdown ? getString(R.string.SendWithMarkdown) : getString(R.string.SendWithoutMarkdown);
@@ -5208,7 +5160,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                         AndroidUtilities.runOnUIThread(dismissSendPreview, 500);
                     }
                 });
-            } else if (canSendAsDice(messageEditText.getText().toString(), parentFragment, dialog_id)) {
+            } else if (false) {
                 options.add(R.drawable.casino_icon, getString(R.string.SendAsEmoji), () -> {
                     sentFromPreview = System.currentTimeMillis();
                     sendMessageInternal(true, 0, 0, 0, true, SendMessageInternalParams.game(false));
@@ -6156,141 +6108,15 @@ public class ChatActivityEnterView extends FrameLayout implements
     }
 
     private void translateComment(Locale target) {
-
-        int start = messageEditText.getSelectionStart();
-        int end = messageEditText.getSelectionEnd();
-        CharSequence text = messageEditText.getText();
-        if (start != end) {
-            text = text.subSequence(start, end);
-        }
-
-        TranslateDb db = TranslateDb.forLocale(target);
-        String origin = text.toString();
-
-        if (db.contains(origin)) {
-
-            String translated = db.query(origin);
-            if (start == end) messageEditText.setText(translated);
-            else messageEditText.getText().replace(start, end, translated);
-
-            return;
-
-        }
-
-        Translator.translate(target, origin, new Translator.Companion.TranslateCallBack() {
-
-            final AtomicBoolean cancel = new AtomicBoolean();
-            AlertDialog status = AlertUtil.showProgress(parentActivity);
-
-            {
-
-                status.setOnCancelListener((__) -> {
-                    cancel.set(true);
-                });
-
-                status.show();
-
-            }
-
-            @Override
-            public void onSuccess(@NotNull String translation) {
-                status.dismiss();
-                if (start == end) messageEditText.setText(translation);
-                else messageEditText.getText().replace(start, end, translation);
-            }
-
-            @Override
-            public void onFailed(boolean unsupported, @NotNull String message) {
-                status.dismiss();
-                AlertUtil.showTransFailedDialog(parentActivity, unsupported, message, () -> {
-                    status = AlertUtil.showProgress(parentActivity);
-                    status.show();
-                    Translator.translate(origin, this);
-                });
-            }
-
-        });
-
+        // Translation feature removed
     }
 
     private void ccComment(String target) {
-        int start = messageEditText.getSelectionStart();
-        int end = messageEditText.getSelectionEnd();
-        CharSequence text = messageEditText.getText();
-        if (start != end) {
-            text = text.subSequence(start, end);
-        }
-        AlertDialog progress = AlertUtil.showProgress(parentActivity);
-        progress.show();
-        String finalText = text.toString();
-        UIUtil.runOnIoDispatcher(() -> {
-            String ccText = CCConverter.get(CCTarget.valueOf(target)).convert(finalText);
-            UIUtil.runOnUIThread(() -> {
-                progress.dismiss();
-                if (start == end) messageEditText.setText(ccText);
-                else messageEditText.getText().replace(start, end, ccText);
-            });
-        });
+        // AlertUtil removed - CC converter feature removed
     }
 
     private void showReplace() {
-        int start = messageEditText.getSelectionStart();
-        int end = messageEditText.getSelectionEnd();
-        CharSequence text = messageEditText.getText();
-        if (start != end) {
-            text = text.subSequence(start, end);
-        }
-
-        BottomBuilder builder = new BottomBuilder(getContext());
-
-        builder.addTitle(LocaleController.getString("ReplaceText", R.string.ReplaceText), true);
-
-        Object regexObj = builder.addCheckItem(LocaleController.getString("ReplaceRegex", R.string.ReplaceRegex), false, false, null);
-        TextCheckCell regex = (regexObj instanceof org.telegram.ui.Cells.TextCheckCell) ? (org.telegram.ui.Cells.TextCheckCell) regexObj : null;
-        EditText origin = builder.addEditText(LocaleController.getString("TextOrigin", R.string.TextOrigin));
-        EditText replace = builder.addEditText(LocaleController.getString("TextReplace", R.string.TextReplace));
-
-
-        String finalText = text.toString();
-        builder.addButton(LocaleController.getString("TextReplace", R.string.TextReplace), true, it -> {
-
-            String originText = origin.getText().toString();
-            String replaceText = replace.getText().toString();
-
-            if (originText.isEmpty()) {
-                AndroidUtilities.showKeyboard(origin);
-            }
-
-            boolean useRegex = regex.isChecked();
-            AlertDialog progress = AlertUtil.showProgress(getContext());
-            progress.show();
-            UIUtil.runOnIoDispatcher(() -> {
-                String replaced;
-                if (useRegex) {
-                    try {
-                        replaced = ReUtil.replaceAll(finalText, originText, replaceText);
-                    } catch (Exception e) {
-                        UIUtil.runOnUIThread(progress::dismiss);
-                        AlertUtil.showToast(e);
-                        return;
-                    }
-                } else {
-                    replaced = StrUtil.replace(finalText, originText, replaceText);
-                }
-                UIUtil.runOnUIThread(() -> {
-                    if (start == end) messageEditText.setText(replaced);
-                    else messageEditText.getText().replace(start, end, replaced);
-                    progress.dismiss();
-                    builder.dismiss();
-                });
-            });
-
-            return Unit.INSTANCE;
-        });
-
-        builder.addCancelButton();
-        builder.show();
-
+        // BottomBuilder and AlertUtil removed - replace text feature removed
     }
 
     public boolean isSendButtonVisible() {
@@ -7615,7 +7441,7 @@ public class ChatActivityEnterView extends FrameLayout implements
             if (checkPremiumAnimatedEmoji(currentAccount, dialog_id, parentFragment, null, message)) {
                 return;
             }
-            if (StrUtil.isNotBlank(message)) {
+            if (!TextUtils.isEmpty(message)) {
                 if (delegate != null) {
                     delegate.beforeMessageSend(message, notify, scheduleDate, scheduleRepeatPeriod, payStars);
                 }
@@ -10384,7 +10210,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                         run.flags |= TextStyleSpan.FLAG_STYLE_MONO;
                         run.urlEntity = entity;
                         MediaDataController.addStyleToText(new TextStyleSpan(run), entity.offset, entity.offset + entity.length, stringBuilder, true);
-                        SyntaxHighlight.highlight(run, stringBuilder);
+                        // SyntaxHighlight removed - syntax highlighting feature removed
                     } else if (entity instanceof TLRPC.TL_messageEntityPre) {
                         continue;
                     } else if (entity instanceof TLRPC.TL_messageEntityBold) {

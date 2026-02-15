@@ -60,8 +60,6 @@ import org.telegram.ui.Components.RadialProgressView;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.ui.PinnedStickerHelper;
 
 public class StickerSetCell extends FrameLayout {
     private final static String LINK_PREFIX = "t.me/addstickers/";
@@ -325,12 +323,8 @@ public class StickerSetCell extends FrameLayout {
             imageView.setAlpha(1.0f);
         }
 
-        // NekoX: Pinned Sticker Mark
-        if (false && PinnedStickerHelper.getInstance(UserConfig.selectedAccount).isPinned(set.set.id)) {
-            pinnedImageView.setVisibility(VISIBLE);
-        } else {
-            pinnedImageView.setVisibility(INVISIBLE);
-        }
+        // NekoX: Pinned Sticker Mark removed
+        pinnedImageView.setVisibility(INVISIBLE);
 
         emojis = set.set.emojis;
         sideButtons.setVisibility(emojis ? View.VISIBLE : View.GONE);

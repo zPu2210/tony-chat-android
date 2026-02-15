@@ -154,11 +154,6 @@ import java.util.HashSet;
 import java.util.Objects;
 
 import kotlin.Unit;
-import tw.nekomimi.nekogram.NekoXConfig;
-import tw.nekomimi.nekogram.ui.BottomBuilder;
-import tw.nekomimi.nekogram.utils.AlertUtil;
-import tw.nekomimi.nekogram.utils.ProxyUtil;
-import xyz.nextalone.nagram.NaConfig;
 
 @SuppressWarnings("unchecked")
 public class SharedMediaLayout extends FrameLayout implements NotificationCenter.NotificationCenterDelegate, DialogCell.DialogCellDelegate {
@@ -7507,17 +7502,13 @@ public class SharedMediaLayout extends FrameLayout implements NotificationCenter
         @Override
         public void onLinkPress(String urlFinal, boolean longPress) {
             if (longPress) {
-                BottomBuilder builder = new BottomBuilder(profileActivity.getParentActivity());
-                builder.addTitle(urlFinal);
-                builder.addItems(
-                        new String[]{LocaleController.getString("Open", R.string.Open), LocaleController.getString("Copy", R.string.Copy), LocaleController.getString("ShareQRCode", R.string.ShareQRCode)},
-                        new int[]{R.drawable.msg_openin, R.drawable.msg_copy, R.drawable.msg_qrcode}, (which, text, __) -> {
-                            if (which == 0 || which == 2) {
-                                if (which == 0) {
-                                    openUrl(urlFinal);
-                                } else {
-                                    ProxyUtil.showQrDialog(profileActivity.getParentActivity(), urlFinal);
-                                }
+                org.telegram.ui.ActionBar.BottomSheet.Builder builder = new org.telegram.ui.ActionBar.BottomSheet.Builder(profileActivity.getParentActivity());
+                builder.setTitle(urlFinal, true);
+                builder.setItems(
+                        new CharSequence[]{LocaleController.getString("Open", R.string.Open), LocaleController.getString("Copy", R.string.Copy)},
+                        new int[]{R.drawable.msg_openin, R.drawable.msg_copy}, (dialogInterface, which) -> {
+                            if (which == 0) {
+                                openUrl(urlFinal);
                             } else if (which == 1) {
                                 String url1 = urlFinal;
                                 if (url1.startsWith("mailto:")) {
@@ -7526,9 +7517,8 @@ public class SharedMediaLayout extends FrameLayout implements NotificationCenter
                                     url1 = url1.substring(4);
                                 }
                                 AndroidUtilities.addToClipboard(url1);
-                                AlertUtil.showToast(LocaleController.getString("LinkCopied", R.string.LinkCopied));
+                                BulletinFactory.of(profileActivity).createCopyBulletin(LocaleController.getString("LinkCopied", R.string.LinkCopied)).show();
                             }
-                            return Unit.INSTANCE;
                         });
                 profileActivity.showDialog(builder.create());
             } else {

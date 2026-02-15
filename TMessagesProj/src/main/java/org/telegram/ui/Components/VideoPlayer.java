@@ -105,7 +105,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import xyz.nextalone.nagram.NaConfig;
 
 @SuppressLint("NewApi")
 public class VideoPlayer implements Player.Listener, VideoListener, AnalyticsListener, NotificationCenter.NotificationCenterDelegate {

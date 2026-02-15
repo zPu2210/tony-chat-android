@@ -62,14 +62,6 @@ import org.telegram.ui.ActionBar.Theme;
 import java.util.List;
 import java.util.Locale;
 
-import cn.hutool.core.util.StrUtil;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.transtale.TranslateDb;
-import tw.nekomimi.nekogram.transtale.Translator;
-import tw.nekomimi.nekogram.transtale.TranslatorKt;
-import tw.nekomimi.nekogram.utils.AlertUtil;
-import xyz.nextalone.nagram.NaConfig;
-import xyz.nextalone.nagram.ui.syntaxhighlight.SyntaxHighlight;
 
 public class EditTextCaption extends EditTextBoldCursor {
 
@@ -241,9 +233,7 @@ public class EditTextCaption extends EditTextBoldCursor {
                         run.urlEntity.language = language;
                     }
                     MediaDataController.addStyleToText(new TextStyleSpan(run), start, end, getText(), allowTextEntitiesIntersection);
-                    if (!language.isBlank()) {
-                        SyntaxHighlight.highlight(run, editable);
-                    }
+                    // SyntaxHighlight removed - syntax highlighting feature removed
                 } catch (Exception ignore) {
 
                 }
@@ -281,71 +271,10 @@ public class EditTextCaption extends EditTextBoldCursor {
         applyTextStyleToSelection(new TextStyleSpan(run));
     }
 
-    private String replaceAt(String origin, int start, int end, String translation) {
-
-        String trans = origin.substring(0, start);
-
-        trans += translation;
-
-        trans += origin.substring(end);
-
-        return trans;
-
-    }
+    // Translation features removed
 
     public void makeSelectedTranslate() {
-
-        int start = getSelectionStart();
-        int end = getSelectionEnd();
-
-        String origin = getText().toString();
-        String text = getText().subSequence(start, end).toString();
-
-        if (StrUtil.isBlank(origin)) return;
-
-        TranslateDb db = TranslateDb.currentInputTarget();
-
-        if (db.contains(text)) {
-
-            setText(replaceAt(origin, start, end, TranslateDb.currentInputTarget().query(text)));
-
-        } else {
-            Locale to;
-            Locale toDefault = TranslatorKt.getCode2Locale("en");
-            if (delegate != null) {
-                to = TranslateDb.getChatLanguage(delegate.getCurrentChat(), toDefault);
-            } else {
-                to = toDefault;
-            }
-
-            Translator.translate(to, text, new Translator.Companion.TranslateCallBack() {
-
-                AlertDialog status = AlertUtil.showProgress(getContext());
-
-                {
-                    status.show();
-                }
-
-                @Override
-                public void onSuccess(@NotNull String translation) {
-                    status.dismiss();
-                    setText(replaceAt(origin, start, end, translation));
-                }
-
-                @Override
-                public void onFailed(boolean unsupported, @NotNull String message) {
-                    status.dismiss();
-                    AlertUtil.showTransFailedDialog(getContext(), unsupported, message, () -> {
-                        status = AlertUtil.showProgress(getContext());
-                        status.show();
-                        Translator.translate(text, this);
-                    });
-                }
-
-            });
-
-        }
-
+        // Translation feature removed
     }
 
     public void makeSelectedMention() {

@@ -74,8 +74,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import tw.nekomimi.nekogram.utils.AlertUtil;
-import tw.nekomimi.nekogram.utils.ProxyUtil;
 
 public class ProxyListActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
     private final static boolean IS_PROXY_ROTATION_AVAILABLE = true;
@@ -469,7 +467,7 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
         otherItem = menu.addItem(na_menu_other, R.drawable.ic_ab_other);
         otherItem.setContentDescription(LocaleController.getString("AccDescrMoreOptions", R.string.AccDescrMoreOptions));
         otherItem.addSubItem(na_menu_add_input_telegram, LocaleController.getString("AddProxyTelegram", R.string.AddProxyTelegram)).setOnClickListener((v) -> presentFragment(new ProxySettingsActivity()));
-        otherItem.addSubItem(na_menu_add_import_from_clipboard, LocaleController.getString("ImportProxyFromClipboard", R.string.ImportProxyFromClipboard)).setOnClickListener((v) -> ProxyUtil.importFromClipboard(getParentActivity()));
+        // Import from clipboard feature removed
         otherItem.addSubItem(na_menu_retest_ping, LocaleController.getString("RetestPing", R.string.RetestPing)).setOnClickListener((v) -> {
             checkProxyList(true);
             for (int a = proxyStartRow; a < proxyEndRow; a++) {
@@ -480,43 +478,36 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
                 }
             }
         });
-        otherItem.addSubItem(na_menu_delete_all, LocaleController.getString("DeleteAllServer", R.string.DeleteAllServer)).setOnClickListener((v) -> AlertUtil.showConfirm(getParentActivity(),
-                LocaleController.getString("DeleteAllServer", R.string.DeleteAllServer),
-                R.drawable.baseline_delete_24, LocaleController.getString("Delete", R.string.Delete),
-                true, () -> {
-                    SharedConfig.deleteAllProxy();
-                    updateRows(true);
-                })
-        );
+        otherItem.addSubItem(na_menu_delete_all, LocaleController.getString("DeleteAllServer", R.string.DeleteAllServer)).setOnClickListener((v) -> {
+            // Delete all proxies confirmation dialog removed
+            SharedConfig.deleteAllProxy();
+            updateRows(true);
+        });
         otherItem.addSubItem(na_menu_delete_unavailable, LocaleController.getString("DeleteUnavailableServer", R.string.DeleteUnavailableServer)).setOnClickListener((v) -> {
-            AlertUtil.showConfirm(getParentActivity(),
-                    LocaleController.getString("DeleteUnavailableServer", R.string.DeleteUnavailableServer),
-                    R.drawable.baseline_delete_24, LocaleController.getString("Delete", R.string.Delete),
-                    true, () -> {
-                        for (SharedConfig.ProxyInfo info : SharedConfig.getProxyList()) {
-                            if (info.checking) {
-                                continue;
-                            }
-                            if (!info.available) {
-                                SharedConfig.deleteProxy(info);
-                            }
-                        }
-                        if (SharedConfig.currentProxy == null) {
-                            useProxyForCalls = false;
-                            useProxySettings = false;
-                        }
-                        NotificationCenter.getGlobalInstance().removeObserver(ProxyListActivity.this, NotificationCenter.proxySettingsChanged);
-                        NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.proxySettingsChanged);
-                        NotificationCenter.getGlobalInstance().addObserver(ProxyListActivity.this, NotificationCenter.proxySettingsChanged);
-                        updateRows(true);
-                        if (listAdapter != null) {
-                            if (SharedConfig.currentProxy == null) {
-                                listAdapter.notifyItemChanged(useProxyRow, ListAdapter.PAYLOAD_CHECKED_CHANGED);
-                                listAdapter.notifyItemChanged(callsRow, ListAdapter.PAYLOAD_CHECKED_CHANGED);
-                            }
-                            listAdapter.clearSelected();
-                        }
-                    });
+            // Delete unavailable proxies
+            for (SharedConfig.ProxyInfo info : SharedConfig.getProxyList()) {
+                if (info.checking) {
+                    continue;
+                }
+                if (!info.available) {
+                    SharedConfig.deleteProxy(info);
+                }
+            }
+            if (SharedConfig.currentProxy == null) {
+                useProxyForCalls = false;
+                useProxySettings = false;
+            }
+            NotificationCenter.getGlobalInstance().removeObserver(ProxyListActivity.this, NotificationCenter.proxySettingsChanged);
+            NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.proxySettingsChanged);
+            NotificationCenter.getGlobalInstance().addObserver(ProxyListActivity.this, NotificationCenter.proxySettingsChanged);
+            updateRows(true);
+            if (listAdapter != null) {
+                if (SharedConfig.currentProxy == null) {
+                    listAdapter.notifyItemChanged(useProxyRow, ListAdapter.PAYLOAD_CHECKED_CHANGED);
+                    listAdapter.notifyItemChanged(callsRow, ListAdapter.PAYLOAD_CHECKED_CHANGED);
+                }
+                listAdapter.clearSelected();
+            }
         });
 
         listAdapter = new ListAdapter(context);

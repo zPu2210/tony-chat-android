@@ -231,11 +231,6 @@ import java.util.zip.GZIPOutputStream;
 
 import me.vkryl.core.BitwiseUtils;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.utils.EnvUtil;
-import tw.nekomimi.nekogram.utils.FileUtil;
-import tw.nekomimi.nekogram.utils.TelegramUtil;
-import xyz.nextalone.nagram.helper.ColorOsHelper;
 
 public class AndroidUtilities {
     public final static int LIGHT_STATUS_BAR_OVERLAY = 0x0f000000, DARK_STATUS_BAR_OVERLAY = 0x33000000;
@@ -1752,10 +1747,6 @@ public class AndroidUtilities {
             if (pathString.matches(Pattern.quote(new File(ApplicationLoader.applicationContext.getCacheDir(), "voip_logs").getAbsolutePath()) + "/\\d+\\.log")) {
                 return false;
             }
-            // NekoX: Allow send media
-            if (pathString.startsWith(EnvUtil.getTelegramPath().toString())) {
-                return false;
-            }
             int tries = 0;
             while (true) {
                 if (pathString != null && pathString.length() > 4096) {
@@ -2549,8 +2540,10 @@ public class AndroidUtilities {
 
     public static File getCacheDir() {
         try {
-            File file = new File(EnvUtil.getTelegramPath(), "caches");
-            FileUtil.initDir(file);
+            File file = new File(ApplicationLoader.applicationContext.getCacheDir(), "caches");
+            if (!file.exists()) {
+                file.mkdirs();
+            }
             return file;
         } catch (Throwable e) {
             FileLog.e(e);
@@ -3475,8 +3468,7 @@ public class AndroidUtilities {
         boolean origin = (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || !OneUIUtilities.hasBuiltInClipboardToasts()) && Build.VERSION.SDK_INT < 32;
         if (origin) return true;
         boolean isMIUI = XiaomiUtilities.isMIUI();
-        boolean isColorOS = ColorOsHelper.INSTANCE.isColorOS();
-        return isMIUI || isColorOS;
+        return isMIUI;
     }
 
     public static boolean addToClipboard(CharSequence str) {
@@ -4205,7 +4197,12 @@ public class AndroidUtilities {
         }
         if (f != null && !f.exists()) {
             String cacheFilePath = AndroidUtilities.getCacheDir().getAbsolutePath();
-            cacheFilePath += "/" + TelegramUtil.getFileNameWithoutEx(f.getName());
+            String baseName = f.getName();
+            int dotIndex = baseName.lastIndexOf('.');
+            if (dotIndex > 0) {
+                baseName = baseName.substring(0, dotIndex);
+            }
+            cacheFilePath += "/" + baseName;
             List<String> suffix = Arrays.asList(".pt", ".temp");
             for (int ii = 0; ii < suffix.size(); ii++) {
                 f = new File(cacheFilePath + suffix.get(ii));

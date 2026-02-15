@@ -23,7 +23,6 @@ import org.telegram.messenger.R;
 import org.telegram.messenger.SharedConfig;
 import org.telegram.ui.ActionBar.Theme;
 
-import tw.nekomimi.nekogram.NekoConfig;
 
 public class SwipeGestureSettingsView extends FrameLayout {
 

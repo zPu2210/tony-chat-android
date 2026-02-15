@@ -77,8 +77,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import xyz.nextalone.nagram.NaConfig;
-import xyz.nextalone.nagram.helper.SystemAiServiceHelper;
 
 public class EditTextBoldCursor extends EditTextEffects {
 
@@ -1234,23 +1232,12 @@ public class EditTextBoldCursor extends EditTextEffects {
     }
 
     private void addHyperOsAi(Menu menu) {
-        if (!SystemAiServiceHelper.INSTANCE.isSystemAiAvailable(getContext())) {
-            return;
-        }
-        // Add AI menu item if it doesn't already exist
-        if (menu.findItem(HYPEROS_AI) == null) {
-            menu.add(Menu.NONE, HYPEROS_AI, HYPEROS_AI, "AI")
-                    .setAlphabeticShortcut('s')
-                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        }
+        // SystemAiServiceHelper removed - HyperOS AI feature removed
     }
 
     @Override
     public boolean onTextContextMenuItem(int id) {
-        if (id == HYPEROS_AI) {
-            SystemAiServiceHelper.INSTANCE.startSystemAiService(this);
-            return true;
-        }
+        // HyperOS AI removed
         return super.onTextContextMenuItem(id);
     }
 

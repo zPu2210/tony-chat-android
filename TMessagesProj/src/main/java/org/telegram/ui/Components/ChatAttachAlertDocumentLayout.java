@@ -95,8 +95,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
-import tw.nekomimi.nekogram.helpers.remote.EmojiHelper;
-import tw.nekomimi.nekogram.utils.EnvUtil;
 
 public class ChatAttachAlertDocumentLayout extends ChatAttachAlert.AttachAlertLayout {
 
@@ -891,11 +889,8 @@ public class ChatAttachAlertDocumentLayout extends ChatAttachAlert.AttachAlertLa
     }
 
     public boolean isEmojiFont(File file) {
-        boolean isValidEmojiFont = EmojiHelper.isValidEmojiPack(file);
-        if (!isValidEmojiFont) {
-            AndroidUtilities.runOnUIThread(() -> BulletinFactory.of(parentAlert.getContainer(), null).createErrorBulletinSubtitle(LocaleController.formatString("InvalidFormatError", R.string.InvalidFormatError), LocaleController.formatString("InvalidCustomEmojiTypeface", R.string.InvalidCustomEmojiTypeface), resourcesProvider).show());
-        }
-        return isValidEmojiFont;
+        // Emoji font validation removed
+        return false;
     }
 
     public void setMaxSelectedFiles(int value) {
@@ -1369,7 +1364,7 @@ public class ChatAttachAlertDocumentLayout extends ChatAttachAlert.AttachAlertLa
 
         ListItem fs;
         try {
-            File telegramPath = EnvUtil.getTelegramPath();
+            File telegramPath = new File(ApplicationLoader.getFilesDirFixed().getAbsolutePath());
             if (telegramPath.exists()) {
                 fs = new ListItem();
                 fs.title = "Telegram";

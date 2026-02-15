@@ -48,9 +48,6 @@ import androidx.collection.LongSparseArray;
 import androidx.core.graphics.ColorUtils;
 
 import top.qwq2333.nullgram.utils.StringUtils;
-import xyz.nextalone.nagram.NaConfig;
-import xyz.nextalone.nagram.helper.MessageHelper;
-import xyz.nextalone.nagram.ui.syntaxhighlight.SyntaxHighlight;
 
 import org.telegram.PhoneFormat.PhoneFormat;
 import org.telegram.messenger.browser.Browser;
@@ -122,9 +119,6 @@ import java.util.regex.Pattern;
 
 import me.vkryl.core.BitwiseUtils;
 
-import cn.hutool.core.util.StrUtil;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.NekoXConfig;
 
 public class MessageObject {
 
@@ -5713,7 +5707,7 @@ public class MessageObject {
                 } else {
                     messageText = messageOwner.message;
                 }
-                messageText = MessageHelper.INSTANCE.zalgoFilter(messageText);
+                // MessageHelper removed - zalgo filter feature removed
             }
         }
 
@@ -7515,9 +7509,7 @@ public class MessageObject {
                 if (linksCount >= MediaDataController.MAX_LINKS_COUNT) continue;
                 linksCount++;
                 spannable.setSpan(new URLSpanNoUnderline(url, run), run.start, run.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                if (run.urlEntity instanceof TLRPC.TL_messageEntityHashtag && run.urlEntity.length > 6 && run.urlEntity.length < 10) {
-                    SyntaxHighlight.highlight(run, spannable);
-                }
+                // SyntaxHighlight removed - syntax highlighting feature removed
             } else if (run.urlEntity instanceof TLRPC.TL_messageEntityEmail) {
                 if (linksCount >= MediaDataController.MAX_LINKS_COUNT) continue;
                 linksCount++;
@@ -7558,9 +7550,7 @@ public class MessageObject {
                 spannable.setSpan(new URLSpanUserMention("" + ((TLRPC.TL_inputMessageEntityMentionName) run.urlEntity).user_id.user_id, t, run), run.start, run.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             } else if ((run.flags & TextStyleSpan.FLAG_STYLE_MONO) != 0) {
                 spannable.setSpan(new URLSpanMono(spannable, run.start, run.end, t, run), run.start, run.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                if (run.urlEntity instanceof TLRPC.TL_messageEntityPre) {
-                    SyntaxHighlight.highlight(run, spannable);
-                }
+                // SyntaxHighlight removed - syntax highlighting feature removed
             } else {
                 setRun = true;
                 spannable.setSpan(new TextStyleSpan(run), run.start, run.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

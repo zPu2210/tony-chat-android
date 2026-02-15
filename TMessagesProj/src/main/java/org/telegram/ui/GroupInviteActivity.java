@@ -42,7 +42,6 @@ import org.telegram.ui.Components.RecyclerListView;
 
 import java.util.ArrayList;
 
-import tw.nekomimi.nekogram.utils.ProxyUtil;
 
 public class GroupInviteActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
 
@@ -153,10 +152,7 @@ public class GroupInviteActivity extends BaseFragment implements NotificationCen
                     FileLog.e(e);
                 }
             } else if (position == shareQrCodeRow) {
-                if (invite == null) {
-                    return;
-                }
-                ProxyUtil.showQrDialog(getParentActivity(),invite.link);
+                // QR code feature removed
             } else if (position == revokeLinkRow) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
                 builder.setMessage(LocaleController.getString(R.string.RevokeAlert));

@@ -221,16 +221,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import cn.hutool.core.util.NumberUtil;
-import cn.hutool.core.util.StrUtil;
 import kotlin.Unit;
-import tw.nekomimi.nekogram.BackButtonMenuRecent;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.NekoXConfig;
-import tw.nekomimi.nekogram.helpers.PasscodeHelper;
-import tw.nekomimi.nekogram.ui.BottomBuilder;
-import tw.nekomimi.nekogram.ui.EditTextAutoFill;
-import tw.nekomimi.nekogram.utils.AlertUtil;
-import tw.nekomimi.nekogram.utils.ProxyUtil;
 
 @SuppressLint("HardwareIds")
 public class LoginActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
@@ -1820,8 +1811,8 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
     private boolean pendingSwitchingAccount;
 
     private void onAuthSuccess(TLRPC.TL_auth_authorization res, boolean afterSignup) {
-        BackButtonMenuRecent.clearRecentDialogs(currentAccount);
-        PasscodeHelper.removePasscodeForAccount(currentAccount);
+        // BackButtonMenuRecent removed
+        // passcode removed;
         MessagesController.getInstance(currentAccount).cleanup();
         ConnectionsManager.getInstance(currentAccount).setUserId(res.user.id);
         UserConfig.getInstance(currentAccount).clearConfig();
@@ -3357,8 +3348,8 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                 ConnectionsManager.getInstance(currentAccount).cleanup(false);
 
                 TLRPC.TL_auth_sendCode sendCode = new TLRPC.TL_auth_sendCode();
-                sendCode.api_hash = NekoXConfig.currentAppHash();
-                sendCode.api_id = NekoXConfig.currentAppId();
+                sendCode.api_hash = BuildVars.APP_HASH;
+                sendCode.api_id = BuildVars.APP_ID;
                 sendCode.phone_number = phone;
                 sendCode.settings = settings;
                 req = sendCode;
@@ -9060,8 +9051,8 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
             ConnectionsManager.getInstance(currentAccount).cleanup(false);
             final TLRPC.TL_auth_importBotAuthorization req = new TLRPC.TL_auth_importBotAuthorization();
 
-            req.api_hash = NekoXConfig.currentAppHash();
-            req.api_id = NekoXConfig.currentAppId();
+            req.api_hash = BuildVars.APP_HASH;
+            req.api_id = BuildVars.APP_ID;
             req.bot_auth_token = token;
             req.flags = 0;
             int reqId = ConnectionsManager.getInstance(currentAccount).sendRequest(req, (response, error) -> AndroidUtilities.runOnUIThread(() -> {
@@ -10590,8 +10581,8 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
         exportLoginTokenProgress.show();
         if (exportLoginTokenRequest == null) {
             exportLoginTokenRequest = new TLRPC.TL_auth_exportLoginToken();
-            exportLoginTokenRequest.api_id = NekoXConfig.currentAppId();
-            exportLoginTokenRequest.api_hash = NekoXConfig.currentAppHash();
+            exportLoginTokenRequest.api_id = BuildVars.APP_ID;
+            exportLoginTokenRequest.api_hash = BuildVars.APP_HASH;
             for (int a : SharedConfig.activeAccounts) {
                 UserConfig userConfig = UserConfig.getInstance(a);
                 if (!userConfig.isClientActivated()) {
@@ -10608,12 +10599,9 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
             } catch (Exception ignore) {
             }
             if (response instanceof TLRPC.TL_auth_loginToken) {
-                exportLoginTokenDialog = ProxyUtil.showQrDialog(getParentActivity(), "tg://login?token=" + cn.hutool.core.codec.Base64.encodeUrlSafe(((TLRPC.TL_auth_loginToken) response).token));
+                // QR login feature removed
                 int delay = (int) (((TLRPC.TL_auth_loginToken) response).expires - System.currentTimeMillis() / 1000);
                 if (delay < 0 || delay > 20) delay = 20;
-                if (BuildVars.DEBUG_VERSION) {
-                    AlertUtil.showToast("Refresh after " + delay + "s");
-                }
                 AndroidUtilities.runOnUIThread(() -> regenerateLoginToken(true), delay * 1000L);
             } else if (response instanceof TLRPC.TL_auth_loginTokenMigrateTo) {
                 checkMigrateTo((TLRPC.TL_auth_loginTokenMigrateTo) response);
@@ -10664,7 +10652,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                 }
             }), ConnectionsManager.RequestFlagFailOnServerErrors | ConnectionsManager.RequestFlagWithoutLogin);
         } else {
-            AlertUtil.showToast(error);
+            Toast.makeText(ApplicationLoader.applicationContext, error.text, Toast.LENGTH_SHORT).show();
             exportLoginTokenRequest = null;
             if (!error.text.contains("CONNECTION_NOT_INITED"))
                 regenerateLoginToken(false);

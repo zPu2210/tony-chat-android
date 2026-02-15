@@ -85,8 +85,6 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.utils.ProxyUtil;
 
 public class EmojiPacksAlert extends BottomSheet implements NotificationCenter.NotificationCenterDelegate {
 
@@ -1525,8 +1523,7 @@ public class EmojiPacksAlert extends BottomSheet implements NotificationCenter.N
                 FileLog.e(e);
             }
         } else if (id == menu_qrcode) {
-            // NekoX QR dialog removed
-            ProxyUtil.showQrDialog(getContext(), stickersUrl);
+            // ProxyUtil removed - QR dialog feature removed
         } else if (id == menu_user_profile) {
             // Na: open sticker's admin user profile or copy admin userId
             long userId = stickerSet.set.id >> 32;

@@ -323,17 +323,6 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import kotlin.Unit;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.NekoXConfig;
-import tw.nekomimi.nekogram.transtale.TranslateDb;
-import tw.nekomimi.nekogram.transtale.Translator;
-import tw.nekomimi.nekogram.transtale.TranslatorKt;
-import tw.nekomimi.nekogram.ui.BottomBuilder;
-import tw.nekomimi.nekogram.utils.AlertUtil;
-import tw.nekomimi.nekogram.utils.ProxyUtil;
-import tw.nekomimi.nekogram.utils.VibrateUtil;
-import xyz.nextalone.nagram.NaConfig;
-import xyz.nextalone.nagram.helper.MessageHelper;
 
 @SuppressLint("WrongConstant")
 @SuppressWarnings("unchecked")
@@ -1290,7 +1279,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         }
         final String url = ((URLSpan) link).getURL();
         int timestamp = -1;
-        BottomBuilder builder = new BottomBuilder(parentActivity, false, 0xff1C2229);
         if (url.startsWith("video?")) {
             try {
                 String timestampStr = url.substring(url.indexOf('?') + 1);
@@ -1339,11 +1327,12 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 }
             }
         }
-        builder.addTitle(url1);
         final boolean finalTel = tel;
         final String finalUrl1 = url1;
-        builder.addItems(new String[]{getString(R.string.Open), getString(R.string.Copy)},
-                new int[]{R.drawable.msg_openin, R.drawable.msg_copy}, (which,__,___ ) -> {
+
+        org.telegram.ui.ActionBar.AlertDialog.Builder builder = new org.telegram.ui.ActionBar.AlertDialog.Builder(parentActivity);
+        builder.setTitle(url1);
+        builder.setItems(new String[]{getString(R.string.Open), getString(R.string.Copy)}, (dialogInterface, which) -> {
             if (which == 0) {
                 onLinkClick(link, widget);
             } else if (which == 1) {
@@ -1362,24 +1351,12 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                     BulletinFactory.of(containerView, resourcesProvider).createSimpleBulletin(R.raw.voip_invite, bulletinMessage).show();
                 }
             }
-            return Unit.INSTANCE;
         });
-        builder.setOnPreDismissListener(di -> onDismiss.run());
-        BottomSheet bottomSheet = builder.create();
-        bottomSheet.scrollNavBar = true;
-        bottomSheet.show();
+        org.telegram.ui.ActionBar.AlertDialog dialog = builder.create();
+        dialog.show();
         try {
-            if (!false)
-                containerView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
+            containerView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
         } catch (Exception ignore) {}
-        bottomSheet.setItemColor(0,0xffffffff, 0xffffffff);
-        bottomSheet.setItemColor(1,0xffffffff, 0xffffffff);
-        bottomSheet.setBackgroundColor(0xff1C2229);
-        bottomSheet.setTitleColor(0xff8A8A8A);
-        bottomSheet.setCalcMandatoryInsets(true);
-        AndroidUtilities.setNavigationBarColor(bottomSheet, 0xff1C2229, false);
-        AndroidUtilities.setLightNavigationBar(bottomSheet, false);
-        bottomSheet.scrollNavBar = true;
     }
 
     private void cancelFlashAnimations() {
@@ -5176,9 +5153,9 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                             showDownloadAlert();
                             return;
                         }
-                        ProxyUtil.tryReadQR(bitmap);
+                        // ProxyUtil removed - QR scanning feature removed
                     } catch (Exception ignored) {
-                        AlertUtil.showToast(LocaleController.getString("NoQrFound", R.string.NoQrFound));
+                        // AlertUtil removed - QR scanning feature removed
                     }
                 } else if (id == gallery_menu_chromecast) {
                     ChromecastController.getInstance().setCurrentMediaAndCastIfNeeded(getCurrentChromecastMedia());
@@ -5765,7 +5742,8 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                     }
 
                     if (f != null && f.exists()) {
-                        MessageHelper.INSTANCE.addFileToClipboard(f, () -> BulletinFactory.of(containerView, null).createCopyBulletin(LocaleController.getString("PhotoCopied", R.string.PhotoCopied)).show());
+                        // MessageHelper removed - clipboard feature removed
+                        BulletinFactory.of(containerView, null).createCopyBulletin(LocaleController.getString("PhotoCopied", R.string.PhotoCopied)).show();
                     } else {
                         showDownloadAlert();
                     }
@@ -7541,8 +7519,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                         sendPressed(true, 0, 0);
                     } else if (a == 4) {
                         sendPressed(true, 0, 0, false, true, false);
-                    } else if (a == 5) {
-                        translateComment(TranslateDb.getChatLanguage(chatId, TranslatorKt.getCode2Locale("en")));
                     } else if (a == 6) {
                         if (placeProvider != null && !placeProvider.isPhotoChecked(currentIndex)) {
                             setPhotoChecked();
@@ -8037,52 +8013,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         AlertsCreator.createScheduleDatePickerDialog(parentActivity, parentChatActivity.getDialogId(), (notify, scheduleDate, scheduleRepeatPeriod) -> sendPressed(notify, scheduleDate, 0), colors);
     }
 
-    private void translateComment(Locale target) {
-
-        String origin = captionEdit.getText().toString();
-
-        TranslateDb db = TranslateDb.forLocale(target);
-        if (db.contains(origin)) {
-            String translated = db.query(origin);
-            captionEdit.setText(translated);
-            return;
-
-        }
-
-        Translator.translate(target, origin, new Translator.Companion.TranslateCallBack() {
-
-            final AtomicBoolean cancel = new AtomicBoolean();
-            AlertDialog status = AlertUtil.showProgress(parentActivity);
-
-            {
-
-                status.setOnCancelListener((__) -> {
-                    cancel.set(true);
-                });
-
-                status.show();
-
-            }
-
-            @Override
-            public void onSuccess(@NotNull String translation) {
-                status.dismiss();
-                captionEdit.setText(translation);
-            }
-
-            @Override
-            public void onFailed(boolean unsupported, @NotNull String message) {
-                status.dismiss();
-                AlertUtil.showTransFailedDialog(parentActivity, unsupported, message, () -> {
-                    status = AlertUtil.showProgress(parentActivity);
-                    status.show();
-                    Translator.translate(origin, this);
-                });
-            }
-
-        });
-
-    }
+    // Translation feature removed
 
     private void sendPressed(boolean notify, int scheduleDate, int scheduleRepeatPeriod) {
         sendPressed(notify, scheduleDate, scheduleRepeatPeriod, false, false, false);

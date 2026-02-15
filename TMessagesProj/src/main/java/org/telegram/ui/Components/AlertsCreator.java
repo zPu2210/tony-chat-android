@@ -163,12 +163,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import kotlin.Unit;
-import tw.nekomimi.nekogram.helpers.PasscodeHelper;
-import tw.nekomimi.nekogram.ui.BottomBuilder;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.utils.AlertUtil;
-import tw.nekomimi.nekogram.utils.VibrateUtil;
-import xyz.nextalone.nagram.NaConfig;
 
 public class AlertsCreator {
     public final static int PERMISSIONS_REQUEST_TOP_ICON_SIZE = 72;
@@ -659,33 +653,6 @@ public class AlertsCreator {
         return builder.show();
     }
 
-    private static SpannableStringBuilder mkTransSpan(String str, TLRPC.TL_langPackLanguage language, BottomBuilder builder) {
-        SpannableStringBuilder spanned = new SpannableStringBuilder(AndroidUtilities.replaceTags(str));
-
-        int start = TextUtils.indexOf(spanned, '[');
-        int end;
-        if (start != -1) {
-            end = TextUtils.indexOf(spanned, ']', start + 1);
-            if (start != -1 && end != -1) {
-                spanned.delete(end, end + 1);
-                spanned.delete(start, start + 1);
-            }
-        } else {
-            end = -1;
-        }
-
-        if (start != -1 && end != -1) {
-            spanned.setSpan(new URLSpanNoUnderline(language.translations_url) {
-                @Override
-                public void onClick(View widget) {
-                    builder.dismiss();
-                    super.onClick(widget);
-                }
-            }, start, end - 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
-
-        return spanned;
-    }
 
     public static AlertDialog createLanguageAlert(LaunchActivity activity, final TLRPC.TL_langPackLanguage language) {
         return createLanguageAlert(activity, language, null).create();
@@ -5355,20 +5322,20 @@ public class AlertsCreator {
             return null;
         }
 
-        BottomBuilder builder = new BottomBuilder(fragment.getParentActivity());
-        builder.addTitle(LocaleController.getString(R.string.Notifications), true);
+        BottomSheet.Builder builder = new BottomSheet.Builder(fragment.getParentActivity());
+        builder.setTitle(LocaleController.getString(R.string.Notifications), true);
         String[] items = new String[]{
                 LocaleController.formatString(R.string.MuteFor, LocaleController.formatPluralString("Hours", 1)),
                 LocaleController.formatString(R.string.MuteFor, LocaleController.formatPluralString("Hours", 8)),
                 LocaleController.formatString(R.string.MuteFor, LocaleController.formatPluralString("Days", 2)),
                 LocaleController.getString(R.string.MuteDisable)
         };
-        builder.addItems(items, new int[]{
+        builder.setItems(items, new int[]{
                 R.drawable.msg_mute_period,
                 R.drawable.msg_mute_period,
                 R.drawable.msg_mute_period,
                 R.drawable.msg_mute_period
-        }, (i, text, cell) -> {
+        }, (dialogInterface, i) -> {
             int setting;
             if (i == 0) {
                 setting = NotificationsController.SETTING_MUTE_HOUR;
@@ -5383,7 +5350,6 @@ public class AlertsCreator {
             if (BulletinFactory.canShowBulletin(fragment)) {
                 BulletinFactory.createMuteBulletin(fragment, setting, 0, resourcesProvider).show();
             }
-            return Unit.INSTANCE;
         });
         return builder.create();
     }
@@ -5393,7 +5359,7 @@ public class AlertsCreator {
             return null;
         }
 
-        BottomSheet.NekoXBuilder builder = new BottomSheet.NekoXBuilder(fragment.getParentActivity(), false);
+        BottomSheet.Builder builder = new BottomSheet.Builder(fragment.getParentActivity());
         builder.setTitle(LocaleController.getString(R.string.Notifications), true);
         CharSequence[] items = new CharSequence[]{
                 LocaleController.formatString(R.string.MuteFor, LocaleController.formatPluralString("Hours", 1)),
@@ -6511,7 +6477,7 @@ public class AlertsCreator {
         final LinearLayout linearLayout = new LinearLayout(parentActivity);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
         for (int a : SharedConfig.activeAccounts) {
-            if (PasscodeHelper.isAccountHidden(a)) continue;
+            if (false) continue;
             TLRPC.User u = UserConfig.getInstance(a).getCurrentUser();
             if (u != null) {
                 AccountSelectCell cell = new AccountSelectCell(parentActivity, false);
@@ -7161,7 +7127,9 @@ public class AlertsCreator {
                 return;
             }
             if (editText.length() == 0) {
-                VibrateUtil.vibrate();
+                try {
+                    editText.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
+                } catch (Exception ignore) {}
                 AndroidUtilities.shakeView(editText);
                 return;
             }

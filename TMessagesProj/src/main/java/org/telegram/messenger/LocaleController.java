@@ -60,11 +60,6 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.parts.LocFiltersKt;
-import tw.nekomimi.nekogram.shamsicalendar.PersianDate;
-import tw.nekomimi.nekogram.utils.FileUtil;
-import tw.nekomimi.nekogram.utils.GsonUtil;
 
 public class LocaleController {
 
@@ -467,7 +462,9 @@ public class LocaleController {
 
             File baseDir = new File(ApplicationLoader.getDataDirFixed(), "languages");
 
-            FileUtil.initDir(baseDir);
+            if (!baseDir.exists()) {
+                baseDir.mkdirs();
+            }
 
             if (isRemote()) {
                 return new File(baseDir, "remote_" + shortName + ".xml");
@@ -481,7 +478,9 @@ public class LocaleController {
             if (isUnofficial()) {
                 File baseDir = new File(ApplicationLoader.getDataDirFixed(), "languages");
 
-                FileUtil.initDir(baseDir);
+                if (!baseDir.exists()) {
+                    baseDir.mkdirs();
+                }
                 return new File(baseDir, "unofficial_base_" + shortName + ".xml");
             }
             return null;
@@ -1482,8 +1481,6 @@ public class LocaleController {
             value = "LOC_ERR:" + key;
             if (getFallbackResources() != null)
                 value = getFallbackResources().getString(res);
-        } else if (false) {
-            value = LocFiltersKt.filter(value);
         }
         return value;
     }
@@ -2219,18 +2216,15 @@ public class LocaleController {
             date *= 1000;
 
             calendar.setTimeInMillis(date);
-            PersianDate persianDate = null;
-            if (usePersianCalendar)
-                persianDate = new PersianDate(date);
             if (checkYear && currentYear == calendar.get(Calendar.YEAR) || !checkYear && Math.abs(System.currentTimeMillis() - date) < 31536000000L) {
                 if (usePersianCalendar) {
-                    return persianDate.getPersianMonthDay();
+                    return "";
                 } else {
                     return getInstance().getChatDate().format(date);
                 }
             } else {
                 if (usePersianCalendar) {
-                    return persianDate.getPersianNormalDate();
+                    return getInstance().getChatFullDate().format(date);
                 } else {
                     return getInstance().getChatFullDate().format(date);
                 }
@@ -2575,9 +2569,6 @@ public class LocaleController {
             rightNow.setTimeInMillis(date);
             int dateDay = rightNow.get(Calendar.DAY_OF_YEAR);
             int dateYear = rightNow.get(Calendar.YEAR);
-            PersianDate persianDate = null;
-            if (usePersianCalendar)
-                persianDate = new PersianDate(date);
 
             if (dateDay == day && year == dateYear) {
                 return getInstance().getFormatterDay().format(new Date(date));
@@ -2585,13 +2576,13 @@ public class LocaleController {
                 return LocaleController.formatString(R.string.YesterdayAtFormatted, getInstance().getFormatterDay().format(new Date(date)));
             } else if (Math.abs(System.currentTimeMillis() - date) < 31536000000L) {
                 if (usePersianCalendar) {
-                    return LocaleController.formatString(R.string.formatDateAtTime, persianDate.getPersianMonthDay(), getInstance().formatterDay.format(new Date(date)));
+                    return getInstance().formatterDay.format(new Date(date));
                 } else {
                     return LocaleController.formatString(R.string.formatDateAtTime, getInstance().getChatDate().format(new Date(date)), getInstance().getFormatterDay().format(new Date(date)));
                 }
             } else {
                 if (usePersianCalendar) {
-                    return LocaleController.formatString(R.string.formatDateAtTime, persianDate.getPersianNormalDate(), getInstance().formatterDay.format(new Date(date)));
+                    return getInstance().formatterDay.format(new Date(date));
                 } else {
                     return LocaleController.formatString(R.string.formatDateAtTime, getInstance().getChatFullDate().format(new Date(date)), getInstance().getFormatterDay().format(new Date(date)));
                 }
@@ -2724,10 +2715,6 @@ public class LocaleController {
             int dateDay = rightNow.get(Calendar.DAY_OF_YEAR);
             int dateYear = rightNow.get(Calendar.YEAR);
             int dateHour = rightNow.get(Calendar.HOUR_OF_DAY);
-            PersianDate persianDate = null;
-            if (usePersianCalendar) {
-                persianDate = new PersianDate(date);
-            }
 
             if (dateDay == day && year == dateYear) {
                 return LocaleController.formatString(R.string.LastSeenFormatted, LocaleController.formatString("TodayAtFormatted", R.string.TodayAtFormatted, getInstance().getFormatterDay().format(new Date(date))));
@@ -2751,7 +2738,7 @@ public class LocaleController {
                 }
             } else if (Math.abs(System.currentTimeMillis() - date) < 31536000000L) {
                 if (usePersianCalendar) {
-                    String format = LocaleController.formatString("formatDateAtTime", R.string.formatDateAtTime, persianDate.getPersianMonthDay(), getInstance().getFormatterDay().format(new Date(date)));
+                    String format = getInstance().getFormatterDay().format(new Date(date));
                     return LocaleController.formatString("LastSeenDateFormatted", R.string.LastSeenDateFormatted, format);
                 } else {
                     String format = LocaleController.formatString("formatDateAtTime", R.string.formatDateAtTime, getInstance().getFormatterDayMonth().format(new Date(date)), getInstance().getFormatterDay().format(new Date(date)));
@@ -2759,7 +2746,7 @@ public class LocaleController {
                 }
             } else {
                 if (usePersianCalendar) {
-                    String format = LocaleController.formatString("formatDateAtTime", R.string.formatDateAtTime, persianDate.getPersianNormalDate(), getInstance().getFormatterDay().format(new Date(date)));
+                    String format = getInstance().getFormatterDay().format(new Date(date));
                     return LocaleController.formatString("LastSeenDateFormatted", R.string.LastSeenDateFormatted, format);
                 } else {
                     String format = LocaleController.formatString("formatDateAtTime", R.string.formatDateAtTime, getInstance().getFormatterYear().format(new Date(date)), getInstance().getFormatterDay().format(new Date(date)));
@@ -2973,7 +2960,7 @@ public class LocaleController {
                 } else if (dayDiff > -7 && dayDiff <= -1) {
                     return getInstance().getFormatterWeek().format(new Date(date));
                 } else if (usePersianCalendar) {
-                    return new PersianDate(date).getPersianMonthDay();
+                    return "";
                 } else {
                     return getInstance().getFormatterDayMonth().format(new Date(date));
                 }
@@ -3276,7 +3263,6 @@ public class LocaleController {
                         TLRPC.TL_langPackLanguage language = (TLRPC.TL_langPackLanguage) res.objects.get(a);
                         if (BuildVars.LOGS_ENABLED) {
                             FileLog.d("loaded lang " + language.name);
-                            FileLog.d(GsonUtil.formatObject(language));
                         }
                         LocaleInfo localeInfo = new LocaleInfo();
                         localeInfo.nameEnglish = language.name;
@@ -3441,18 +3427,7 @@ public class LocaleController {
         File pathToFile = localeInfo.getPathToFile();
         File pathToBaseFile = localeInfo.getPathToBaseFile();
 
-        if ((pathToFile != null && !pathToFile.isFile()) || (pathToBaseFile != null && !pathToBaseFile.isFile())) {
-            try {
-                if (pathToBaseFile != null && !pathToBaseFile.isFile() && ArrayUtils.contains(prebuilt, pathToBaseFile.getName())) {
-                    FileUtil.saveAsset("languages/" + pathToBaseFile.getName(), pathToBaseFile);
-                }
-                if (pathToFile != null && !pathToFile.isFile() && ArrayUtils.contains(prebuilt, pathToFile.getName())) {
-                    FileUtil.saveAsset("languages/" + pathToFile.getName(), pathToFile);
-                }
-            } catch (Exception e) {
-                FileLog.e(e);
-            }
-        }
+        // Skip asset loading - files not present
     }
 
     public String getTranslitString(String src) {

@@ -121,11 +121,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.utils.ProxyUtil;
-import xyz.nextalone.nagram.NaConfig;
-import xyz.nextalone.nagram.helper.ExternalStickerCacheHelper;
-import xyz.nextalone.nagram.helper.StickerSetHelper;
 
 public class StickersAlert extends BottomSheet implements NotificationCenter.NotificationCenterDelegate {
 
@@ -1455,11 +1450,9 @@ public class StickersAlert extends BottomSheet implements NotificationCenter.Not
             dismiss();
             MediaDataController.getInstance(currentAccount).toggleStickerSet(parentActivity, stickerSet, 1, parentFragment, false, true);
         } else if (id == menuRefreshExternalCache) {
-            // Na: [ExternalStickerCache] force refresh cache files
-            ExternalStickerCacheHelper.refreshCacheFiles(stickerSet);
+            // ExternalStickerCacheHelper removed - external cache feature removed
         } else if (id == menuDeleteExternalCache) {
-            // Na: [ExternalStickerCache] delete cache files
-            ExternalStickerCacheHelper.deleteCacheFiles(stickerSet);
+            // ExternalStickerCacheHelper removed - external cache feature removed
             enableEditMode();
         } else if (id == menu_copy_sticker_set) {
             // NekoX copy sticker set removed

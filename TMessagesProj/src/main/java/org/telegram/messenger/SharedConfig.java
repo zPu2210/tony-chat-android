@@ -56,13 +56,6 @@ import java.util.LinkedList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
-import cn.hutool.core.util.StrUtil;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.utils.AlertUtil;
-import tw.nekomimi.nekogram.utils.EnvUtil;
-import tw.nekomimi.nekogram.utils.FileUtil;
-import tw.nekomimi.nekogram.utils.UIUtil;
-import xyz.nextalone.nagram.NaConfig;
 
 import java.util.List;
 import java.util.Locale;
@@ -555,7 +548,7 @@ public class SharedConfig {
     public static void saveAccounts() {
         FileLog.e("Save accounts: " + activeAccounts, new Exception());
         ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE).edit()
-                .putString("active_accounts", StrUtil.join(",", activeAccounts))
+                .putString("active_accounts", TextUtils.join(",", activeAccounts))
                 .apply();
     }
 
@@ -713,7 +706,7 @@ public class SharedConfig {
             messageSeenHintCount = preferences.getInt("messageSeenCount", 3);
             emojiInteractionsHintCount = preferences.getInt("emojiInteractionsHintCount", 3);
             dayNightThemeSwitchHintCount = preferences.getInt("dayNightThemeSwitchHintCount", 3);
-            activeAccounts = Arrays.stream(preferences.getString("active_accounts", "").split(",")).filter(StrUtil::isNotBlank).map(Integer::parseInt).collect(Collectors.toCollection(CopyOnWriteArraySet::new));
+            activeAccounts = Arrays.stream(preferences.getString("active_accounts", "").split(",")).filter(s -> !TextUtils.isEmpty(s)).map(Integer::parseInt).collect(Collectors.toCollection(CopyOnWriteArraySet::new));
 
             if (!preferences.contains("activeAccountsLoaded")) {
                 int maxAccounts;
@@ -734,13 +727,13 @@ public class SharedConfig {
                     } else {
                         perf = ApplicationLoader.applicationContext.getSharedPreferences("userconfig" + i, Context.MODE_PRIVATE);
                     }
-                    if (StrUtil.isNotBlank(perf.getString("user", null))) {
+                    if (!TextUtils.isEmpty(perf.getString("user", null))) {
                         activeAccounts.add(i);
                     }
                 }
 
                 if (!SharedConfig.activeAccounts.isEmpty()) {
-                    preferences.edit().putString("active_accounts", StrUtil.join(",", activeAccounts)).apply();
+                    preferences.edit().putString("active_accounts", TextUtils.join(",", activeAccounts)).apply();
                 }
 
                 preferences.edit().putBoolean("activeAccountsLoaded", true).apply();
@@ -1532,13 +1525,13 @@ public class SharedConfig {
 
         ProxyInfo finalInfo = currentProxy;
         boolean finalEnable = enable;
-        UIUtil.runOnIoDispatcher(() -> {
+        Utilities.globalQueue.postRunnable(() -> {
             if (finalEnable) {
                 ConnectionsManager.setProxySettings(true, finalInfo.address, finalInfo.port, finalInfo.username, finalInfo.password, finalInfo.secret);
             } else {
                 ConnectionsManager.setProxySettings(false, "", 0, "", "", "");
             }
-            UIUtil.runOnUIThread(() -> NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.proxySettingsChanged));
+            AndroidUtilities.runOnUIThread(() -> NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.proxySettingsChanged));
 
         });
 
@@ -1733,7 +1726,7 @@ public class SharedConfig {
     public static void checkSaveToGalleryFiles() {
         Utilities.globalQueue.postRunnable(() -> {
             try {
-                File telegramPath = EnvUtil.getTelegramPath();
+                File telegramPath = ApplicationLoader.getFilesDirFixed();
                 File imagePath = new File(telegramPath, "images");
                 imagePath.mkdirs();
                 File videoPath = new File(telegramPath, "videos");

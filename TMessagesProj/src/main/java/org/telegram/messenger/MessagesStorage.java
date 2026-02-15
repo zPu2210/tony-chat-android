@@ -71,9 +71,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import cn.hutool.core.util.NumberUtil;
-import cn.hutool.core.util.StrUtil;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.transtale.TranslateDb;
 
 public class MessagesStorage extends BaseController {
 
@@ -1401,8 +1398,7 @@ public class MessagesStorage extends BaseController {
             SQLitePreparedStatement state5 = null;
             SQLitePreparedStatement state6 = null;
             try {
-                // NekoX cleardatabase
-                TranslateDb.clearAll();
+                // NekoX cleardatabase (removed)
 
                 ArrayList<Long> dialogsToCleanup = new ArrayList<>();
 
@@ -17202,7 +17198,7 @@ public class MessagesStorage extends BaseController {
                             found = 1;
                         } else if (username != null && username.startsWith(q)) {
                             found = 2;
-                        } else if (NumberUtil.isInteger(q) && (NumberUtil.parseInt(q) == uid || q.length() > 3 && StrUtil.utf8Str(uid).contains(q))) {
+                        } else if (NumberUtil.isInteger(q) && (NumberUtil.parseInt(q) == uid || q.length() > 3 && String.valueOf(uid).contains(q))) {
                             found = 3;
                         }
                         if (found != 0) {
@@ -17248,7 +17244,7 @@ public class MessagesStorage extends BaseController {
                         int found = 0;
                         if (name.startsWith(q) || name.contains(" " + q) || tName != null && (tName.startsWith(q) || tName.contains(" " + q))) {
                             found = 1;
-                        } else if (NumberUtil.isInteger(q) && (NumberUtil.parseInt(q) == chatId || q.length() > 3 && StrUtil.utf8Str(chatId).contains(q))) {
+                        } else if (q.matches("\\d+") && (Long.parseLong(q) == chatId || q.length() > 3 && String.valueOf(chatId).contains(q))) {
                             found = 2;
                         }
                         if (found > 0) {
@@ -17326,7 +17322,7 @@ public class MessagesStorage extends BaseController {
                             found = 1;
                         } else if (username != null && username.startsWith(q)) {
                             found = 2;
-                        } else if (NumberUtil.isInteger(q) && (NumberUtil.parseInt(q) == user_id || q.length() > 3 && StrUtil.utf8Str(user_id).contains(q))) {
+                        } else if (NumberUtil.isInteger(q) && (NumberUtil.parseInt(q) == user_id || q.length() > 3 && String.valueOf(user_id).contains(q))) {
                             found = 3;
                         }
 
@@ -17438,7 +17434,7 @@ public class MessagesStorage extends BaseController {
                             found = 1;
                         } else if (username != null && username.startsWith(q)) {
                             found = 2;
-                        } else if (NumberUtil.isInteger(q) && (NumberUtil.parseInt(q) == uid || q.length() > 3 && StrUtil.utf8Str(uid).contains(q))) {
+                        } else if (NumberUtil.isInteger(q) && (NumberUtil.parseInt(q) == uid || q.length() > 3 && String.valueOf(uid).contains(q))) {
                             found = 3;
                         }
                         if (found != 0) {

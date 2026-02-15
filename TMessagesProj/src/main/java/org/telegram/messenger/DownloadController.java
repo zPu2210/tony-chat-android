@@ -15,6 +15,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.util.SparseArray;
 
@@ -36,9 +37,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
-import cn.hutool.core.util.StrUtil;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.helpers.AyuFilter;
 
 public class DownloadController extends BaseController implements NotificationCenter.NotificationCenterDelegate {
 
@@ -614,7 +612,7 @@ public class DownloadController extends BaseController implements NotificationCe
     public boolean canDownloadMedia(MessageObject messageObject) {
         if (messageObject.getDocument() != null) {
             String documentName = messageObject.getDocument().file_name;
-            if (StrUtil.isNotBlank(documentName)) {
+            if (!TextUtils.isEmpty(documentName)) {
                 if ((true &&
                         documentName.toLowerCase().matches(".*\\.(cmd|bat|com|exe|lnk|msi|ps1|reg|vb|vbe|vbs|vbscript)")
                 ) || (true &&
@@ -879,14 +877,7 @@ public class DownloadController extends BaseController implements NotificationCe
             return canPreloadStories() ? 2 : 0;
         }
 
-        // --- AyuGram hook
-
-        var isFiltered = AyuFilter.isFiltered(new MessageObject(currentAccount, message, false, false), null);
-        if (isFiltered) {
-            return 0;
-        }
-
-        // --- AyuGram hook
+        // AyuGram filter removed
 
         int type;
         boolean isVideo;

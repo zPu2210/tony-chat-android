@@ -81,11 +81,6 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import kotlin.Unit;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.transtale.TranslateDb;
-import tw.nekomimi.nekogram.transtale.Translator;
-import tw.nekomimi.nekogram.transtale.TranslatorKt;
-import tw.nekomimi.nekogram.utils.AlertUtil;
 
 public class PhotoAlbumPickerActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
 
@@ -515,13 +510,11 @@ public class PhotoAlbumPickerActivity extends BaseFragment implements Notificati
                             sendPopupWindow.dismiss();
                         }
                         if (num == 0) {
-                            translateComment(TranslateDb.getChatLanguage(chatId, TranslatorKt.getCode2Locale("en")));
-                        } else if (num == 1) {
                             AlertsCreator.createScheduleDatePickerDialog(getParentActivity(), chatActivity.getDialogId(), (notify, scheduleDate, scheduleRepeatPeriod) -> {
                                 sendSelectedPhotos(selectedPhotos, selectedPhotosOrder, notify, scheduleDate);
                                 finishFragment();
                             });
-                        } else if (num == 2) {
+                        } else if (num == 1) {
                             sendSelectedPhotos(selectedPhotos, selectedPhotosOrder, true, 0);
                             finishFragment();
                         }
@@ -603,51 +596,7 @@ public class PhotoAlbumPickerActivity extends BaseFragment implements Notificati
 
     private void translateComment(Locale target) {
 
-        TranslateDb db = TranslateDb.forLocale(target);
-        String origin = commentTextView.getText().toString();
-
-        if (db.contains(origin)) {
-
-            String translated = db.query(origin);
-            commentTextView.getEditText().setText(translated);
-
-            return;
-
-        }
-
-        Translator.translate(target, origin, new Translator.Companion.TranslateCallBack() {
-
-            final AtomicBoolean cancel = new AtomicBoolean();
-            AlertDialog status = AlertUtil.showProgress(getParentActivity());
-
-            {
-
-                status.setOnCancelListener((__) -> {
-                    cancel.set(true);
-                });
-
-                status.show();
-
-            }
-
-            @Override
-            public void onSuccess(@NotNull String translation) {
-                status.dismiss();
-                commentTextView.getEditText().setText(translation);
-            }
-
-            @Override
-            public void onFailed(boolean unsupported, @NotNull String message) {
-                status.dismiss();
-                AlertUtil.showTransFailedDialog(getParentActivity(), unsupported, message, () -> {
-                    status = AlertUtil.showProgress(getParentActivity());
-                    status.show();
-                    Translator.translate(origin, this);
-                });
-            }
-
-        });
-
+        // Translation feature removed
     }
 
     @Override

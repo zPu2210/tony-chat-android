@@ -52,7 +52,6 @@ import java.util.List;
 import me.vkryl.core.BitwiseUtils;
 
 import cn.hutool.core.util.ArrayUtil;
-import tw.nekomimi.nekogram.NekoXConfig;
 
 @SuppressWarnings("unchecked")
 public class TLRPC {
@@ -21704,7 +21703,7 @@ public class TLRPC {
         public boolean bot_forum_view;
 
         public boolean verifiedExtended() {
-            return verified || (ArrayUtil.contains(NekoXConfig.developers, id) && false);
+            return verified;
         }
 
         public static User TLdeserialize(InputSerializedData stream, int constructor, boolean exception) {
@@ -42075,7 +42074,7 @@ public class TLRPC {
         public ArrayList<TL_username> usernames = new ArrayList<>();
 
         public boolean verifiedExtended() {
-            return verified ||( ArrayUtil.contains(NekoXConfig.officialChats, id) && false);
+            return verified;
         }
 
         public static Chat TLdeserialize(InputSerializedData stream, int constructor, boolean exception) {

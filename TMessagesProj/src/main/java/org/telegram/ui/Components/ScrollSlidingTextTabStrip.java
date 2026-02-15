@@ -47,8 +47,6 @@ import org.telegram.ui.ActionBar.Theme;
 
 import java.util.ArrayList;
 
-import xyz.nextalone.nagram.NaConfig;
-import xyz.nextalone.nagram.TabStyle;
 
 public class ScrollSlidingTextTabStrip extends HorizontalScrollView {
 
@@ -500,7 +498,7 @@ public class ScrollSlidingTextTabStrip extends HorizontalScrollView {
             };
             tab.setGravity(Gravity.CENTER);
             tab.setTextAlignment(TEXT_ALIGNMENT_CENTER);
-            if (0 < TabStyle.PILLS.getValue()) tab.setBackground(Theme.createSelectorDrawable(Theme.multAlpha(processColor(Theme.getColor(activeTextColorKey, resourcesProvider)), .15f), 3));
+            if (0 < 0) tab.setBackground(Theme.createSelectorDrawable(Theme.multAlpha(processColor(Theme.getColor(activeTextColorKey, resourcesProvider)), .15f), 3));
             tab.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
 //            tab.setSingleLine(true);
             tab.setMaxLines(2);
@@ -595,7 +593,7 @@ public class ScrollSlidingTextTabStrip extends HorizontalScrollView {
         for (int a = 0; a < count; a++) {
             TextView tab = (TextView) tabsContainer.getChildAt(a);
             tab.setTextColor(processColor(Theme.getColor(currentPosition == a ? activeTextColorKey : unactiveTextColorKey, resourcesProvider)));
-            if (0 < TabStyle.PILLS.getValue()) tab.setBackground(Theme.createSelectorDrawable(Theme.multAlpha(processColor(Theme.getColor(activeTextColorKey, resourcesProvider)), .15f), 3));
+            if (0 < 0) tab.setBackground(Theme.createSelectorDrawable(Theme.multAlpha(processColor(Theme.getColor(activeTextColorKey, resourcesProvider)), .15f), 3));
         }
         selectorDrawable.setColor(processColor(Theme.getColor(tabLineColorKey, resourcesProvider)));
         invalidate();
@@ -656,8 +654,8 @@ public class ScrollSlidingTextTabStrip extends HorizontalScrollView {
             float rtpRad = 0;
             int alpha = 255;
 
-            if (tabStyle >= TabStyle.PILLS.getValue()) {
-                int padding = tabStyle == TabStyle.PILLS.getValue() ? 8 : 10;
+            if (tabStyle >= 0) {
+                int padding = tabStyle == 0 ? 8 : 10;
                 inlinePadding = AndroidUtilities.dp(padding);
                 topBound = height / 2 - AndroidUtilities.dp(15);
                 bottomBound = height / 2 + AndroidUtilities.dp(15);
@@ -666,7 +664,7 @@ public class ScrollSlidingTextTabStrip extends HorizontalScrollView {
             }
             selectorDrawable.setAlpha((int) (alpha * tabsContainer.getAlpha()));
             float rad = AndroidUtilities.dpf2(3);
-            if (tabStyle == TabStyle.PILLS.getValue()) {
+            if (tabStyle == 0) {
                 rad = rtpRad = AndroidUtilities.dpf2(40);
             }
             selectorDrawable.setCornerRadii(new float[]{rad, rad, rad, rad, rtpRad, rtpRad, rtpRad, rtpRad});
@@ -676,7 +674,7 @@ public class ScrollSlidingTextTabStrip extends HorizontalScrollView {
                     (int) (indicatorX + indicatorXAnimationDx + indicatorWidth + indicatorWidthAnimationDx) + inlinePadding,
                     bottomBound
             );
-            if (tabStyle != TabStyle.PURE.getValue()) {
+            if (tabStyle != 1) {
                 selectorDrawable.draw(canvas);
             }
             // --- Tab Style End ---

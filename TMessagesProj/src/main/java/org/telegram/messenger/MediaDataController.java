@@ -106,11 +106,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import tw.nekomimi.nekogram.DialogConfig;
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.ui.PinnedStickerHelper;
-import xyz.nextalone.nagram.NaConfig;
-import xyz.nextalone.nagram.helper.ExternalStickerCacheHelper;
 
 @SuppressWarnings("unchecked")
 public class MediaDataController extends BaseController {
@@ -3355,9 +3350,7 @@ public class MediaDataController extends BaseController {
         }
         final int type = type1;
 
-        if (false && type == MediaDataController.TYPE_IMAGE && (toggle == 0 || toggle == 1)) {
-            PinnedStickerHelper.getInstance(currentAccount).removePinnedStickerLocal(stickerSet.id);
-        }
+        // PinnedStickerHelper removed
 
         stickerSet.archived = toggle == 1;
 
@@ -3392,9 +3385,7 @@ public class MediaDataController extends BaseController {
             toggleStickerSetInternal(context, toggle, baseFragment, showSettings, stickerSetObject, stickerSet, type, false);
         } else {
             StickerSetBulletinLayout bulletinLayout = new StickerSetBulletinLayout(context, stickerSetObject, toggle, null, baseFragment == null ? null : baseFragment.getResourceProvider());
-            int finalCurrentIndex = false && type == TYPE_IMAGE && PinnedStickerHelper.getInstance(UserConfig.selectedAccount).isPinned(stickerSet.id)
-                    ? PinnedStickerHelper.getInstance(UserConfig.selectedAccount).pinnedList.size()
-                    : currentIndex;
+            int finalCurrentIndex = currentIndex;
             // NekoX: Pin Sticker, Fix undo for Archiving and Deleting
             Context finalContext = context;
             boolean[] undoDone = new boolean[1];
@@ -4975,7 +4966,7 @@ public class MediaDataController extends BaseController {
                 }
             }
         }
-        DialogConfig.modifyShareTarget(hintsFinal);
+        // DialogConfig removed
         boolean recreateShortcuts = Build.VERSION.SDK_INT >= 30;
         Utilities.globalQueue.postRunnable(() -> {
             try {

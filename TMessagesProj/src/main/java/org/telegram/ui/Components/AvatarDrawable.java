@@ -42,7 +42,6 @@ import org.telegram.ui.ActionBar.Theme;
 
 import java.util.ArrayList;
 
-import xyz.nextalone.nagram.NaConfig;
 
 public class AvatarDrawable extends Drawable {
 

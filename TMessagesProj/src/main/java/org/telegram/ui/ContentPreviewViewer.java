@@ -103,10 +103,6 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.ui.MessageHelper;
-import tw.nekomimi.nekogram.utils.VibrateUtil;
-import xyz.nextalone.nagram.NaConfig;
 
 public class ContentPreviewViewer {
 
@@ -619,15 +615,11 @@ public class ContentPreviewViewer {
                         } else if (actions.get(which) == 5) {
                             delegate.remove(importingSticker);
                         } else if (actions.get(which) == nkbtn_stickerdl) {
-                            MessageHelper.getInstance(currentAccount).saveStickerToGallery(parentActivity, currentDocument);
+                            // Sticker download feature removed
                         } else if (actions.get(which) == nkbtn_sticker_copy) {
-                            MessageHelper.getInstance(currentAccount).addStickerToClipboard(currentDocument, () -> {
-                                BulletinFactory.global().createCopyBulletin(LocaleController.getString("PhotoCopied", R.string.PhotoCopied)).show();
-                            });
+                            // Sticker copy feature removed
                         } else if (actions.get(which) == nkbtn_sticker_copy_png) {
-                            MessageHelper.getInstance(currentAccount).addStickerToClipboardAsPNG(currentDocument, () -> {
-                                BulletinFactory.global().createCopyBulletin(LocaleController.getString("PhotoCopied", R.string.PhotoCopied)).show();
-                            });
+                            // Sticker copy as PNG feature removed
                         } else if (actions.get(which) == 7) {
                             delegate.editSticker(currentDocument);
                         } else if (actions.get(which) == 8) {
@@ -1321,13 +1313,7 @@ public class ContentPreviewViewer {
     VibrationEffect vibrationEffect;
 
     protected void runSmoothHaptic() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            if (vibrationEffect == null) {
-                long[] vibrationWaveFormDurationPattern = {0, 2};
-                vibrationEffect = VibrationEffect.createWaveform(vibrationWaveFormDurationPattern, -1);
-            }
-            VibrateUtil.vibrate(200L, vibrationEffect);
-        }
+        // Haptic feedback removed
     }
 
     public boolean onInterceptTouchEvent(MotionEvent event, final RecyclerListView listView, final int height, ContentPreviewViewerDelegate contentPreviewViewerDelegate, Theme.ResourcesProvider resourcesProvider) {
