@@ -33,6 +33,14 @@ object AiManager {
         }
     }
 
+    /** Clear all cached AI responses. */
+    fun clearCache(onDone: Runnable? = null) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try { cache.clearAll() } catch (_: Exception) {}
+            onDone?.run()
+        }
+    }
+
     /** Re-read API keys and rebuild providers. Call after settings change. */
     fun refreshProviders() {
         onDeviceProvider = NoOpProvider() // GeminiNano wired later with device testing

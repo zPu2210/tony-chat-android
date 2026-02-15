@@ -63,6 +63,7 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter imple
     public static int nkbtnWiki = 1001;
     public static int nkbtnGhostMode = 1006;
     public static int nkbtnChatHistory = 1007;
+    public static int btnAiFeatures = 1100;
 
     public DrawerLayoutAdapter(Context context, SideMenultItemAnimator animator, DrawerLayoutContainer drawerLayoutContainer) {
         mContext = context;
@@ -398,6 +399,7 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter imple
             items.add(new Item(10, LocaleController.getString(R.string.Calls), callsIcon));
         }
         items.add(new Item(11, LocaleController.getString(R.string.SavedMessages), savedIcon));
+        items.add(new Item(btnAiFeatures, "AI Features", R.drawable.msg_openin));
         items.add(new Item(8, LocaleController.getString(R.string.Settings), settingsIcon));
         items.add(null); // divider
 //        items.add(new Item(7, LocaleController.getString(R.string.InviteFriends), inviteIcon));
