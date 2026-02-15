@@ -461,6 +461,11 @@ public class ChatActivity extends BaseFragment implements
 
     protected ChatActivityEnterView chatActivityEnterView;
     private ChatActivityEnterTopView chatActivityEnterTopView;
+
+    // Tony Chat: Smart Reply + Tone Rewrite
+    private org.telegram.ui.TonyChat.SmartReplyView smartReplyView;
+    private org.telegram.ui.TonyChat.SmartReplyHelper smartReplyHelper;
+    private org.telegram.ui.TonyChat.ToneRewriteHelper toneRewriteHelper;
     private boolean isActionBarTooNarrow;
     private int chatActivityEnterViewAnimateFromTop;
     private boolean chatActivityEnterViewAnimateBeforeSending;
@@ -1248,6 +1253,9 @@ public class ChatActivity extends BaseFragment implements
     public final static int OPTION_SUGGESTION_EDIT_MESSAGE = 113;
     public final static int OPTION_SUGGESTION_ADD_OFFER = 114;
 
+    // Tony Chat: AI translate message option
+    public final static int OPTION_AI_TRANSLATE = 160;
+
     private final static int OPTION_COPY_PHOTO = 150;
     private final static int OPTION_COPY_PHOTO_AS_STICKER = 151;
 
@@ -1673,6 +1681,10 @@ public class ChatActivity extends BaseFragment implements
     private final static int open_direct = 70;
     private final static int remove_fee = 71;
     private final static int charge_fee = 72;
+
+    // Tony Chat: AI menu items
+    private final static int ai_summarize = 80;
+    private final static int ai_tone_rewrite = 81;
 
     private final static int id_chat_compose_panel = 1000;
     private final static int to_the_beginning = 200;
@@ -2140,6 +2152,10 @@ public class ChatActivity extends BaseFragment implements
 
         @Override
         public void onTextChanged(final CharSequence text, boolean bigChange, boolean fromDraft) {
+            // Tony Chat: hide smart reply when user starts typing
+            if (!fromDraft && !TextUtils.isEmpty(text) && smartReplyHelper != null) {
+                smartReplyHelper.onTypingStarted();
+            }
             MediaController.getInstance().setInputFieldHasText(!TextUtils.isEmpty(text) || chatActivityEnterView.isEditingMessage());
             if (mentionContainer != null && mentionContainer.getAdapter() != null) {
                 mentionContainer.getAdapter().searchUsernameOrHashtag(text, chatActivityEnterView.getCursorPosition(), messages, false, false);
@@ -3249,6 +3265,11 @@ public class ChatActivity extends BaseFragment implements
     @Override
     public void onFragmentDestroy() {
         super.onFragmentDestroy();
+        // Tony Chat: cleanup smart reply
+        if (smartReplyHelper != null) {
+            smartReplyHelper.destroy();
+            smartReplyHelper = null;
+        }
         if (chatActivityEnterView != null) {
             chatActivityEnterView.onDestroy();
         }
@@ -4024,6 +4045,27 @@ public class ChatActivity extends BaseFragment implements
                     getSendMessagesHelper().sendMessage(SendMessagesHelper.SendMessageParams.of("/settings", dialog_id, null, null, null, false, null, null, null, true, 0, 0, null, false));
                 } else if (id == search) {
                     openSearchWithText(isSupportedTags() ? "" : null);
+                } else if (id == ai_summarize) {
+                    // Tony Chat: show AI chat summary
+                    org.telegram.ui.TonyChat.SummaryHelper.showSummary(
+                        ChatActivity.this, messages, getParentActivity());
+                } else if (id == ai_tone_rewrite) {
+                    // Tony Chat: tone rewrite for composed message
+                    if (chatActivityEnterView != null) {
+                        CharSequence fieldText = chatActivityEnterView.getFieldText();
+                        if (fieldText != null && fieldText.length() > 0) {
+                            if (toneRewriteHelper == null) {
+                                toneRewriteHelper = new org.telegram.ui.TonyChat.ToneRewriteHelper();
+                            }
+                            toneRewriteHelper.showTonePopup(getParentActivity(),
+                                chatActivityEnterView, fieldText.toString(),
+                                newText -> chatActivityEnterView.setFieldText(newText));
+                        } else {
+                            android.widget.Toast.makeText(getParentActivity(),
+                                "Type a message first, then use Rewrite Tone",
+                                android.widget.Toast.LENGTH_SHORT).show();
+                        }
+                    }
                 } else if (id == translate) {
                     getMessagesController().getTranslateController().setHideTranslateDialog(getDialogId(), false, true);
                     if (!getMessagesController().getTranslateController().toggleTranslatingDialog(getDialogId(), true)) {
@@ -4428,6 +4470,10 @@ public class ChatActivity extends BaseFragment implements
             if (searchItem != null) {
                 headerItem.lazilyAddSubItem(search, R.drawable.msg_search, LocaleController.getString(R.string.Search));
             }
+            // Tony Chat: AI menu items
+            headerItem.lazilyAddSubItem(ai_summarize, R.drawable.msg_info, "Summarize Chat");
+            headerItem.lazilyAddSubItem(ai_tone_rewrite, R.drawable.msg_edit, "Rewrite Tone");
+
             boolean allowShowPinned;
             if (currentChat != null) {
                 allowShowPinned = ChatObject.canUserDoAction(currentChat, ChatObject.ACTION_PIN) || ChatObject.isChannel(currentChat);
@@ -7995,6 +8041,31 @@ public class ChatActivity extends BaseFragment implements
         chatActivityEnterView.setViewParentForEmoji(chatInputInAppContainer);
 
         chatInputBubbleContainer.addView(chatActivityEnterView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.BOTTOM, 7, 0, 7, 0));
+
+        // Tony Chat: Smart Reply suggestion chips above compose area
+        smartReplyView = new org.telegram.ui.TonyChat.SmartReplyView(context);
+        chatInputBubbleContainer.addView(smartReplyView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.BOTTOM, 7, 0, 7, 52));
+        smartReplyHelper = new org.telegram.ui.TonyChat.SmartReplyHelper();
+        smartReplyHelper.setCallback(new org.telegram.ui.TonyChat.SmartReplyHelper.Callback() {
+            @Override
+            public void onLoading() {
+                if (smartReplyView != null) smartReplyView.showLoading();
+            }
+            @Override
+            public void onSuggestions(java.util.List<String> suggestions) {
+                if (smartReplyView != null) smartReplyView.showSuggestions(suggestions);
+            }
+            @Override
+            public void onHide() {
+                if (smartReplyView != null) smartReplyView.hideSuggestions();
+            }
+        });
+        smartReplyView.setOnSuggestionClick(text -> {
+            if (chatActivityEnterView != null) {
+                chatActivityEnterView.setFieldText(text);
+            }
+        });
+
         contentView.addView(chatInputViewsContainer.getFadeView(), LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
         contentView.addView(chatInputViewsContainer, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
 
@@ -25727,6 +25798,14 @@ public class ChatActivity extends BaseFragment implements
         if (currentUser != null && currentUser.bot) {
             updateTopPanel(true);
         }
+
+        // Tony Chat: trigger smart reply on new incoming messages
+        if (smartReplyHelper != null && !arr.isEmpty()) {
+            MessageObject lastMsg = arr.get(0);
+            if (lastMsg != null && !lastMsg.isOut()) {
+                smartReplyHelper.onNewMessage(lastMsg, messages);
+            }
+        }
     }
 
     private int getStableIdForDateObject(int date) {
@@ -32714,6 +32793,26 @@ public class ChatActivity extends BaseFragment implements
                     return;
                 }
                 undoView.showWithAction(0, UndoView.ACTION_MESSAGE_COPIED, null);
+                break;
+            }
+            // Tony Chat: AI translate message
+            case OPTION_AI_TRANSLATE: {
+                final MessageObject msgToTranslate = selectedObject;
+                org.telegram.ui.TonyChat.TranslateHelper.translateMessage(
+                    getParentActivity(), msgToTranslate,
+                    (translatedText, langPair) -> {
+                        if (translatedText != null) {
+                            org.telegram.ui.ActionBar.AlertDialog.Builder builder =
+                                new org.telegram.ui.ActionBar.AlertDialog.Builder(getParentActivity());
+                            builder.setTitle("AI Translation (" + langPair + ")");
+                            builder.setMessage(translatedText);
+                            builder.setPositiveButton(LocaleController.getString(R.string.OK), null);
+                            builder.setNeutralButton(LocaleController.getString(R.string.Copy), (d, w) -> {
+                                AndroidUtilities.addToClipboard(translatedText);
+                            });
+                            builder.show();
+                        }
+                    });
                 break;
             }
             case OPTION_SAVE_TO_GALLERY: {
@@ -45692,6 +45791,14 @@ public class ChatActivity extends BaseFragment implements
                         options.add(nkbtn_translate);
                         icons.add(R.drawable.msg_translate);
                     }
+                }
+                // Tony Chat: AI Translate option
+                if (messageObject != null && messageObject.messageOwner != null
+                    && messageObject.messageOwner.message != null
+                    && !messageObject.messageOwner.message.trim().isEmpty()) {
+                    items.add("AI Translate");
+                    options.add(OPTION_AI_TRANSLATE);
+                    icons.add(R.drawable.msg_translate);
                 }
                 if (false) {
                     if (messageObject != null || docsWithMessages) {
