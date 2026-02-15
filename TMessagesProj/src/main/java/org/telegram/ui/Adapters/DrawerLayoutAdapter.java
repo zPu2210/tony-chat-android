@@ -65,6 +65,7 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter imple
     public static int nkbtnChatHistory = 1007;
     public static int btnAiFeatures = 1100;
     public static int btnPrivacy = 1101;
+    public static int btnAbout = 1102;
 
     public DrawerLayoutAdapter(Context context, SideMenultItemAnimator animator, DrawerLayoutContainer drawerLayoutContainer) {
         mContext = context;
@@ -404,16 +405,7 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter imple
         items.add(new Item(btnPrivacy, "Privacy & Ghost Mode", R.drawable.msg_secret));
         items.add(new Item(8, LocaleController.getString(R.string.Settings), settingsIcon));
         items.add(null); // divider
-//        items.add(new Item(7, LocaleController.getString(R.string.InviteFriends), inviteIcon));
-//        items.add(new Item(13, LocaleController.getString(R.string.TelegramFeatures), helpIcon));
-        if (TonyConfig.INSTANCE.getShowProxy() && false && (!false || SharedConfig.isProxyEnabled())) {
-            items.add(new CheckItem(13, LocaleController.getString("Proxy", R.string.Proxy), R.drawable.msg_policy, SharedConfig::isProxyEnabled, () -> {
-                SharedConfig.setProxyEnable(!SharedConfig.isProxyEnabled());
-                return true;
-            }));
-        }
-        items.add(new Item(13, LocaleController.getString(R.string.TipsChannel), helpIcon));
-        items.add(new Item(nkbtnWiki, LocaleController.getString(R.string.TelegramWiki), helpIcon));
+        items.add(new Item(btnAbout, "About Tony Chat", R.drawable.msg_info));
     }
 
     public boolean click(View view, int position) {
