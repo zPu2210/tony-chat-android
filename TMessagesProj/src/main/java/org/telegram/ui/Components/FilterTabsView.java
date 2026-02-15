@@ -298,7 +298,6 @@ public class FilterTabsView extends FrameLayout {
         protected void onDraw(Canvas canvas) {
             boolean reorderEnabled = true;
 //            boolean reorderEnabled = (!currentTab.isDefault || UserConfig.getInstance(UserConfig.selectedAccount).isPremium());
-            // TODO: NekoX try to unlock
             boolean showRemove = !currentTab.isDefault && reorderEnabled;
             if (reorderEnabled && editingAnimationProgress != 0) {
                 canvas.save();
@@ -2081,7 +2080,6 @@ public class FilterTabsView extends FrameLayout {
 
     }
 
-    // NekoX show all chats tab
     public boolean showAllChatsTab = !false;
 
     public void toggleAllTabs(boolean show) {

@@ -1445,7 +1445,6 @@ public class StickersAlert extends BottomSheet implements NotificationCenter.Not
                 MediaDataController.getInstance(currentAccount).toggleStickerSet(getContext(), stickerSet, 1, parentFragment, false, false);
             });
         } else if (id == menu_qrcode) {
-            // NekoX QR dialog removed
         } else if (id == menu_archive) {
             dismiss();
             MediaDataController.getInstance(currentAccount).toggleStickerSet(parentActivity, stickerSet, 1, parentFragment, false, true);
@@ -1455,7 +1454,6 @@ public class StickersAlert extends BottomSheet implements NotificationCenter.Not
             // ExternalStickerCacheHelper removed - external cache feature removed
             enableEditMode();
         } else if (id == menu_copy_sticker_set) {
-            // NekoX copy sticker set removed
             dismiss();
         } else if (id == menu_user_profile) {
             // Na: open sticker's admin user profile or copy admin userId

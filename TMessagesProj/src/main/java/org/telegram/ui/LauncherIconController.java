@@ -72,7 +72,7 @@ public class LauncherIconController {
             this.premium = premium;
         }
 
-        public boolean isNekoX() {
+        public boolean isDefault() {
             return this == DEFAULT;
         }
     }

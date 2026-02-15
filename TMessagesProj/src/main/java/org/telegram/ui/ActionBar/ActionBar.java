@@ -1935,7 +1935,6 @@ public class ActionBar extends FrameLayout {
         }
     }
 
-    // NekoX Changes
 
     private StaticLayout countLayout;
 

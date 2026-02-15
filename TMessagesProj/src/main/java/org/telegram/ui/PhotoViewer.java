@@ -7529,7 +7529,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                     }
                 });
                 cell.setOnLongClickListener(v -> {
-                    // NekoX translator removed
                     return false;
                 });
             }
@@ -15654,7 +15653,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             if (sharedMediaType == MediaDataController.MEDIA_FILE) {
                 if (canZoom = newMessageObject.canPreviewDocument()) {
                     menuItem.showSubItem(gallery_menu_scan);
-                    // TODO: NekoX Fix allowShare
                     if (allowShare) {
                         galleryButton.setVisibility(View.VISIBLE);
                         galleryGap.setVisibility(View.VISIBLE);

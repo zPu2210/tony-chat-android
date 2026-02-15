@@ -915,7 +915,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
                 } else if (noGalleryPermissions && position != 0) {
                     try {
                         if (position == adapter.itemsCount - 2) {
-                            menu.onItemClick(open_in); // NekoX: Use system photo picker
+                            menu.onItemClick(open_in);
                         } else {
                             if (Build.VERSION.SDK_INT >= 33) {
                                 fragment.getParentActivity().requestPermissions(new String[]{Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.READ_MEDIA_IMAGES}, BasePermissionsActivity.REQUEST_CODE_EXTERNAL_STORAGE);
@@ -4618,7 +4618,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
             }
             if (noGalleryPermissions && this == adapter) {
                 count++;
-                count++; // NekoX: Additional Open In picker
+                count++;
             }
             photosStartRow = count;
             if (!noGalleryPermissions) {

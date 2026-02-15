@@ -748,7 +748,6 @@ public class DocumentSelectActivity extends BaseFragment {
                         }
                     });
                     itemCells[a].setOnLongClickListener(v -> {
-                        // NekoX translator removed
                         return false;
                     });
                 }

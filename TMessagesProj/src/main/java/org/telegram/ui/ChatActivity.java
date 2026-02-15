@@ -1647,7 +1647,6 @@ public class ChatActivity extends BaseFragment implements
     private final static int text_underline = 56;
     private final static int text_spoiler = 57;
     private final static int text_quote = 58;
-    // NekoX
     private final static int text_mention = 157;
     private final static int text_transalte = 158;
 
@@ -1663,7 +1662,7 @@ public class ChatActivity extends BaseFragment implements
     private final static int scheduled = 63;
     private final static int edit_quick_reply = 64;
 
-    private ActionBarMenuItem actionModeOtherItem; // NekoX
+    private ActionBarMenuItem actionModeOtherItem;
 
     private final static int copy_business_link = 65;
     private final static int share_business_link = 66;
@@ -1979,7 +1978,6 @@ public class ChatActivity extends BaseFragment implements
             }
         }
 
-        // NekoX
         @Override
         public void beforeMessageSend(CharSequence message, boolean notify, int scheduleDate, int scheduleRepeatPeriod, long stars) {
             ChatActivity.this.beforeMessageSend(notify, scheduleDate, true, stars);
@@ -10853,7 +10851,6 @@ public class ChatActivity extends BaseFragment implements
             item.addSubItem(text_underline, stringBuilder);
         }
         item.addSubItem(text_link, LocaleController.getString(R.string.CreateLink));
-        // NekoX
         item.addSubItem(text_mention, LocaleController.getString(R.string.CreateMention));
         item.addSubItem(text_regular, LocaleController.getString(R.string.Regular));
 
@@ -11599,7 +11596,6 @@ public class ChatActivity extends BaseFragment implements
             }
         });
 
-        // NekoX: long press pinned list button
         pinnedListButton.setOnLongClickListener(v -> {
             if (getParentActivity() == null) {
                 return false;
@@ -20191,7 +20187,6 @@ public class ChatActivity extends BaseFragment implements
                     } else {
                         File f = new File(videoPath);
                         if (!f.canRead()) {
-                            // When the video file is located in a protected directory, and NekoX doesn't have the access permission to this directory, i.e. EACCES (Permission denied),
                             //    copy it to the private temp directory
                             FileLog.e("Failed to read input file " + videoPath + ", copy to private directory");
                             try {
@@ -24052,7 +24047,7 @@ public class ChatActivity extends BaseFragment implements
                     avatarContainer.updateSubtitle();
                 }
             } else if (id == NotificationCenter.dialogsUnreadCounterChanged) {
-                if (actionBar != null) { // NekoX
+                if (actionBar != null) {
                     actionBar.unreadBadgeSetCount(getMessagesStorage().getMainUnreadCount());
                 }
             }
@@ -27168,7 +27163,6 @@ public class ChatActivity extends BaseFragment implements
                 menu.add(R.id.menu_groupbolditalic, R.id.menu_underline, order++, stringBuilder);
             }
         }
-        // NekoX: Move Spoiler back
         if (chat && false) {
             menu.add(R.id.menu_groupbolditalic, R.id.menu_quote, order++, LocaleController.getString(R.string.Quote));
         }
@@ -31360,7 +31354,6 @@ public class ChatActivity extends BaseFragment implements
                         processSelectedOption(options.get(i));
                     });
                     if (option == OPTION_TRANSLATE) {
-                        // NekoX: Official Translation Move to neko_btn_translate
                     }
                     cell.setOnLongClickListener(v1 -> {
                         if (selectedObject == null || i < 0 || i >= options.size()) {
@@ -32815,7 +32808,6 @@ public class ChatActivity extends BaseFragment implements
                     } else if (locFile.getName().toLowerCase().endsWith(".nekox.json") ||
                                locFile.getName().toLowerCase().endsWith(".nekox-stickers.json") ||
                                locFile.getName().toLowerCase().endsWith(".nekox-settings.json")) {
-                        // NekoX import features removed
                         BulletinFactory.of(ChatActivity.this).createErrorBulletin(LocaleController.getString(R.string.UnsupportedAttachment)).show();
                     } else if (getMessageType(selectedObject) == 100) {
                         // Custom emoji pack installation removed
@@ -33538,7 +33530,6 @@ public class ChatActivity extends BaseFragment implements
     private int processSelectedOptionLongClick(ActionBarMenuSubItem cell, int option) {
         switch (option) {
             case nkbtn_translate: {
-                // NekoX translator removed
                 return 0;
             }
             case nkbtn_repeat: {
@@ -34377,16 +34368,12 @@ public class ChatActivity extends BaseFragment implements
         if (channelHashtags || forcePublic || ChatObject.isChannelAndNotMegaGroup(currentChat) && ChatObject.isPublic(currentChat) && searchingHashtag != null) {
             defaultSearchPage = 2;
 
-//            ----- Nagram Hook Start -----
             defaultSearchPage = 0;
-//            ----- Nagram Hook End -----
 
         } else {
             defaultSearchPage = 0;
 
-//            ----- Nagram Hook Start -----
             defaultSearchPage = 0;
-//            ----- Nagram Hook End -----
 
         }
         openSearchKeyboard = false;
@@ -37084,14 +37071,12 @@ public class ChatActivity extends BaseFragment implements
                 var msg = messages.get(position - messagesStartRow);
 
                 // AyuGram filter removed
-                // --- NaGram hook
                 if (msg != null && msg.messageOwner != null && msg.messageOwner.hide) {
                     return -1000;
                 }
                 if (false && msg != null && MessagesController.getInstance(currentAccount).blockePeers.indexOfKey(msg.getFromChatId()) >= 0) {
                     return -1000;
                 }
-                // --- NaGram hook
 
                 return msg.contentType;
             } else if (position == botInfoRow) {
@@ -37193,7 +37178,6 @@ public class ChatActivity extends BaseFragment implements
                         startMessageUnselect();
                     }
                 }
-                // Auto-translate removed (NekoX feature)
                 // na: unread count
                 if (actionBar != null) {
                     actionBar.unreadBadgeSetCount(getMessagesStorage().getMainUnreadCount());
@@ -37658,7 +37642,6 @@ public class ChatActivity extends BaseFragment implements
             if (chatMode == MODE_SAVED || chatMode == MODE_SUGGESTIONS || threadMessageId == 0 && !UserObject.isReplyUser(currentUser) || threadMessageObject != null && threadMessageObject.getRepliesCount() < 10) {
                 searchItem.setVisibility(View.GONE);
             }
-            // NekoX: hide viewInChat Item when searching
             if (viewInChatItem != null)
                 viewInChatItem.setVisibility(View.VISIBLE);
             searchItemVisible = false;
@@ -40213,7 +40196,6 @@ public class ChatActivity extends BaseFragment implements
                 } else if (message.getDocumentName().toLowerCase().endsWith(".nekox.json") ||
                            message.getDocumentName().toLowerCase().endsWith(".nekox-stickers.json") ||
                            message.getDocumentName().toLowerCase().endsWith(".nekox-settings.json")) {
-                    // NekoX import features removed
                     BulletinFactory.of(ChatActivity.this).createErrorBulletin(LocaleController.getString(R.string.UnsupportedAttachment)).show();
                 } else {
                 boolean handled = false;
@@ -42853,7 +42835,6 @@ public class ChatActivity extends BaseFragment implements
 
     private void updateBotHelpCellClick(BotHelpCell cell) {
         final boolean translateButtonEnabled = MessagesController.getInstance(currentAccount).getTranslateController().isContextTranslateEnabled();
-        // NekoX: remove Language Detector
         {
             cell.setClickable(false);
         }
@@ -43976,7 +43957,6 @@ public class ChatActivity extends BaseFragment implements
         options.add(R.drawable.msg_copy, getString(isHashtag ? R.string.CopyHashtag : isMail ? R.string.CopyMail : R.string.CopyLink), () -> {
             run1.run(1);
         });
-//        ----- Nagram Hook start -----
         options.add(R.drawable.wallet_qr, getString(R.string.ShareQRCode), () -> {
             // QRCode removed
         });
@@ -43988,7 +43968,6 @@ public class ChatActivity extends BaseFragment implements
             // ShareMessage
             run1.run(2);
         });
-//        ----- Nagram Hook end -----
 
         dialog.setItemOptions(options);
         if (str != null && str.startsWith("mailto:")) {

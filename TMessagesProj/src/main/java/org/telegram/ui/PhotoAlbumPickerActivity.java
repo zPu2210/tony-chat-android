@@ -520,7 +520,6 @@ public class PhotoAlbumPickerActivity extends BaseFragment implements Notificati
                         }
                     });
                     itemCells[a].setOnLongClickListener(v -> {
-                        // NekoX translator removed
                         return false;
                     });
                 }

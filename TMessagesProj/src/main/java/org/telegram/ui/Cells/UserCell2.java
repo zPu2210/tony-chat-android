@@ -278,7 +278,6 @@ public class UserCell2 extends FrameLayout {
                     statusTextView.setText(LocaleController.formatUserStatus(currentAccount, currentUser));
                 }
             }
-            // TODO: NekoX: Wait for review
             avatarImageView.setForUserOrChat(currentUser, avatarDrawable);
         } else if (currentChat != null) {
             statusTextView.setTextColor(statusColor);

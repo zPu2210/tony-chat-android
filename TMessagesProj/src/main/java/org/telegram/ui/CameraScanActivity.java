@@ -1398,7 +1398,6 @@ public class CameraScanActivity extends BaseFragment {
                     text = null;
                 }
             } else */
-            // NekoX: Remove google parts visionQrReader
 
             if (qrReader != null) {
                 LuminanceSource source;

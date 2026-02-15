@@ -171,7 +171,6 @@ public class MessagesController extends BaseController implements NotificationCe
     public ConcurrentHashMap<Long, Integer> dialogs_read_outbox_max = new ConcurrentHashMap<>(100, 1.0f, 2);
     public LongSparseArray<TLRPC.Dialog> dialogs_dict = new LongSparseArray<>();
     public LongSparseArray<ArrayList<MessageObject>> dialogMessage = new LongSparseArray<>();
-    // NekoX: ignoreBlocked, Messages cache for Dialog Cell
     public LongSparseArray<MessageObject> dialogMessageFromUnblocked = new LongSparseArray<>();
     public LongSparseArray<MessageObject> dialogMessagesByRandomIds = new LongSparseArray<>();
     public LongSparseIntArray deletedHistory = new LongSparseIntArray();
@@ -1418,47 +1417,7 @@ public class MessagesController extends BaseController implements NotificationCe
         boolean is1user = !DialogObject.isChannel(dialog1) && dialog1.id > 0;
         boolean is2user = !DialogObject.isChannel(dialog2) && dialog2.id > 0;
 
-        if (false) {
-            if (dialog1.unread_count == 0 && dialog2.unread_count > 0) {
-                return 1;
-            } else if (dialog1.unread_count > 0 && dialog2.unread_count == 0) {
-                return -1;
-            } else if (dialog1.unread_count > 0 && dialog2.unread_count > 0) {
-                if (true) {
-                    if (isDialogMuted(dialog1.id) && !isDialogMuted(dialog2.id)) {
-                        return 1;
-                    } else if (!isDialogMuted(dialog1.id) && isDialogMuted(dialog2.id)) {
-                        return -1;
-                    } else if (!isDialogMuted(dialog1.id) && !isDialogMuted(dialog2.id)) {
-                        if (true) {
-                            if (!is1user && is2user) {
-                                return 1;
-                            } else if (is1user && !is2user) {
-                                return -1;
-                            } else if (is1user && is2user) {
-                                if (true) {
-                                    boolean is1contact = is1user && getContactsController().isContact((int) dialog1.id);
-                                    boolean is2contact = is2user && getContactsController().isContact((int) dialog2.id);
-                                    if (!is1contact && is2contact) {
-                                        return 1;
-                                    } else if (is1contact && !is2contact) {
-                                        return -1;
-                                    } else {
-                                        return 0;
-                                    }
-                                } else {
-                                    return 0;
-                                }
-                            }
-                        } else {
-                            return 0;
-                        }
-                    }
-                } else {
-                    return 0;
-                }
-            }
-        } else if (true) {
+        {
             if (dialog1.unread_count == 0 && dialog2.unread_count > 0 && isDialogMuted(dialog1.id) && !isDialogMuted(dialog2.id)) {
                 return 1;
             } else if (dialog1.unread_count > 0 && dialog2.unread_count == 0 && !isDialogMuted(dialog1.id) && isDialogMuted(dialog2.id)) {
@@ -1690,8 +1649,6 @@ public class MessagesController extends BaseController implements NotificationCe
         verifyAgeMin = mainPreferences.getInt("verifyAgeMin", 18);
         premiumBotUsername = mainPreferences.getString("premiumBotUsername", null);
         premiumLocked = mainPreferences.getBoolean("premiumLocked", false);
-        if (false)
-            premiumLocked = false;
         starsLocked = mainPreferences.getBoolean("starsLocked", true);
         transcribeButtonPressed = mainPreferences.getInt("transcribeButtonPressed", 0);
         forumUpgradeParticipantsMin = mainPreferences.getInt("forumUpgradeParticipantsMin", 200);
@@ -10578,9 +10535,6 @@ public class MessagesController extends BaseController implements NotificationCe
                         }
                         promoDialog = dialogs_dict.get(did);
                         pendingSuggestions = new HashSet<>(res.pending_suggestions);
-                        if (false) {
-                            pendingSuggestions = new HashSet<>();
-                        }
                         dismissedSuggestions = new HashSet<>(res.dismissed_suggestions);
                         customPendingSuggestion = res.custom_pending_suggestion;
                         getNotificationCenter().postNotificationName(NotificationCenter.newSuggestionsAvailable);
@@ -10819,9 +10773,6 @@ public class MessagesController extends BaseController implements NotificationCe
                 newStrings.put(key, newPrintingStrings);
                 newTypes.put(key, newPrintingStringsTypes);
 
-                if (false) {
-                    arr = arr.stream().filter(it -> getMessagesController().blockePeers.indexOfKey(it.userId) == -1).collect(Collectors.toCollection(ArrayList::new));
-                }
                 if (arr.isEmpty()) continue;
 
                 int type = 0;
@@ -11010,7 +10961,6 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public boolean sendTyping(long dialogId, long threadMsgId, int action, String emojicon, int classGuid) {
-        if (false) return false;
         if (action < 0 || action >= sendingTypings.length || dialogId == 0) {
             return false;
         }
@@ -11084,10 +11034,7 @@ public class MessagesController extends BaseController implements NotificationCe
             } else if (action == 9) {
                 req.action = new TLRPC.TL_sendMessageUploadAudioAction();
             } else if (action == 10) {
-                if (false)
-                    req.action = new TLRPC.TL_sendMessageTypingAction();
-                else
-                    req.action = new TLRPC.TL_sendMessageChooseStickerAction();
+                req.action = new TLRPC.TL_sendMessageChooseStickerAction();
             } else if (action == 11) {
                 TLRPC.TL_sendMessageEmojiInteractionSeen interactionSeen = new TLRPC.TL_sendMessageEmojiInteractionSeen();
                 interactionSeen.emoticon = emojicon;
@@ -16549,9 +16496,6 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public void loadPinnedDialogs(final int folderId, long newDialogId, ArrayList<Long> order) {
-        if (false) {
-            return;
-        }
         if (loadingPinnedDialogs.indexOfKey(folderId) >= 0 || getUserConfig().isPinnedDialogsLoaded(folderId)) {
             return;
         }
@@ -20506,8 +20450,6 @@ public class MessagesController extends BaseController implements NotificationCe
                             message.entities = sponsoredMessage.entities;
                             message.flags |= 128;
                         }
-                        if (false)
-                            message.hide = true;
                         message.peer_id = getPeer(dialogId);
                         message.flags |= 256;
                         message.date = getConnectionsManager().getCurrentTime();
@@ -22348,7 +22290,6 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public boolean storiesEnabled() {
-        if (false) return false;
         switch (storiesPosting) {
             case "premium":
                 return getUserConfig().isPremium();

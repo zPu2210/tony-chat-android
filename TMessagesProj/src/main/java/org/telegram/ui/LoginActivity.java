@@ -401,7 +401,6 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
 
     private boolean forceDisableSafetyNet;
 
-    // NekoX Definitions
 
     ActionBarMenuItem menu = null;
 
@@ -1929,7 +1928,6 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
             return;
         }
         if (res.type instanceof TLRPC.TL_auth_sentCodeTypeFirebaseSms && !res.type.verifiedFirebase && !isRequestingFirebaseSms) {
-            // NekoX: disable SafetyNet
             /*
             if (PushListenerController.GooglePushListenerServiceProvider.INSTANCE.hasServices()) {
                 TLRPC.TL_auth_sentCodeTypeFirebaseSms r = (TLRPC.TL_auth_sentCodeTypeFirebaseSms) res.type;
@@ -2712,7 +2710,6 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
 
             String country = null;
 
-            // NekoX: Remove TelephonyManager
 //            try {
 //                TelephonyManager telephonyManager = (TelephonyManager) ApplicationLoader.applicationContext.getSystemService(Context.TELEPHONY_SERVICE);
 //                if (telephonyManager != null) {
@@ -3272,7 +3269,6 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
             settings.allow_flashcall = simcardAvailable && allowCall && allowCancelCall && allowReadCallLog;
             settings.allow_missed_call = simcardAvailable && allowCall;
             settings.allow_app_hash = settings.allow_firebase = false;
-            // NekoX: disable app_hash and firebase login
             if (forceDisableSafetyNet || TextUtils.isEmpty(BuildVars.SAFETYNET_KEY)) {
                 settings.allow_firebase = false;
             }
@@ -6241,7 +6237,6 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
 
             addView(emailOutlineView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 58, 16, 24, 16, 0));
 
-            // NekoX: Remove signInWithGoogleView.
         }
 
         @Override
@@ -6319,7 +6314,6 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
             params.putString("email", email);
             params.putBoolean("setup", true);
 
-            // NekoX: remove google account login
 
             if (TextUtils.isEmpty(email)) {
                 onPasscodeError(false);
@@ -6488,7 +6482,6 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
 
             addView(codeFieldContainer, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, 42, Gravity.CENTER_HORIZONTAL, 0, setup ? 48 : 32, 0, 0));
 
-            // NekoX: Remove signinWithGoogle
 
             cantAccessEmailFrameLayout = new FrameLayout(context);
             AndroidUtilities.updateViewVisibilityAnimated(cantAccessEmailFrameLayout, activityMode != MODE_CHANGE_LOGIN_EMAIL && !isSetup, 1f, false);
@@ -8950,7 +8943,6 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
     }
 
 
-    // NekoX Changes
 
     @Override
     public void didReceivedNotification(int id, int account, Object... args) {
@@ -10674,6 +10666,5 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
     }
 
     public void doCustomApi() {
-        // NekoX custom API settings removed - stub only
     }
 }

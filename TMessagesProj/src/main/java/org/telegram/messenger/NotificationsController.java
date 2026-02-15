@@ -6241,17 +6241,7 @@ public class NotificationsController extends BaseController {
     }
 
     private int getNotificationIconResId() {
-        int notificationIconConfigValue = 0;
-        switch (notificationIconConfigValue) {
-            case 0:
-                return R.drawable.offical_notification;
-            case 1:
-                return R.drawable.nagram_notification;
-            case 2:
-                return R.drawable.notification;
-        }
-
-        return R.drawable.offical_notification;
+        return R.drawable.notification;
     }
 
     public void loadTopicsNotificationsExceptions(long dialogId, Consumer<HashSet<Integer>> consumer) {

@@ -122,7 +122,6 @@ public class HeaderCell extends LinearLayout {
         return animatedTextView.getDrawable().getCurrentWidth();
     }
 
-    // NekoX: BottomSheet BigTitle, move big title from constructor to here
     public HeaderCell setBigTitle(boolean enabled) {
         if (enabled) {
             textView.setTypeface(AndroidUtilities.getTypeface("fonts/mw_bold.ttf"));

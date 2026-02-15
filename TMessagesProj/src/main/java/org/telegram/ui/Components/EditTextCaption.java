@@ -722,7 +722,6 @@ public class EditTextCaption extends EditTextBoldCursor {
             makeSelectedSpoiler();
             return true;
         } else if (itemId == R.id.menu_translate) {
-            // NekoX
             makeSelectedTranslate();
         } else if (itemId == R.id.menu_quote) {
             makeSelectedQuote();

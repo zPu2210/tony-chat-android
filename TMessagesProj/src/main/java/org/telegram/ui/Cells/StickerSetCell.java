@@ -74,7 +74,7 @@ public class StickerSetCell extends FrameLayout {
     private CheckBox2 checkBox;
     private boolean needDivider;
     private ImageView optionsButton;
-    private ImageView pinnedImageView;      // NekoX: Pinned Sticker Mark
+    private ImageView pinnedImageView;
     private ImageView reorderButton;
     private TLRPC.TL_messages_stickerSet stickersSet;
     private boolean groupSearch;
@@ -116,7 +116,6 @@ public class StickerSetCell extends FrameLayout {
                 optionsButton.setContentDescription(LocaleController.getString(R.string.AccDescrMoreOptions));
                 addView(optionsButton, LayoutHelper.createFrame(40, 40, (LocaleController.isRTL ? Gravity.LEFT : Gravity.RIGHT) | Gravity.CENTER_VERTICAL));
 
-                // NekoX: Pinned Sticker Mark
                 pinnedImageView.setImageResource(R.drawable.msg_pin_mini);
                 pinnedImageView.setColorFilter(0xFF808080);
                 addView(pinnedImageView, LayoutHelper.createFrame(20, 20, (LocaleController.isRTL ? Gravity.LEFT : Gravity.RIGHT) | Gravity.CENTER_VERTICAL, 0.0f, 0.0f, 40.0f, 0.0f));
@@ -323,7 +322,6 @@ public class StickerSetCell extends FrameLayout {
             imageView.setAlpha(1.0f);
         }
 
-        // NekoX: Pinned Sticker Mark removed
         pinnedImageView.setVisibility(INVISIBLE);
 
         emojis = set.set.emojis;
@@ -397,7 +395,6 @@ public class StickerSetCell extends FrameLayout {
         }
     }
 
-    // NekoX: Pinned Sticker Mark -> Change Visibility
     public void setPinnedMarkVisibility(boolean visible) {
         if (!false) {
             pinnedImageView.setVisibility(INVISIBLE);

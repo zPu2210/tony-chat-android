@@ -4977,7 +4977,6 @@ public class TLRPC {
                     break;
             }
             result = TLdeserialize(GeoPoint.class, result, stream, constructor, exception);
-            // nekox: Fix crash when open invalid location
             if (result.lat < TileSystemWebMercator.MinLatitude) {
                 result.lat = TileSystemWebMercator.MinLatitude;
             } else if (result.lat > TileSystemWebMercator.MaxLatitude) {
@@ -61654,7 +61653,6 @@ public class TLRPC {
         public long errorAllowedPriceStars; //custom
         public long errorNewPriceStars; //custom
 
-        // NekoX Customs
         public String translatedMessage; //custom
         public boolean translated; // custom
         public boolean hide; // custom

@@ -74,12 +74,10 @@ public class DatabaseMigrationHint extends FrameLayout {
             }
         });
 
-        // On Android 11+ /storage/emulated/0/NekoX is no longer accessible
         // Move to /sdcard/Android/...... automatically
         if (Build.VERSION.SDK_INT >= 30) {
             ContextCompat.getMainExecutor(getContext()).execute(() -> {
                 if (!"".contains("/data/")) {
-                    // NekoX cache path removed
 
                 }
             });

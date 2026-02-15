@@ -4715,7 +4715,6 @@ public class ChatActivityEnterView extends FrameLayout implements
 
             }
 
-            // Translator menu items removed (NekoX feature)
 
 
             cell.setTextAndIcon(LocaleController.getString("ReplaceText", R.string.ReplaceText), R.drawable.msg_edit);

@@ -105,7 +105,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import kotlin.Unit;
-// NekoX/Nagram imports removed
 
 public class StickersActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
 
@@ -225,7 +224,6 @@ public class StickersActivity extends BaseFragment implements NotificationCenter
                         return true;
                     }
                 }
-                // pinned to pinned - NekoX feature removed
                 listAdapter.swapElements(from, to);
             } else
                 listAdapter.swapElements(source.getAdapterPosition(), target.getAdapterPosition());
@@ -339,12 +337,11 @@ public class StickersActivity extends BaseFragment implements NotificationCenter
                     } else {
                         sendReorder();
                     }
-                } // NekoX export/import menu items removed
+                }
             }
         });
 
         ActionBarMenu menu = actionBar.createMenu();
-        // NekoX export/import menu removed
 
         ActionBarMenu actionMode = actionBar.createActionMode();
         selectedCountTextView = new NumberTextView(actionMode.getContext());
@@ -541,12 +538,10 @@ public class StickersActivity extends BaseFragment implements NotificationCenter
             }
         });
 
-        // NekoX stickers file processing removed
 
         return fragmentView;
     }
 
-    // NekoX sticker import/export features removed
 
     @Override
     public boolean onBackPressed() {
@@ -630,7 +625,6 @@ public class StickersActivity extends BaseFragment implements NotificationCenter
         }
         List<TLRPC.StickerSetCovered> featuredStickersList = new ArrayList<>(featuredStickerSets);
 
-        // NekoX pinned stickers feature removed
         DiffUtil.DiffResult diffResult = null;
         DiffUtil.DiffResult featuredDiffResult = null;
 
@@ -711,7 +705,7 @@ public class StickersActivity extends BaseFragment implements NotificationCenter
                     }
                 });
             }
-            listAdapter.setStickerSets(newList, false); // NekoX: dont reorder here
+            listAdapter.setStickerSets(newList, false);
             listAdapter.setFeaturedStickerSets(featuredStickersList);
         }
 
@@ -951,7 +945,6 @@ public class StickersActivity extends BaseFragment implements NotificationCenter
         public ListAdapter(Context context, List<TLRPC.TL_messages_stickerSet> stickerSets, List<TLRPC.StickerSetCovered> featuredStickerSets) {
             mContext = context;
             List<TLRPC.TL_messages_stickerSet> temp = new ArrayList<>(stickerSets);
-            // NekoX pinned stickers feature removed
             this.pinnedStickersCount = 0;
             this.stickerSets.addAll(stickerSets);
             if (featuredStickerSets.size() > 3) {
@@ -973,7 +966,6 @@ public class StickersActivity extends BaseFragment implements NotificationCenter
 
         public void setStickerSets(List<TLRPC.TL_messages_stickerSet> stickerSets) {
             this.stickerSets.clear();
-            // NekoX pinned stickers removed
             this.stickerSets.addAll(stickerSets);
             this.pinnedStickersCount = 0;
         }
@@ -1041,7 +1033,6 @@ public class StickersActivity extends BaseFragment implements NotificationCenter
                 }
 
                 if (which == MENU_EXPORT) {
-                    // NekoX sticker export feature removed
                 }
 
                 int count = stickerSetList.size();
@@ -1129,7 +1120,7 @@ public class StickersActivity extends BaseFragment implements NotificationCenter
                 if (index >= 0) {
                     listAdapter.toggleSelected(stickersStartRow + index);
                 }
-            } // NekoX pinned stickers toggle feature removed
+            }
         }
 
         @Nullable
@@ -1457,12 +1448,10 @@ public class StickersActivity extends BaseFragment implements NotificationCenter
                         if (stickerSet.set.official) {
                             options.add(R.drawable.msg_reorder, LocaleController.getString(R.string.StickersReorder), () -> processSelectionOption(4, stickerSet));
                         } else {
-                            // NekoX pin sticker removed
                             options.add(R.drawable.msg_link, LocaleController.getString(R.string.StickersCopy), () -> processSelectionOption(3, stickerSet));
                             options.add(R.drawable.msg_reorder, LocaleController.getString(R.string.StickersReorder), () -> processSelectionOption(4, stickerSet));
                             options.add(R.drawable.msg_share, LocaleController.getString(R.string.StickersShare), () -> processSelectionOption(2, stickerSet));
                             options.add(R.drawable.msg_delete, LocaleController.getString(R.string.StickersRemove), true, () -> processSelectionOption(MENU_DELETE, stickerSet));
-                            // NekoX external sticker cache removed
                         }
                         options.setMinWidth(190);
                         options.show();

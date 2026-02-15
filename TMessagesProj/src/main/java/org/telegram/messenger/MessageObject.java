@@ -289,7 +289,6 @@ public class MessageObject {
 
     public boolean notime;
 
-    // nekogram
     public boolean translating;
 
     public int getChatMode() {
@@ -622,7 +621,6 @@ public class MessageObject {
     }
 
     public boolean hasMediaSpoilers() {
-        if (false) return false;
         return !isRepostPreview && (messageOwner.media != null && messageOwner.media.spoiler || needDrawBluredPreview()) || isHiddenSensitive();
     }
 
@@ -6887,7 +6885,6 @@ public class MessageObject {
             text = messageOwner.translatedText.text;
             entities = messageOwner.translatedText.entities;
         } else if (messageOwner.translated) {
-            // NekoX Translate
             text = messageOwner.translatedMessage;
             // keep the entities as is
         }
@@ -9115,9 +9112,6 @@ public class MessageObject {
     }
 
     public static boolean shouldEncryptPhotoOrVideo(int currentAccount, TLRPC.Message message) {
-        if (false) {
-            return false;
-        }
         if (message != null && message.media != null && (isVoiceDocument(getDocument(message)) || isRoundVideoMessage(message)) && message.media.ttl_seconds == 0x7FFFFFFF) {
             return true;
         }
@@ -9139,9 +9133,6 @@ public class MessageObject {
     }
 
     public static boolean isSecretPhotoOrVideo(TLRPC.Message message) {
-        if (false) {
-            return false;
-        }
         if (message instanceof TLRPC.TL_message_secret) {
             return (getMedia(message) instanceof TLRPC.TL_messageMediaPhoto || isRoundVideoMessage(message) || isVideoMessage(message)) && message.ttl > 0 && message.ttl <= 60;
         } else if (message instanceof TLRPC.TL_message) {
@@ -9151,9 +9142,6 @@ public class MessageObject {
     }
 
     public static boolean isSecretMedia(TLRPC.Message message) {
-        if (false) {
-            return false;
-        }
         if (message instanceof TLRPC.TL_message_secret) {
             return (getMedia(message) instanceof TLRPC.TL_messageMediaPhoto || isRoundVideoMessage(message) || isVideoMessage(message)) && getMedia(message).ttl_seconds != 0;
         } else if (message instanceof TLRPC.TL_message) {
@@ -9163,9 +9151,6 @@ public class MessageObject {
     }
 
     public boolean needDrawBluredPreview() {
-        if (false) {
-            return false;
-        }
         if (isRepostPreview) {
             return false;
         }
@@ -9185,9 +9170,6 @@ public class MessageObject {
     }
 
     public boolean isSecretMedia() {
-        if (false) {
-            return false;
-        }
         if (messageOwner instanceof TLRPC.TL_message_secret) {
             return (((getMedia(messageOwner) instanceof TLRPC.TL_messageMediaPhoto) || isGif()) && messageOwner.ttl > 0 && messageOwner.ttl <= 60 || isVoice() || isRoundVideo() || isVideo());
         } else if (messageOwner instanceof TLRPC.TL_message) {

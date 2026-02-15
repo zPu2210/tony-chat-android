@@ -1398,7 +1398,6 @@ public class MessagesStorage extends BaseController {
             SQLitePreparedStatement state5 = null;
             SQLitePreparedStatement state6 = null;
             try {
-                // NekoX cleardatabase (removed)
 
                 ArrayList<Long> dialogsToCleanup = new ArrayList<>();
 

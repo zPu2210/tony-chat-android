@@ -1067,6 +1067,15 @@ object TonyConfig {
     }
 
     // Ghost mode helper function (from NekoConfig)
+    // ============ Theme ============
+    var darkMode: Boolean
+        get() = prefs.getBoolean("dark_mode", false)
+        set(value) = prefs.edit().putBoolean("dark_mode", value).apply()
+
+    var useTonyTheme: Boolean
+        get() = prefs.getBoolean("use_tony_theme", true)
+        set(value) = prefs.edit().putBoolean("use_tony_theme", value).apply()
+
     fun setGhostMode(enabled: Boolean) {
         isGhostModeActive = enabled
         if (enabled) {

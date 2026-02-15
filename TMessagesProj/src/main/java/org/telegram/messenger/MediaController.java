@@ -5296,7 +5296,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                 try {
                     Uri uri;
                     boolean result = true;
-                    final String folderName = "Nagram";
+                    final String folderName = "TonyChat";
                     if (Build.VERSION.SDK_INT >= 29) {
                         uri = saveFileInternal(type, sourceFile, name);
                         result = uri != null;
@@ -5420,7 +5420,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                     selectedType = 1;
                 }
             }
-            final String folderName = "Nagram";
+            final String folderName = "TonyChat";
             if (selectedType == 0) {
                 if (filename == null) {
                     filename = AndroidUtilities.generateFileName(0, extension);

@@ -1123,7 +1123,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
 
         AndroidUtilities.enableEdgeToEdge(this);
 
-        // Removed: NekoX helper checks (emoji packs, wallpaper, peer color, etc.)
         BackupAgent.requestBackup(this);
 
         org.telegram.messenger.TranslateController.checkRestrictedLanguages(false);
@@ -6856,7 +6855,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         NotificationCenter.getGlobalInstance().removeObserver(this, NotificationCenter.billingConfirmPurchaseError);
         NotificationCenter.getGlobalInstance().removeObserver(this, NotificationCenter.tlSchemeParseException);
 
-        // NekoX
         NotificationCenter.getGlobalInstance().removeObserver(drawerLayoutAdapter, NotificationCenter.proxySettingsChanged);
         NotificationCenter.getGlobalInstance().removeObserver(drawerLayoutAdapter, NotificationCenter.updateUserStatus);
 

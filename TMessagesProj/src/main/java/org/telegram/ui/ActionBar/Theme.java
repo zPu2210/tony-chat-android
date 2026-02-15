@@ -4650,7 +4650,7 @@ public class Theme {
         themesDict.put("Blue", themeInfo);
 
         themeInfo = new ThemeInfo();
-        themeInfo.name = "NekoX";
+        themeInfo.name = "Tony Chat";
         themeInfo.assetName = "indigo.attheme";
         themeInfo.previewBackgroundColor = -657931;
         themeInfo.previewInColor = Color.parseColor("#c0ffffff");
@@ -6739,6 +6739,7 @@ public class Theme {
         applyDialogsTheme();
         applyProfileTheme();
         applyChatTheme(false, bg);
+        org.telegram.messenger.TonyChatThemeOverlay.apply();
         boolean checkNavigationBarColor = !hasPreviousTheme;
         AndroidUtilities.runOnUIThread(() -> NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.didSetNewTheme, false, checkNavigationBarColor));
     }

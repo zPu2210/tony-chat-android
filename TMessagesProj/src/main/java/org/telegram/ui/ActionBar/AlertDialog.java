@@ -1674,7 +1674,6 @@ public class AlertDialog extends Dialog implements Drawable.Callback, Notificati
         }
 
         public Builder setItems(CharSequence[] items, int[] icons, final OnClickListener onClickListener) {
-            // TODO: NEKOX: MIG ICONS
             alertDialog.items = items;
             alertDialog.itemIcons = icons;
             alertDialog.onClickListener = onClickListener;

@@ -1441,7 +1441,6 @@ public abstract class TextSelectionHelper<Cell extends TextSelectionHelper.Selec
                     }
                     menu.getItem(2).setVisible(selectedView instanceof View);
                 }
-                // NekoX: Merge 8.5.0, remove due to removing LanguageDetector
                 return true;
             }
 

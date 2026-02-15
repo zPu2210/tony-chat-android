@@ -2372,9 +2372,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         final int reqId = getConnectionsManager().sendRequest(req, (response, error) -> AndroidUtilities.runOnUIThread(() -> {
             if (error == null) {
                 TLRPC.TL_chatInviteExported invite = (TLRPC.TL_chatInviteExported) response;
-                // NekoX feature removed - QR code generation
             } else {
-                // NekoX feature removed - toast
             }
         }));
         getConnectionsManager().bindRequestToGuid(reqId, classGuid);
@@ -2615,7 +2613,6 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 } else if (id == message_filter){
                     // RegexFiltersSettingActivity removed
                 } else if (id == aliasChannelName) {
-                    // NekoX channel alias removed
                 } else if (id == delete_topic) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                     builder.setTitle(LocaleController.getPluralString("DeleteTopics", 1));
@@ -4486,17 +4483,16 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             } else if (position == nekoRow) {
                 // NekoSettingsActivity removed
             } else if (position == questionRow) {
-                Browser.openUrl(getParentActivity(), "https://t.me/NekogramX");
+                Browser.openUrl(getParentActivity(), "https://telegram.org/faq");
             } else if (position == faqRow) {
                 Browser.openUrl(getParentActivity(), "https://telegram.org/faq");
             } else if (position == policyRow) {
-                Browser.openUrl(getParentActivity(), "https://github.com/NekoX-Dev/NekoX/wiki/Privacy-Policy");
+                Browser.openUrl(getParentActivity(), "https://telegram.org/privacy");
             } else if (position == sendLogsRow) {
                 sendLogs(getParentActivity(), false);
             } else if (position == sendLastLogsRow) {
                 sendLogs(getParentActivity(), true);
             } else if (position == clearLogsRow) {
-                // NekoX clear logs removed
             } else if (position == switchBackendRow) {
                 if (getParentActivity() == null) {
                     return;
@@ -4522,18 +4518,14 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     presentFragment(new ChangeUsernameActivity());
                     return;
                 }
-                // NekoX username actions removed
 
             } else if (position == bioRow) {
                 presentFragment(new UserInfoActivity());
             } else if (position == numberRow) {
-                // NekoX feature removed - BottomBuilder phone actions
             } else if (position == phoneRow) {
-                // NekoX feature removed - BottomBuilder phone actions
             } else if (position == setAvatarRow) {
                 onWriteButtonClick();
             } else if (position == versionRow) {
-                // NekoX version actions removed
             } else if (position == premiumRow) {
                 presentFragment(new PremiumPreviewFragment("settings"));
             } else if (position == starsRow) {
@@ -6329,7 +6321,6 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 intent.putExtra(Intent.EXTRA_TEXT, text);
                 startActivityForResult(Intent.createChooser(intent, LocaleController.getString(R.string.BotShare)), 500);
             } else {
-                // NekoX feature removed - QR code dialog
             }
         } catch (Exception e) {
             FileLog.e(e);
@@ -7021,7 +7012,6 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 }
                 PhotoViewer.getInstance().openPhoto(user.photo.photo_big, provider);
             } else {
-                // NekoX: move openMenu from avatarImage.setOnClickListener to here.
                 // avatarImage's onClick event should call this openAvatar method.
                 if (userId == UserConfig.getInstance(currentAccount).getClientUserId() && imageUpdater != null) {
                     imageUpdater.openMenu(false, () -> MessagesController.getInstance(currentAccount).deleteUserPhoto(null), dialog -> {
@@ -7677,7 +7667,6 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             if (view instanceof AboutLinkCell && ((AboutLinkCell) view).onClick()) {
                 return false;
             }
-            // NekoX feature removed - BottomBuilder copy/translate actions
             return !(view instanceof AboutLinkCell);
         } else if (position == bizHoursRow || position == bizLocationRow) {
             if (getParentActivity() == null || userInfo == null) {
@@ -7770,7 +7759,6 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         }, resourcesProvider);
     }
 
-    // NekoX feature removed - setChannelAlias method
 
     private void getChannelParticipants(boolean reload) {
         if (loadingUsers || participantsMap == null || chatInfo == null) {
@@ -12097,7 +12085,6 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             }
         }
         if (id != 0) {
-            // NekoX feature removed - ID click BottomBuilder actions
         }
         if (qrItem != null) {
             updateQrItemVisibility(true);
@@ -12284,8 +12271,6 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 }
                 if (isBot || getContactsController().contactsDict.get(userId) == null) {
                     if (MessagesController.isSupportUser(user)) {
-                        // NekoX auto translate removed
-                        // NekoX message filter removed
                         if (userBlocked) {
                             otherItem.addSubItem(block_contact, R.drawable.msg_block, LocaleController.getString(R.string.Unblock));
                         }
@@ -12294,9 +12279,6 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         if (currentEncryptedChat == null) {
                             createAutoDeleteItem(context);
                         }
-                        // NekoX auto translate removed
-                        // NekoX share target removed
-                        // NekoX message filter removed
                         otherItem.addSubItem(add_shortcut, R.drawable.msg_home, LocaleController.getString(R.string.AddShortcut));
                         if (isBot) {
                             otherItem.addSubItem(share, R.drawable.msg_share, LocaleController.getString(R.string.BotShare));
@@ -12328,7 +12310,6 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     if (currentEncryptedChat == null) {
                         createAutoDeleteItem(context);
                     }
-                    // NekoX features removed
                     if (!TextUtils.isEmpty(user.phone)) {
                         otherItem.addSubItem(share_contact, R.drawable.msg_share, LocaleController.getString(R.string.ShareContact));
                     }
@@ -12356,11 +12337,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             if (topicId == 0 && ChatObject.canChangeChatInfo(chat)) {
                 createAutoDeleteItem(context);
             }
-            // NekoX auto translate removed
             if (chat.forum) {
-                // NekoX custom forum tabs removed
             }
-            // NekoX message filter removed
             if (chat != null && (chat.has_link || (chatInfo != null && chatInfo.linked_chat_id != 0))) {
                 String text;
                 if (ChatObject.isChannel(currentChat) && !ChatObject.isMonoForum(currentChat) && currentChat.linked_monoforum_id != 0 && ChatObject.canManageMonoForum(currentAccount, -currentChat.linked_monoforum_id)) {
@@ -12661,13 +12639,9 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         return drawable != null ? drawable : super.getThemedDrawable(drawableKey);
     }
 
-    // NekoX feature removed - createAutoTranslateItem method
 
-    // NekoX feature removed - createCustomForumTabsItem method
 
-    // NekoX feature removed - createShareTargetItem method
 
-    // NekoX feature removed - createMessageFilterItem method
 
     private void setAutoDeleteHistory(int time, int action) {
         long did = getDialogId();
@@ -13144,7 +13118,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     return;
                 }
 
-                File logcatFile = new File(dir, "NekoX-" + System.currentTimeMillis() + ".log");
+                File logcatFile = new File(dir, "TonyChat-" + System.currentTimeMillis() + ".log");
                 try {
                     RuntimeUtil.exec("logcat", "-df", logcatFile.getPath()).waitFor();
                     RuntimeUtil.exec("logcat", "-c").waitFor();
@@ -14899,7 +14873,6 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     new SearchResult(403, getString(R.string.TelegramFAQ), getString(R.string.SettingsHelp), R.drawable.msg2_help, () -> Browser.openUrl(getParentActivity(), getString(R.string.TelegramFaqUrl))),
                     new SearchResult(404, getString(R.string.PrivacyPolicy), getString(R.string.SettingsHelp), R.drawable.msg2_help, () -> Browser.openUrl(getParentActivity(), getString(R.string.PrivacyPolicyUrl))),
             };
-            // NekoX feature removed - Nagram settings search integration
             return arr;
         }
 

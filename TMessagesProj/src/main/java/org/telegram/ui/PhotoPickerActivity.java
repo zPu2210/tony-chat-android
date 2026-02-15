@@ -1153,7 +1153,6 @@ public class PhotoPickerActivity extends BaseFragment implements NotificationCen
                             }
                         });
                         itemCells[a].setOnLongClickListener(v -> {
-                            // NekoX translator removed
                             return false;
                         });
                     }

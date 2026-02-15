@@ -467,7 +467,6 @@ public class DataSettingsActivity extends BaseFragment {
             } else if (position == dataUsageRow) {
                 presentFragment(new DataUsage2Activity());
             } else if (position == storageNumRow) {
-                // NekoX storage path selection removed
             } else if (position == proxyRow) {
                 presentFragment(new ProxyListActivity());
             } else if (position == enableStreamRow) {

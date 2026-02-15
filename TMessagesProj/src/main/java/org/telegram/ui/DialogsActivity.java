@@ -2309,19 +2309,6 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                                 if (AndroidUtilities.isAccessibilityScreenReaderEnabled()) {
                                     AndroidUtilities.makeAccessibilityAnnouncement(LocaleController.getString(R.string.AccDescrArchivedChatsShown));
                                 }
-
-                                if (false) {
-                                    AndroidUtilities.runOnUIThread(() -> {
-                                        // Open the folder.
-                                        // Delay was taken from PullForegroundDrawable::startOutAnimation().
-                                        Bundle args = new Bundle();
-                                        args.putInt("folderId", 1); // 1 is the ID of the archive folder.
-                                        args.putBoolean("onlySelect", onlySelect);
-                                        DialogsActivity dialogsActivity = new DialogsActivity(args);
-                                        dialogsActivity.setDelegate(delegate);
-                                        presentFragment(dialogsActivity, onlySelect);
-                                    }, 200);
-                                }
                             }
                         }
 
@@ -3428,10 +3415,6 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 statusDrawable = new AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable(null, dp(26));
                 statusDrawable.center = true;
                 String title = "";
-                if (false) {
-                    TLRPC.User self = UserConfig.getInstance(currentAccount).getCurrentUser();
-                    if (self != null && self.first_name != null) title = self.first_name;
-                }
                 actionBar.setTitle(title, statusDrawable);
                 actionBar.setOnLongClickListener(v -> {
                     if (false && filterTabsView != null && filterTabsView.getCurrentTabId() != Integer.MAX_VALUE) {
@@ -3607,10 +3590,6 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
                 @Override
                 public int getTabCounter(int tabId) {
-                    if (false) {
-                        return 0;
-                    }
-
                     if (initialDialogsType == DIALOGS_TYPE_FORWARD) {
                         return 0;
                     }
@@ -3774,7 +3753,6 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
             int accounts = 0;
             for (int a : SharedConfig.activeAccounts) {
-                if (false) continue;
                 TLRPC.User u = AccountInstance.getInstance(a).getUserConfig().getCurrentUser();
                 if (u != null) {
                     AccountSelectCell cell = new AccountSelectCell(context, false);
@@ -7318,10 +7296,6 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         updateVisibleRows(0, false);
         updateProxyButton(false, true);
         updateStoriesVisibility(false);
-        if (false) {
-            floatingHidden = false;
-            hideFloatingButton(true);
-        }
         checkSuggestClearDatabase();
         if (filterTabsView != null && viewPages[0] != null && viewPages[0].dialogsAdapter != null) {
             int dialogsType = viewPages[0].dialogsAdapter.getDialogsType();
@@ -10448,9 +10422,6 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 break;
             }
         }
-        if (false) {
-            showDownloads = true;
-        }
         if (!searching && (getDownloadController().hasUnviewedDownloads() || showDownloads || (downloadsItem.getVisibility() == View.VISIBLE && downloadsItem.getAlpha() == 1 && !force))) {
             downloadsItemVisible = true;
             downloadsItem.setVisibility(View.VISIBLE);
@@ -10784,7 +10755,6 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             layoutManager.scrollToPositionWithOffset(1, (int) scrollYOffset);
         }
 
-        // NekoX TODO: Remove satouriko's fix wrong tab dialogs after forward
         if (viewPage.dialogsAdapter.isDataSetChanged() || newMessage) {
             viewPage.dialogsAdapter.updateHasHints();
             int newItemCount = viewPage.dialogsAdapter.getItemCount();
@@ -11573,10 +11543,6 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     }
 
     private void hideFloatingButton(boolean hide) {
-        if (false) {
-            hide = true;
-        }
-
         if (rightSlidingDialogContainer.hasFragment()) {
             hide = true;
         }

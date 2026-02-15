@@ -290,7 +290,6 @@ public class LPhotoPaintView extends SizeNotifierFrameLayoutPhoto implements IPh
         queue = new DispatchQueue("Paint");
 
         bitmapToEdit = bitmap;
-        // NekoX: Ignore face detection related
 //        facesBitmap = originalBitmap;
         originalBitmapRotation = originalRotation;
         undoStore = new UndoStore();
@@ -2951,7 +2950,6 @@ public class LPhotoPaintView extends SizeNotifierFrameLayoutPhoto implements IPh
             baseScale = 0.75f;
         }
         StickerPosition defaultPosition = new StickerPosition(centerPositionForEntity(), baseScale, rotation);
-        // NekoX: Remove face detection parts
         return defaultPosition;
     }
 

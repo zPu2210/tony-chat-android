@@ -2594,7 +2594,6 @@ public class MediaDataController extends BaseController {
             processLoadedStickers(type, newStickerArray, false, (int) (System.currentTimeMillis() / 1000), res.hash2, onDone);
         } else {
             LongSparseArray<TLRPC.TL_messages_stickerSet> newStickerSets = new LongSparseArray<>();
-            // NekoX pin sticker removed
             for (int a = 0; a < res.sets.size(); a++) { // reload all sitckers here
                 TLRPC.StickerSet stickerSet = res.sets.get(a);
 
@@ -3386,7 +3385,6 @@ public class MediaDataController extends BaseController {
         } else {
             StickerSetBulletinLayout bulletinLayout = new StickerSetBulletinLayout(context, stickerSetObject, toggle, null, baseFragment == null ? null : baseFragment.getResourceProvider());
             int finalCurrentIndex = currentIndex;
-            // NekoX: Pin Sticker, Fix undo for Archiving and Deleting
             Context finalContext = context;
             boolean[] undoDone = new boolean[1];
             markSetUninstalling(stickerSet.id, true);

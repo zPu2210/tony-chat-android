@@ -1966,7 +1966,6 @@ public class ChatAttachAlertLocationLayout extends ChatAttachAlert.AttachAlertLa
         return themeDescriptions;
     }
 
-    // NekoX: OpenStreetMap
     private TextView getAttributionOverlay(Context context) {
         attributionOverlay = new TextView(context);
         attributionOverlay.setText(Html.fromHtml("© <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors"));
