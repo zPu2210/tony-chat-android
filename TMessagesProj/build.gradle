@@ -369,6 +369,7 @@ dependencies {
     implementation project(":openpgp-api")
     // Tony Chat modules
     implementation project(":tonychat-core")
+    implementation project(":tonychat-ai")
 
     compileOnly fileTree("libs")
 

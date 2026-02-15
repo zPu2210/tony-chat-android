@@ -375,6 +375,8 @@ public class ApplicationLoader extends Application {
 
         LauncherIconController.tryFixLauncherIconIfNeeded();
         ProxyRotationController.init();
+
+        com.tonychat.ai.AiManager.INSTANCE.init(applicationContext);
     }
 
     // Local Push Service, TFoss implementation
