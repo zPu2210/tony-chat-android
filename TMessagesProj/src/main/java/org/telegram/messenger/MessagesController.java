@@ -10070,7 +10070,12 @@ public class MessagesController extends BaseController implements NotificationCe
         AndroidUtilities.runOnUIThread(() -> NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.updateUserStatus, (Object) null));
 
         TL_account.updateStatus req = new TL_account.updateStatus();
-        req.offline = !online;
+        // Tony Chat: Ghost Mode - force offline when suppressOnlineStatus is active
+        if (!com.tonychat.core.TonyConfig.INSTANCE.getSendOnlinePackets()) {
+            req.offline = true;
+        } else {
+            req.offline = !online;
+        }
         statusRequest = getConnectionsManager().sendRequest(req, (response, error) -> {
             if (error == null) {
                 lastStatusUpdateTime = System.currentTimeMillis();
@@ -10099,11 +10104,12 @@ public class MessagesController extends BaseController implements NotificationCe
                             getConnectionsManager().cancelRequest(statusRequest, true);
                         }
                             TL_account.updateStatus req = new TL_account.updateStatus();
-                            req.offline = false;
+                            // Tony Chat: Ghost Mode - force offline
+                            req.offline = !com.tonychat.core.TonyConfig.INSTANCE.getSendOnlinePackets();
                             statusRequest = getConnectionsManager().sendRequest(req, (response, error) -> {
                                 if (error == null) {
                                     lastStatusUpdateTime = System.currentTimeMillis();
-                                    offlineSent = false;
+                                    offlineSent = !com.tonychat.core.TonyConfig.INSTANCE.getSendOnlinePackets();
                                     statusSettingState = 0;
                                 } else {
                                     if (lastStatusUpdateTime != 0) {
@@ -10961,6 +10967,10 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public boolean sendTyping(long dialogId, long threadMsgId, int action, String emojicon, int classGuid) {
+        // Tony Chat: Ghost Mode - suppress all typing indicators
+        if (com.tonychat.core.TonyConfig.INSTANCE.getSuppressTypingIndicator()) {
+            return false;
+        }
         if (action < 0 || action >= sendingTypings.length || dialogId == 0) {
             return false;
         }
@@ -13875,6 +13885,10 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public void markMessageContentAsRead(MessageObject messageObject) {
+        // Tony Chat: Ghost Mode - suppress read content receipts
+        if (!com.tonychat.core.TonyConfig.INSTANCE.getSendReadMessagePackets()) {
+            return;
+        }
         if (messageObject.scheduled) {
             return;
         }
@@ -13914,6 +13928,10 @@ public class MessagesController extends BaseController implements NotificationCe
 
     public void markMentionMessageAsRead(int mid, long channelId, long did) {
         getMessagesStorage().markMentionMessageAsRead(-channelId, mid, did);
+        // Tony Chat: Ghost Mode - suppress mention read receipts
+        if (!com.tonychat.core.TonyConfig.INSTANCE.getSendReadMessagePackets()) {
+            return;
+        }
         if (channelId != 0) {
             TLRPC.TL_channels_readMessageContents req = new TLRPC.TL_channels_readMessageContents();
             req.channel = getInputChannel(channelId);
@@ -14021,6 +14039,10 @@ public class MessagesController extends BaseController implements NotificationCe
         if (randomId == 0 || dialogId == 0 || ttl <= 0 && ttl != Integer.MIN_VALUE) {
             return;
         }
+        // Tony Chat: Ghost Mode - suppress secret chat read receipts
+        if (!com.tonychat.core.TonyConfig.INSTANCE.getSendReadMessagePackets()) {
+            return;
+        }
         if (!DialogObject.isEncryptedDialog(dialogId)) {
             return;
         }
@@ -14038,6 +14060,10 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     private void completeReadTask(ReadTask task) {
+        // Tony Chat: Ghost Mode - suppress read receipts
+        if (!com.tonychat.core.TonyConfig.INSTANCE.getSendReadMessagePackets()) {
+            return;
+        }
         if (task.replyId != 0 && task.monoForumPeerId == 0) {
             TLRPC.TL_messages_readDiscussion req = new TLRPC.TL_messages_readDiscussion();
             req.msg_id = (int) task.replyId;

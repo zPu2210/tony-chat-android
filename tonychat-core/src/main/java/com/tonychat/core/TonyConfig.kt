@@ -1066,7 +1066,11 @@ object TonyConfig {
         prefs.edit().clear().apply()
     }
 
-    // Ghost mode helper function (from NekoConfig)
+    // ============ Ghost Mode Typed Suppression ============
+    var suppressTypingIndicator: Boolean
+        get() = prefs.getBoolean("suppress_typing_indicator", false)
+        set(value) = prefs.edit().putBoolean("suppress_typing_indicator", value).apply()
+
     // ============ Theme ============
     var darkMode: Boolean
         get() = prefs.getBoolean("dark_mode", false)
@@ -1083,11 +1087,13 @@ object TonyConfig {
             sendReadMessagePackets = false
             sendReadStoryPackets = false
             sendUploadProgress = false
+            suppressTypingIndicator = true
         } else {
             sendOnlinePackets = true
             sendReadMessagePackets = true
             sendReadStoryPackets = true
             sendUploadProgress = true
+            suppressTypingIndicator = false
         }
     }
 }

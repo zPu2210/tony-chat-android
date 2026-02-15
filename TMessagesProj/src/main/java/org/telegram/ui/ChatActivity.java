@@ -466,6 +466,8 @@ public class ChatActivity extends BaseFragment implements
     private org.telegram.ui.TonyChat.SmartReplyView smartReplyView;
     private org.telegram.ui.TonyChat.SmartReplyHelper smartReplyHelper;
     private org.telegram.ui.TonyChat.ToneRewriteHelper toneRewriteHelper;
+    // Tony Chat: Ghost Mode indicator
+    private android.widget.ImageView ghostIndicator;
     private boolean isActionBarTooNarrow;
     private int chatActivityEnterViewAnimateFromTop;
     private boolean chatActivityEnterViewAnimateBeforeSending;
@@ -4311,6 +4313,20 @@ public class ChatActivity extends BaseFragment implements
         } else {
             actionBar.addView(avatarContainer, 0, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.MATCH_PARENT, Gravity.TOP | Gravity.LEFT, !inPreviewMode ? 56 : (chatMode == MODE_PINNED ? 10 : 0), 0, 40, 0));
         }
+
+        // Tony Chat: Ghost Mode indicator icon in action bar
+        ghostIndicator = new android.widget.ImageView(context);
+        ghostIndicator.setImageResource(R.drawable.msg_secret);
+        ghostIndicator.setColorFilter(getThemedColor(Theme.key_actionBarDefaultIcon));
+        ghostIndicator.setScaleType(android.widget.ImageView.ScaleType.CENTER);
+        ghostIndicator.setVisibility(com.tonychat.core.TonyConfig.INSTANCE.isGhostModeActive() ? View.VISIBLE : View.GONE);
+        ghostIndicator.setOnClickListener(v -> {
+            boolean newState = !com.tonychat.core.TonyConfig.INSTANCE.isGhostModeActive();
+            com.tonychat.core.TonyConfig.INSTANCE.setGhostMode(newState);
+            ghostIndicator.setVisibility(newState ? View.VISIBLE : View.GONE);
+            android.widget.Toast.makeText(context, newState ? "Ghost Mode ON" : "Ghost Mode OFF", android.widget.Toast.LENGTH_SHORT).show();
+        });
+        actionBar.addView(ghostIndicator, LayoutHelper.createFrame(24, 24, Gravity.RIGHT | Gravity.CENTER_VERTICAL, 0, 0, 48, 0));
 
         ActionBarMenu menu = actionBar.createMenu();
 
@@ -29641,6 +29657,10 @@ public class ChatActivity extends BaseFragment implements
     @Override
     public void onResume() {
         super.onResume();
+        // Tony Chat: refresh ghost mode indicator
+        if (ghostIndicator != null) {
+            ghostIndicator.setVisibility(com.tonychat.core.TonyConfig.INSTANCE.isGhostModeActive() ? View.VISIBLE : View.GONE);
+        }
         checkShowBlur(false);
         activityResumeTime = System.currentTimeMillis();
         if (openImport && getSendMessagesHelper().getImportingHistory(dialog_id) != null) {
