@@ -47,4 +47,24 @@ object AiConfig {
                 prefs.edit().putString("anthropic_key_enc", keyManager.encrypt(value)).apply()
             }
         }
+
+    var removeBgApiKey: String?
+        get() = prefs.getString("removebg_key_enc", null)?.let { keyManager.decrypt(it) }
+        set(value) {
+            if (value == null) {
+                prefs.edit().remove("removebg_key_enc").apply()
+            } else {
+                prefs.edit().putString("removebg_key_enc", keyManager.encrypt(value)).apply()
+            }
+        }
+
+    var geminiApiKey: String?
+        get() = prefs.getString("gemini_key_enc", null)?.let { keyManager.decrypt(it) }
+        set(value) {
+            if (value == null) {
+                prefs.edit().remove("gemini_key_enc").apply()
+            } else {
+                prefs.edit().putString("gemini_key_enc", keyManager.encrypt(value)).apply()
+            }
+        }
 }

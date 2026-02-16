@@ -66,6 +66,7 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter imple
     public static int btnAiFeatures = 1100;
     public static int btnPrivacy = 1101;
     public static int btnAbout = 1102;
+    public static int btnCommunity = 1103;
 
     public DrawerLayoutAdapter(Context context, SideMenultItemAnimator animator, DrawerLayoutContainer drawerLayoutContainer) {
         mContext = context;
@@ -401,6 +402,7 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter imple
             items.add(new Item(10, LocaleController.getString(R.string.Calls), callsIcon));
         }
         items.add(new Item(11, LocaleController.getString(R.string.SavedMessages), savedIcon));
+        items.add(new Item(btnCommunity, "Community Board", R.drawable.msg_location));
         items.add(new Item(btnAiFeatures, "AI Features", R.drawable.msg_openin));
         items.add(new Item(btnPrivacy, "Privacy & Ghost Mode", R.drawable.msg_secret));
         items.add(new Item(8, LocaleController.getString(R.string.Settings), settingsIcon));

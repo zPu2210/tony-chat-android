@@ -16,7 +16,10 @@ class RateLimiter {
         AiFeatureType.SMART_REPLY to Bucket(60, 60, 60.0),
         AiFeatureType.SUMMARY to Bucket(10, 10, 10.0),
         AiFeatureType.TONE_REWRITE to Bucket(30, 30, 30.0),
-        AiFeatureType.TRANSLATE to Bucket(30, 30, 30.0)
+        AiFeatureType.TRANSLATE to Bucket(30, 30, 30.0),
+        AiFeatureType.IMAGE_EDIT to Bucket(5, 5, 5.0),
+        AiFeatureType.EMOJI_REMIX to Bucket(250, 250, 250.0),  // 250/day from Gemini free tier
+        AiFeatureType.TRANSCRIBE to Bucket(30, 30, 30.0)       // 30/day for voice transcription
     )
 
     fun tryAcquire(feature: AiFeatureType): Boolean {

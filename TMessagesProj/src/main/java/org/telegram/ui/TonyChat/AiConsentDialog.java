@@ -68,6 +68,7 @@ public class AiConsentDialog {
             case SUMMARY: return "Enable Chat Summary";
             case TONE_REWRITE: return "Enable Tone Rewrite";
             case TRANSLATE: return "Enable AI Translation";
+            case IMAGE_EDIT: return "Enable Background Removal";
             default: return "Enable AI Feature";
         }
     }
@@ -82,6 +83,8 @@ public class AiConsentDialog {
                 return "Tone Rewrite helps you adjust the tone of your messages (formal, casual, playful).";
             case TRANSLATE:
                 return "AI Translation translates messages between languages using AI.";
+            case IMAGE_EDIT:
+                return "Background Removal removes backgrounds from images using AI. Images are sent to remove.bg API for processing.";
             default:
                 return "This feature uses AI to enhance your messaging experience.";
         }

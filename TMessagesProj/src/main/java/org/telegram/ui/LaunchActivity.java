@@ -731,6 +731,9 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 } else if (id == DrawerLayoutAdapter.btnPrivacy) {
                     presentFragment(new org.telegram.ui.TonyChat.PrivacySettingsActivity());
                     drawerLayoutContainer.closeDrawer(false);
+                } else if (id == DrawerLayoutAdapter.btnCommunity) {
+                    presentFragment(new com.tonychat.community.ui.CommunityFeedFragment());
+                    drawerLayoutContainer.closeDrawer(false);
                 } else if (id == DrawerLayoutAdapter.btnAbout) {
                     presentFragment(new org.telegram.ui.TonyChat.TonyAboutActivity());
                     drawerLayoutContainer.closeDrawer(false);

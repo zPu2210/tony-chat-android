@@ -1257,6 +1257,8 @@ public class ChatActivity extends BaseFragment implements
 
     // Tony Chat: AI translate message option
     public final static int OPTION_AI_TRANSLATE = 160;
+    public final static int OPTION_REMOVE_BG = 161;
+    public final static int OPTION_AI_EMOJI = 162;
 
     private final static int OPTION_COPY_PHOTO = 150;
     private final static int OPTION_COPY_PHOTO_AS_STICKER = 151;
@@ -4068,6 +4070,30 @@ public class ChatActivity extends BaseFragment implements
                                 android.widget.Toast.LENGTH_SHORT).show();
                         }
                     }
+                } else if (id == OPTION_AI_EMOJI) {
+                    // Tony Chat: AI Emoji Remix
+                    org.telegram.ui.TonyChat.EmojiRemixHelper.showEmojiRemixDialog(getParentActivity(), emojiFile -> {
+                        SendMessagesHelper.prepareSendingPhoto(
+                            getAccountInstance(),
+                            emojiFile.getAbsolutePath(),
+                            null,
+                            dialog_id,
+                            replyingMessageObject,
+                            getThreadMessage(),
+                            replyingQuote,
+                            null,
+                            null,
+                            null,
+                            null,
+                            0,
+                            editingMessageObject,
+                            true,
+                            0,
+                            chatMode,
+                            quickReplyShortcut,
+                            getQuickReplyId()
+                        );
+                    });
                 } else if (id == translate) {
                     getMessagesController().getTranslateController().setHideTranslateDialog(getDialogId(), false, true);
                     if (!getMessagesController().getTranslateController().toggleTranslatingDialog(getDialogId(), true)) {
@@ -4489,6 +4515,7 @@ public class ChatActivity extends BaseFragment implements
             // Tony Chat: AI menu items
             headerItem.lazilyAddSubItem(ai_summarize, R.drawable.msg_info, "Summarize Chat");
             headerItem.lazilyAddSubItem(ai_tone_rewrite, R.drawable.msg_edit, "Rewrite Tone");
+            headerItem.lazilyAddSubItem(OPTION_AI_EMOJI, R.drawable.msg_emoji_gem, "AI Emoji Remix");
 
             boolean allowShowPinned;
             if (currentChat != null) {
@@ -32835,6 +32862,26 @@ public class ChatActivity extends BaseFragment implements
                     });
                 break;
             }
+            // Tony Chat: AI remove background
+            case OPTION_REMOVE_BG: {
+                File imageFile = FileLoader.getInstance(currentAccount).getPathToMessage(selectedObject.messageOwner);
+                if (imageFile != null && imageFile.exists()) {
+                    org.telegram.ui.TonyChat.ImageEditHelper.removeBackground(
+                        getParentActivity(), imageFile, () -> {
+                            // Success callback - could optionally send edited image to chat
+                        }
+                    );
+                }
+                break;
+            }
+            // Tony Chat: Voice transcription
+            case OPTION_TRANSCRIBE: {
+                File audioFile = FileLoader.getInstance(currentAccount).getPathToMessage(selectedObject.messageOwner);
+                if (audioFile != null && audioFile.exists()) {
+                    org.telegram.ui.TonyChat.VoiceTranscribeHelper.transcribe(getParentActivity(), audioFile);
+                }
+                break;
+            }
             case OPTION_SAVE_TO_GALLERY: {
                 if (Build.VERSION.SDK_INT >= 23 && (Build.VERSION.SDK_INT <= 28 || BuildVars.NO_SCOPED_STORAGE) && getParentActivity().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     getParentActivity().requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 4);
@@ -45818,6 +45865,19 @@ public class ChatActivity extends BaseFragment implements
                     && !messageObject.messageOwner.message.trim().isEmpty()) {
                     items.add("AI Translate");
                     options.add(OPTION_AI_TRANSLATE);
+                    icons.add(R.drawable.msg_translate);
+                }
+                // Tony Chat: AI Remove Background option
+                if (messageObject != null && messageObject.messageOwner != null
+                    && messageObject.messageOwner.media instanceof TLRPC.TL_messageMediaPhoto) {
+                    items.add("Remove Background");
+                    options.add(OPTION_REMOVE_BG);
+                    icons.add(R.drawable.msg_edit);
+                }
+                // Tony Chat: Voice Transcribe option
+                if (messageObject != null && (messageObject.isVoice() || messageObject.isRoundVideo())) {
+                    items.add("Transcribe");
+                    options.add(OPTION_TRANSCRIBE);
                     icons.add(R.drawable.msg_translate);
                 }
                 if (false) {

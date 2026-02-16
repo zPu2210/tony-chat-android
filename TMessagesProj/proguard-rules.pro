@@ -168,3 +168,16 @@
 -dontwarn javax.naming.directory.DirContext
 -dontwarn javax.naming.directory.InitialDirContext
 -dontwarn org.xbill.DNS.spi.DnsjavaInetAddressResolverProvider
+
+# Tony Chat modules - keep for Gson serialization and reflection
+-keep class com.tonychat.community.model.** { *; }
+-keepclassmembers class com.tonychat.ai.**Response { *; }
+-keepclassmembers class com.tonychat.ai.model.** { *; }
+
+# Supabase REST models need field names for Gson
+-keepclassmembers class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
+
+# Fix RecyclerView duplicate class issue with ASM transformation
+-dontwarn androidx.recyclerview.widget.**

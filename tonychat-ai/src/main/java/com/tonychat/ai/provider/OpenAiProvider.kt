@@ -7,9 +7,14 @@ import com.tonychat.ai.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
+import java.io.File
 import java.util.concurrent.TimeUnit
 
 class OpenAiProvider(private val apiKey: String) : AiProvider {
@@ -63,6 +68,42 @@ class OpenAiProvider(private val apiKey: String) : AiProvider {
             mapOf("role" to "user", "content" to text)
         )
         return executeAndParse(msgs) { AiResponse.Success(it, provider = name) }
+    }
+
+    suspend fun transcribe(audioFile: File): AiResponse<String> = withContext(Dispatchers.IO) {
+        try {
+            val requestBody = MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart(
+                    "file",
+                    audioFile.name,
+                    audioFile.asRequestBody("audio/ogg".toMediaTypeOrNull())
+                )
+                .addFormDataPart("model", "whisper-1")
+                .addFormDataPart("response_format", "json")
+                .build()
+
+            val request = Request.Builder()
+                .url("https://api.openai.com/v1/audio/transcriptions")
+                .header("Authorization", "Bearer $apiKey")
+                .post(requestBody)
+                .build()
+
+            val response = client.newCall(request).execute()
+            val responseBody = response.body?.string() ?: return@withContext AiResponse.Error("Empty response", response.code)
+
+            when (response.code) {
+                200 -> {
+                    val json = JSONObject(responseBody)
+                    val transcript = json.getString("text")
+                    AiResponse.Success(transcript, provider = name)
+                }
+                413 -> AiResponse.Error("File too large (>25MB)", 413)
+                else -> AiResponse.Error("API error: ${response.code}", response.code)
+            }
+        } catch (e: Exception) {
+            AiResponse.Error(e.message ?: "Unknown error")
+        }
     }
 
     private fun buildConversation(messages: List<AiMessage>): MutableList<Map<String, String>> {

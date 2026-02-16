@@ -26,7 +26,22 @@ class AiFeatureTypeTest {
     }
 
     @Test
-    fun `exactly 4 feature types exist`() {
-        assertEquals(4, AiFeatureType.entries.size)
+    fun `IMAGE_EDIT has 168h TTL`() {
+        assertEquals(168, AiFeatureType.IMAGE_EDIT.ttlHours)
+    }
+
+    @Test
+    fun `EMOJI_REMIX has 720h TTL`() {
+        assertEquals(720, AiFeatureType.EMOJI_REMIX.ttlHours)
+    }
+
+    @Test
+    fun `TRANSCRIBE has 720h TTL`() {
+        assertEquals(720, AiFeatureType.TRANSCRIBE.ttlHours)
+    }
+
+    @Test
+    fun `exactly 7 feature types exist`() {
+        assertEquals(7, AiFeatureType.entries.size)
     }
 }
