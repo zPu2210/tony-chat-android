@@ -1,0 +1,44 @@
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+
+android {
+    compileSdkVersion 33
+    buildToolsVersion '33.0.0'
+
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 33
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    namespace "com.tonychat.community"
+}
+
+configurations.all {
+    exclude group: 'androidx.recyclerview', module: 'recyclerview'
+}
+
+dependencies {
+    implementation "androidx.core:core-ktx:1.10.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
+    implementation "com.google.android.material:material:1.6.1"
+
+    // HTTP client for Supabase REST API
+    implementation "com.squareup.okhttp3:okhttp:4.12.0"
+    implementation "com.google.code.gson:gson:2.10"
+
+    // Location services
+    implementation "com.google.android.gms:play-services-location:21.0.1"
+}
