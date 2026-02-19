@@ -99,8 +99,8 @@ public class PrivacySettingsActivity extends BaseFragment {
         TonyConfig config = TonyConfig.INSTANCE;
 
         if (position == ghostMasterRow) {
-            boolean newValue = !config.isGhostModeActive();
-            config.setGhostMode(newValue);
+            boolean newValue = !config.getPrivacy().isGhostModeActive();
+            config.getPrivacy().setGhostMode(newValue);
             // Refresh all rows to show updated sub-toggle states
             if (listAdapter != null) {
                 listAdapter.notifyDataSetChanged();
@@ -109,31 +109,31 @@ public class PrivacySettingsActivity extends BaseFragment {
             Toast.makeText(getParentActivity(), msg, Toast.LENGTH_SHORT).show();
         } else if (position == suppressReadReceiptsRow) {
             boolean newValue = !isSuppressReadReceipts();
-            config.setSendReadMessagePackets(!newValue);
+            config.getPrivacy().setSendReadMessagePackets(!newValue);
             if (view instanceof TextCheckCell) ((TextCheckCell) view).setChecked(newValue);
             syncGhostMaster();
         } else if (position == suppressOnlineStatusRow) {
             boolean newValue = !isSuppressOnlineStatus();
-            config.setSendOnlinePackets(!newValue);
+            config.getPrivacy().setSendOnlinePackets(!newValue);
             if (view instanceof TextCheckCell) ((TextCheckCell) view).setChecked(newValue);
             syncGhostMaster();
         } else if (position == suppressTypingRow) {
-            boolean newValue = !config.getSuppressTypingIndicator();
-            config.setSuppressTypingIndicator(newValue);
+            boolean newValue = !config.getPrivacy().getSuppressTypingIndicator();
+            config.getPrivacy().setSuppressTypingIndicator(newValue);
             if (view instanceof TextCheckCell) ((TextCheckCell) view).setChecked(newValue);
             syncGhostMaster();
         } else if (position == suppressUploadProgressRow) {
             boolean newValue = !isSuppressUploadProgress();
-            config.setSendUploadProgress(!newValue);
+            config.getPrivacy().setSendUploadProgress(!newValue);
             if (view instanceof TextCheckCell) ((TextCheckCell) view).setChecked(newValue);
             syncGhostMaster();
         } else if (position == hidePhoneRow) {
-            boolean newValue = !config.getHidePhone();
-            config.setHidePhone(newValue);
+            boolean newValue = !config.getPrivacy().getHidePhone();
+            config.getPrivacy().setHidePhone(newValue);
             if (view instanceof TextCheckCell) ((TextCheckCell) view).setChecked(newValue);
         } else if (position == disableLinkPreviewRow) {
-            boolean newValue = !config.getDisableLinkPreviewByDefault();
-            config.setDisableLinkPreviewByDefault(newValue);
+            boolean newValue = !config.getChat().getDisableLinkPreviewByDefault();
+            config.getChat().setDisableLinkPreviewByDefault(newValue);
             if (view instanceof TextCheckCell) ((TextCheckCell) view).setChecked(newValue);
         }
     }
@@ -142,27 +142,27 @@ public class PrivacySettingsActivity extends BaseFragment {
     private void syncGhostMaster() {
         TonyConfig config = TonyConfig.INSTANCE;
         boolean allOn = isSuppressReadReceipts() && isSuppressOnlineStatus()
-            && config.getSuppressTypingIndicator() && isSuppressUploadProgress();
+            && config.getPrivacy().getSuppressTypingIndicator() && isSuppressUploadProgress();
         boolean anyOn = isSuppressReadReceipts() || isSuppressOnlineStatus()
-            || config.getSuppressTypingIndicator() || isSuppressUploadProgress();
+            || config.getPrivacy().getSuppressTypingIndicator() || isSuppressUploadProgress();
 
         // Master is active if ALL sub-toggles are on
-        config.setGhostModeActive(allOn);
+        config.getPrivacy().setGhostModeActive(allOn);
         if (listAdapter != null) {
             listAdapter.notifyItemChanged(ghostMasterRow);
         }
     }
 
     private boolean isSuppressReadReceipts() {
-        return !TonyConfig.INSTANCE.getSendReadMessagePackets();
+        return !TonyConfig.INSTANCE.getPrivacy().getSendReadMessagePackets();
     }
 
     private boolean isSuppressOnlineStatus() {
-        return !TonyConfig.INSTANCE.getSendOnlinePackets();
+        return !TonyConfig.INSTANCE.getPrivacy().getSendOnlinePackets();
     }
 
     private boolean isSuppressUploadProgress() {
-        return !TonyConfig.INSTANCE.getSendUploadProgress();
+        return !TonyConfig.INSTANCE.getPrivacy().getSendUploadProgress();
     }
 
     private class ListAdapter extends RecyclerListView.SelectionAdapter {
@@ -238,20 +238,20 @@ public class PrivacySettingsActivity extends BaseFragment {
                         cell.setTextAndValueAndCheck(
                             "Ghost Mode",
                             "Hide all online activity at once",
-                            config.isGhostModeActive(), true, true
+                            config.getPrivacy().isGhostModeActive(), true, true
                         );
                     } else if (position == suppressReadReceiptsRow) {
                         cell.setTextAndCheck("Hide read receipts", isSuppressReadReceipts(), true);
                     } else if (position == suppressOnlineStatusRow) {
                         cell.setTextAndCheck("Always appear offline", isSuppressOnlineStatus(), true);
                     } else if (position == suppressTypingRow) {
-                        cell.setTextAndCheck("Hide typing indicator", config.getSuppressTypingIndicator(), true);
+                        cell.setTextAndCheck("Hide typing indicator", config.getPrivacy().getSuppressTypingIndicator(), true);
                     } else if (position == suppressUploadProgressRow) {
                         cell.setTextAndCheck("Hide upload progress", isSuppressUploadProgress(), false);
                     } else if (position == hidePhoneRow) {
-                        cell.setTextAndCheck("Hide phone number", config.getHidePhone(), true);
+                        cell.setTextAndCheck("Hide phone number", config.getPrivacy().getHidePhone(), true);
                     } else if (position == disableLinkPreviewRow) {
-                        cell.setTextAndCheck("Disable link previews", config.getDisableLinkPreviewByDefault(), false);
+                        cell.setTextAndCheck("Disable link previews", config.getChat().getDisableLinkPreviewByDefault(), false);
                     }
                     break;
                 }

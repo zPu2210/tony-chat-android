@@ -1,0 +1,100 @@
+name: Run Tests
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        working-directory: android
+
+      - name: Run tonychat-core tests
+        run: ./gradlew tonychat-core:test --stacktrace
+        working-directory: android
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
+
+      - name: Run tonychat-ai tests
+        run: ./gradlew tonychat-ai:test --stacktrace
+        working-directory: android
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
+
+      - name: Run tonychat-community tests
+        run: ./gradlew tonychat-community:test --stacktrace
+        working-directory: android
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            android/tonychat-core/build/reports/tests/
+            android/tonychat-ai/build/reports/tests/
+            android/tonychat-community/build/reports/tests/
+          retention-days: 7
+
+      - name: Publish test results
+        if: always()
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: |
+            android/tonychat-core/build/test-results/**/*.xml
+            android/tonychat-ai/build/test-results/**/*.xml
+            android/tonychat-community/build/test-results/**/*.xml
+
+  lint:
+    name: Lint Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        working-directory: android
+
+      - name: Run lint
+        run: ./gradlew lint --stacktrace
+        working-directory: android
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
+
+      - name: Upload lint reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-reports
+          path: android/**/build/reports/lint-results*.html
+          retention-days: 7

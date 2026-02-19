@@ -5,6 +5,7 @@ import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -177,22 +178,44 @@ public class AiSettingsActivity extends BaseFragment {
 
         EditTextBoldCursor editText = new EditTextBoldCursor(context);
         editText.setTextSize(18);
-        editText.setText(currentKey != null ? currentKey : "");
-        editText.setHint("sk-...");
-        editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+
+        // Mask API key - show only last 4 characters for security
+        if (currentKey != null && currentKey.length() > 4) {
+            editText.setHint("****" + currentKey.substring(currentKey.length() - 4));
+        } else {
+            editText.setHint("sk-...");
+        }
+
+        // Use password input type to mask typed characters
+        editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         editText.setSingleLine(true);
         editText.setPadding(AndroidUtilities.dp(24), AndroidUtilities.dp(8), AndroidUtilities.dp(24), AndroidUtilities.dp(8));
         builder.setView(editText);
 
         builder.setPositiveButton(LocaleController.getString(R.string.OK), (dialog, which) -> {
             String key = editText.getText().toString().trim();
-            callback.onKey(key.isEmpty() ? null : key);
+            // If empty, keep existing key (user didn't change it)
+            if (key.isEmpty() && currentKey != null) {
+                callback.onKey(currentKey);
+            } else {
+                callback.onKey(key.isEmpty() ? null : key);
+            }
         });
         builder.setNegativeButton(LocaleController.getString(R.string.Cancel), null);
         if (currentKey != null && !currentKey.isEmpty()) {
             builder.setNeutralButton("Remove", (dialog, which) -> callback.onKey(null));
         }
-        builder.show();
+
+        AlertDialog dialog = builder.show();
+
+        // Prevent screenshots of API key dialog for security
+        if (dialog != null && dialog.getWindow() != null) {
+            dialog.getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_SECURE,
+                WindowManager.LayoutParams.FLAG_SECURE
+            );
+        }
+
         editText.requestFocus();
     }
 

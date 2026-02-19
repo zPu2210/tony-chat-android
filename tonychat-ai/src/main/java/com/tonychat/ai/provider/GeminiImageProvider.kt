@@ -3,6 +3,7 @@ package com.tonychat.ai.provider
 import android.util.Base64
 import com.tonychat.ai.ImageGenerationProvider
 import com.tonychat.ai.ImageGenerationResponse
+import com.tonychat.ai.security.CertificatePinnerFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -30,6 +31,7 @@ class GeminiImageProvider(
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
+        .certificatePinner(CertificatePinnerFactory.create())
         .build()
 
     override suspend fun generateEmoji(prompt: String): ImageGenerationResponse = withContext(Dispatchers.IO) {

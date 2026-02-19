@@ -2,6 +2,7 @@ package com.tonychat.community.repository
 
 import com.google.gson.Gson
 import com.tonychat.community.SupabaseClient
+import com.tonychat.community.SupabaseResult
 import com.tonychat.community.model.CreateLikeRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -23,8 +24,17 @@ class LikeRepository {
             val request = CreateLikeRequest(postId = postId, deviceId = deviceId)
             val jsonBody = gson.toJson(request)
             val httpRequest = SupabaseClient.post("/rest/v1/likes", jsonBody, deviceId)
-            val response = SupabaseClient.execute(httpRequest)
-            response != null
+            when (val result = SupabaseClient.execute(httpRequest)) {
+                is SupabaseResult.Success -> true
+                is SupabaseResult.Error -> {
+                    println("Supabase error ${result.code}: ${result.message}")
+                    false
+                }
+                is SupabaseResult.NetworkError -> {
+                    result.exception.printStackTrace()
+                    false
+                }
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             false
@@ -47,8 +57,17 @@ class LikeRepository {
                 ),
                 deviceId = deviceId
             )
-            val response = SupabaseClient.execute(request)
-            response != null
+            when (val result = SupabaseClient.execute(request)) {
+                is SupabaseResult.Success -> true
+                is SupabaseResult.Error -> {
+                    println("Supabase error ${result.code}: ${result.message}")
+                    false
+                }
+                is SupabaseResult.NetworkError -> {
+                    result.exception.printStackTrace()
+                    false
+                }
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             false

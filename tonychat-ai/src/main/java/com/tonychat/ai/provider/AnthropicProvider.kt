@@ -3,6 +3,7 @@ package com.tonychat.ai.provider
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.tonychat.ai.*
+import com.tonychat.ai.security.CertificatePinnerFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -19,6 +20,7 @@ class AnthropicProvider(private val apiKey: String) : AiProvider {
     private val client = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
+        .certificatePinner(CertificatePinnerFactory.create())
         .build()
     private val gson = Gson()
     private val jsonMedia = "application/json".toMediaType()
@@ -83,16 +85,18 @@ class AnthropicProvider(private val apiKey: String) : AiProvider {
                 .header("content-type", "application/json")
                 .post(body.toRequestBody(jsonMedia))
                 .build()
-            val response = client.newCall(request).execute()
-            val responseBody = response.body?.string() ?: return@withContext AiResponse.Error("Empty response", response.code)
-            if (!response.isSuccessful) {
-                return@withContext AiResponse.Error("API error: ${response.code}", response.code)
+
+            client.newCall(request).execute().use { response ->
+                val responseBody = response.body?.string() ?: return@withContext AiResponse.Error("Empty response", response.code)
+                if (!response.isSuccessful) {
+                    return@withContext AiResponse.Error("API error: ${response.code}", response.code)
+                }
+                val json = JsonParser.parseString(responseBody).asJsonObject
+                val content = json.getAsJsonArray("content")
+                    .get(0).asJsonObject
+                    .get("text").asString.trim()
+                parse(content)
             }
-            val json = JsonParser.parseString(responseBody).asJsonObject
-            val content = json.getAsJsonArray("content")
-                .get(0).asJsonObject
-                .get("text").asString.trim()
-            parse(content)
         } catch (e: Exception) {
             AiResponse.Error(e.message ?: "Unknown error")
         }

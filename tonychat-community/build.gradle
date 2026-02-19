@@ -2,21 +2,24 @@ apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
 
 android {
-    compileSdkVersion 33
-    buildToolsVersion '33.0.0'
+    compileSdkVersion 34
+    buildToolsVersion '34.0.0'
 
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 33
+        minSdkVersion 21
+        targetSdkVersion 34
+
+        buildConfigField "String", "SUPABASE_URL", "\"${project.findProperty('SUPABASE_URL') ?: 'https://omuajrrvkhzeruupwjot.supabase.co'}\""
+        buildConfigField "String", "SUPABASE_ANON_KEY", "\"${project.findProperty('SUPABASE_ANON_KEY') ?: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tdWFqcnJ2a2h6ZXJ1dXB3am90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyMzM0NDUsImV4cCI6MjA4NjgwOTQ0NX0.6v5fA9uxYxQ89AskrJQoYb5BwOgttt5x9z9VQFaIe3g'}\""
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 
     buildFeatures {
@@ -31,8 +34,9 @@ configurations.all {
 }
 
 dependencies {
-    implementation "androidx.core:core-ktx:1.10.1"
+    implementation "androidx.core:core-ktx:1.12.0"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
+    implementation "androidx.lifecycle:lifecycle-process:2.6.2"
     implementation "com.google.android.material:material:1.6.1"
 
     // HTTP client for Supabase REST API
@@ -41,4 +45,12 @@ dependencies {
 
     // Location services
     implementation "com.google.android.gms:play-services-location:21.0.1"
+
+    // Certificate pinning from tonychat-ai module
+    implementation project(":tonychat-ai")
+
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'io.mockk:mockk:1.13.8'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:4.12.0'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
 }

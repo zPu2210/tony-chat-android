@@ -3,6 +3,7 @@ package com.tonychat.community.repository
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tonychat.community.SupabaseClient
+import com.tonychat.community.SupabaseResult
 import com.tonychat.community.model.CreatePostRequest
 import com.tonychat.community.model.Post
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +14,23 @@ import kotlinx.coroutines.withContext
  */
 class PostRepository {
     private val gson = Gson()
+
+    companion object {
+        private const val MAX_CONTENT_LENGTH = 2000
+
+        /**
+         * Validate and sanitize post content
+         * - Enforce length limit
+         * - Strip HTML tags to prevent XSS
+         */
+        fun validateContent(content: String): String {
+            require(content.length <= MAX_CONTENT_LENGTH) {
+                "Content exceeds maximum length of $MAX_CONTENT_LENGTH characters"
+            }
+            // Strip HTML tags and trim whitespace
+            return content.replace(Regex("<[^>]*>"), "").trim()
+        }
+    }
 
     /**
      * Get nearby posts using Supabase RPC function
@@ -42,13 +60,19 @@ class PostRepository {
             ))
 
             val request = SupabaseClient.post("/rest/v1/rpc/nearby_posts", rpcBody, deviceId)
-            val response = SupabaseClient.execute(request)
-
-            if (response != null) {
-                val type = object : TypeToken<List<Post>>() {}.type
-                gson.fromJson<List<Post>>(response, type) ?: emptyList()
-            } else {
-                emptyList()
+            when (val result = SupabaseClient.execute(request)) {
+                is SupabaseResult.Success -> {
+                    val type = object : TypeToken<List<Post>>() {}.type
+                    gson.fromJson<List<Post>>(result.data, type) ?: emptyList()
+                }
+                is SupabaseResult.Error -> {
+                    println("Supabase error ${result.code}: ${result.message}")
+                    emptyList()
+                }
+                is SupabaseResult.NetworkError -> {
+                    result.exception.printStackTrace()
+                    emptyList()
+                }
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -65,15 +89,20 @@ class PostRepository {
         try {
             val jsonBody = gson.toJson(request)
             val httpRequest = SupabaseClient.post("/rest/v1/posts", jsonBody, request.deviceId)
-            val response = SupabaseClient.execute(httpRequest)
-
-            if (response != null) {
-                // Response is array with single element
-                val type = object : TypeToken<List<Post>>() {}.type
-                val posts = gson.fromJson<List<Post>>(response, type)
-                posts?.firstOrNull()
-            } else {
-                null
+            when (val result = SupabaseClient.execute(httpRequest)) {
+                is SupabaseResult.Success -> {
+                    val type = object : TypeToken<List<Post>>() {}.type
+                    val posts = gson.fromJson<List<Post>>(result.data, type)
+                    posts?.firstOrNull()
+                }
+                is SupabaseResult.Error -> {
+                    println("Supabase error ${result.code}: ${result.message}")
+                    null
+                }
+                is SupabaseResult.NetworkError -> {
+                    result.exception.printStackTrace()
+                    null
+                }
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -94,8 +123,17 @@ class PostRepository {
                 queryParams = mapOf("id" to "eq.$postId"),
                 deviceId = deviceId
             )
-            val response = SupabaseClient.execute(request)
-            response != null
+            when (val result = SupabaseClient.execute(request)) {
+                is SupabaseResult.Success -> true
+                is SupabaseResult.Error -> {
+                    println("Supabase error ${result.code}: ${result.message}")
+                    false
+                }
+                is SupabaseResult.NetworkError -> {
+                    result.exception.printStackTrace()
+                    false
+                }
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             false

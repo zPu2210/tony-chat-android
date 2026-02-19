@@ -39,77 +39,77 @@ class TonyConfigTest {
 
     @Test
     fun `ghost mode flags default correctly`() {
-        assertTrue(TonyConfig.sendOnlinePackets)
-        assertTrue(TonyConfig.sendReadMessagePackets)
-        assertTrue(TonyConfig.sendReadStoryPackets)
-        assertTrue(TonyConfig.sendUploadProgress)
-        assertFalse(TonyConfig.suppressTypingIndicator)
-        assertFalse(TonyConfig.isGhostModeActive)
+        assertTrue(TonyConfig.privacy.sendOnlinePackets)
+        assertTrue(TonyConfig.privacy.sendReadMessagePackets)
+        assertTrue(TonyConfig.privacy.sendReadStoryPackets)
+        assertTrue(TonyConfig.privacy.sendUploadProgress)
+        assertFalse(TonyConfig.privacy.suppressTypingIndicator)
+        assertFalse(TonyConfig.privacy.isGhostModeActive)
     }
 
     // ── setGhostMode ──
 
     @Test
     fun `setGhostMode true enables all suppressions`() {
-        TonyConfig.setGhostMode(true)
+        TonyConfig.privacy.setGhostMode(true)
 
-        assertTrue(TonyConfig.isGhostModeActive)
-        assertFalse(TonyConfig.sendOnlinePackets)
-        assertFalse(TonyConfig.sendReadMessagePackets)
-        assertFalse(TonyConfig.sendReadStoryPackets)
-        assertFalse(TonyConfig.sendUploadProgress)
-        assertTrue(TonyConfig.suppressTypingIndicator)
+        assertTrue(TonyConfig.privacy.isGhostModeActive)
+        assertFalse(TonyConfig.privacy.sendOnlinePackets)
+        assertFalse(TonyConfig.privacy.sendReadMessagePackets)
+        assertFalse(TonyConfig.privacy.sendReadStoryPackets)
+        assertFalse(TonyConfig.privacy.sendUploadProgress)
+        assertTrue(TonyConfig.privacy.suppressTypingIndicator)
     }
 
     @Test
     fun `setGhostMode false restores defaults`() {
-        TonyConfig.setGhostMode(true)
-        TonyConfig.setGhostMode(false)
+        TonyConfig.privacy.setGhostMode(true)
+        TonyConfig.privacy.setGhostMode(false)
 
-        assertFalse(TonyConfig.isGhostModeActive)
-        assertTrue(TonyConfig.sendOnlinePackets)
-        assertTrue(TonyConfig.sendReadMessagePackets)
-        assertTrue(TonyConfig.sendReadStoryPackets)
-        assertTrue(TonyConfig.sendUploadProgress)
-        assertFalse(TonyConfig.suppressTypingIndicator)
+        assertFalse(TonyConfig.privacy.isGhostModeActive)
+        assertTrue(TonyConfig.privacy.sendOnlinePackets)
+        assertTrue(TonyConfig.privacy.sendReadMessagePackets)
+        assertTrue(TonyConfig.privacy.sendReadStoryPackets)
+        assertTrue(TonyConfig.privacy.sendUploadProgress)
+        assertFalse(TonyConfig.privacy.suppressTypingIndicator)
     }
 
     @Test
     fun `setGhostMode toggle roundtrip`() {
-        TonyConfig.setGhostMode(true)
-        assertTrue(TonyConfig.isGhostModeActive)
-        TonyConfig.setGhostMode(false)
-        assertFalse(TonyConfig.isGhostModeActive)
-        TonyConfig.setGhostMode(true)
-        assertTrue(TonyConfig.isGhostModeActive)
+        TonyConfig.privacy.setGhostMode(true)
+        assertTrue(TonyConfig.privacy.isGhostModeActive)
+        TonyConfig.privacy.setGhostMode(false)
+        assertFalse(TonyConfig.privacy.isGhostModeActive)
+        TonyConfig.privacy.setGhostMode(true)
+        assertTrue(TonyConfig.privacy.isGhostModeActive)
     }
 
     // ── Property read/write roundtrips ──
 
     @Test
     fun `boolean property roundtrip`() {
-        TonyConfig.darkMode = true
-        assertTrue(TonyConfig.darkMode)
-        TonyConfig.darkMode = false
-        assertFalse(TonyConfig.darkMode)
+        TonyConfig.ui.darkMode = true
+        assertTrue(TonyConfig.ui.darkMode)
+        TonyConfig.ui.darkMode = false
+        assertFalse(TonyConfig.ui.darkMode)
     }
 
     @Test
     fun `int property roundtrip`() {
-        TonyConfig.actionBarDecoration = 42
-        assertEquals(42, TonyConfig.actionBarDecoration)
+        TonyConfig.ui.actionBarDecoration = 42
+        assertEquals(42, TonyConfig.ui.actionBarDecoration)
     }
 
     @Test
     fun `float property roundtrip`() {
-        TonyConfig.stickerSize = 20.5f
-        assertEquals(20.5f, TonyConfig.stickerSize, 0.001f)
+        TonyConfig.ui.stickerSize = 20.5f
+        assertEquals(20.5f, TonyConfig.ui.stickerSize, 0.001f)
     }
 
     @Test
     fun `string property roundtrip`() {
-        TonyConfig.translateToLang = "ko"
-        assertEquals("ko", TonyConfig.translateToLang)
+        TonyConfig.chat.translateToLang = "ko"
+        assertEquals("ko", TonyConfig.chat.translateToLang)
     }
 
     @Test
@@ -122,46 +122,46 @@ class TonyConfigTest {
 
     @Test
     fun `dark mode defaults to false`() {
-        assertFalse(TonyConfig.darkMode)
+        assertFalse(TonyConfig.ui.darkMode)
     }
 
     @Test
     fun `useTonyTheme defaults to true`() {
-        assertTrue(TonyConfig.useTonyTheme)
+        assertTrue(TonyConfig.ui.useTonyTheme)
     }
 
     // ── resetToDefaults ──
 
     @Test
     fun `resetToDefaults clears all custom values`() {
-        TonyConfig.darkMode = true
+        TonyConfig.ui.darkMode = true
         TonyConfig.showStories = true
-        TonyConfig.setGhostMode(true)
-        TonyConfig.actionBarDecoration = 99
-        TonyConfig.stickerSize = 50f
-        TonyConfig.translateToLang = "ja"
+        TonyConfig.privacy.setGhostMode(true)
+        TonyConfig.ui.actionBarDecoration = 99
+        TonyConfig.ui.stickerSize = 50f
+        TonyConfig.chat.translateToLang = "ja"
 
         TonyConfig.resetToDefaults()
 
-        assertFalse(TonyConfig.darkMode)
+        assertFalse(TonyConfig.ui.darkMode)
         assertFalse(TonyConfig.showStories)
-        assertFalse(TonyConfig.isGhostModeActive)
-        assertTrue(TonyConfig.sendOnlinePackets)
-        assertEquals(0, TonyConfig.actionBarDecoration)
-        assertEquals(14.0f, TonyConfig.stickerSize, 0.001f)
-        assertEquals("en", TonyConfig.translateToLang)
+        assertFalse(TonyConfig.privacy.isGhostModeActive)
+        assertTrue(TonyConfig.privacy.sendOnlinePackets)
+        assertEquals(0, TonyConfig.ui.actionBarDecoration)
+        assertEquals(14.0f, TonyConfig.ui.stickerSize, 0.001f)
+        assertEquals("en", TonyConfig.chat.translateToLang)
     }
 
     // ── Individual ghost sub-flags ──
 
     @Test
     fun `individual ghost flags can be set independently`() {
-        TonyConfig.sendOnlinePackets = false
-        assertFalse(TonyConfig.sendOnlinePackets)
-        assertTrue(TonyConfig.sendReadMessagePackets) // unaffected
+        TonyConfig.privacy.sendOnlinePackets = false
+        assertFalse(TonyConfig.privacy.sendOnlinePackets)
+        assertTrue(TonyConfig.privacy.sendReadMessagePackets) // unaffected
 
-        TonyConfig.suppressTypingIndicator = true
-        assertTrue(TonyConfig.suppressTypingIndicator)
-        assertTrue(TonyConfig.sendUploadProgress) // unaffected
+        TonyConfig.privacy.suppressTypingIndicator = true
+        assertTrue(TonyConfig.privacy.suppressTypingIndicator)
+        assertTrue(TonyConfig.privacy.sendUploadProgress) // unaffected
     }
 }

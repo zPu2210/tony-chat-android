@@ -1,5 +1,6 @@
 package com.tonychat.community
 
+import com.tonychat.ai.security.CertificatePinnerFactory
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -11,9 +12,6 @@ import java.util.concurrent.TimeUnit
  * Avoids adding Supabase SDK and Ktor dependencies.
  */
 object SupabaseClient {
-    private const val SUPABASE_URL = "https://omuajrrvkhzeruupwjot.supabase.co"
-    private const val ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tdWFqcnJ2a2h6ZXJ1dXB3am90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyMzM0NDUsImV4cCI6MjA4NjgwOTQ0NX0.6v5fA9uxYxQ89AskrJQoYb5BwOgttt5x9z9VQFaIe3g"
-
     private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
 
     private val httpClient: OkHttpClient by lazy {
@@ -21,18 +19,22 @@ object SupabaseClient {
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
+            .certificatePinner(CertificatePinnerFactory.create())
             .build()
     }
 
     /**
      * GET request to Supabase REST API
      */
-    fun get(path: String, queryParams: Map<String, String> = emptyMap()): Request {
+    suspend fun get(path: String, queryParams: Map<String, String> = emptyMap()): Request {
         val url = buildUrl(path, queryParams)
+        val jwt = com.tonychat.community.auth.SupabaseAuthManager.getToken()
+            ?: BuildConfig.SUPABASE_ANON_KEY
+
         return Request.Builder()
             .url(url)
-            .addHeader("apikey", ANON_KEY)
-            .addHeader("Authorization", "Bearer $ANON_KEY")
+            .addHeader("apikey", BuildConfig.SUPABASE_ANON_KEY)
+            .addHeader("Authorization", "Bearer $jwt")
             .get()
             .build()
     }
@@ -40,16 +42,19 @@ object SupabaseClient {
     /**
      * POST request to Supabase REST API
      */
-    fun post(path: String, jsonBody: String, deviceId: String? = null): Request {
-        val url = "$SUPABASE_URL$path"
+    suspend fun post(path: String, jsonBody: String, deviceId: String? = null): Request {
+        val url = "${BuildConfig.SUPABASE_URL}$path"
+        val jwt = com.tonychat.community.auth.SupabaseAuthManager.getToken()
+            ?: BuildConfig.SUPABASE_ANON_KEY
+
         val builder = Request.Builder()
             .url(url)
-            .addHeader("apikey", ANON_KEY)
-            .addHeader("Authorization", "Bearer $ANON_KEY")
+            .addHeader("apikey", BuildConfig.SUPABASE_ANON_KEY)
+            .addHeader("Authorization", "Bearer $jwt")
             .addHeader("Content-Type", "application/json")
             .addHeader("Prefer", "return=representation")
 
-        // Add device ID header for RLS policies
+        // Keep device ID header for backward compatibility during migration
         if (deviceId != null) {
             builder.addHeader("x-device-id", deviceId)
         }
@@ -62,13 +67,17 @@ object SupabaseClient {
     /**
      * DELETE request to Supabase REST API
      */
-    fun delete(path: String, queryParams: Map<String, String> = emptyMap(), deviceId: String? = null): Request {
+    suspend fun delete(path: String, queryParams: Map<String, String> = emptyMap(), deviceId: String? = null): Request {
         val url = buildUrl(path, queryParams)
+        val jwt = com.tonychat.community.auth.SupabaseAuthManager.getToken()
+            ?: BuildConfig.SUPABASE_ANON_KEY
+
         val builder = Request.Builder()
             .url(url)
-            .addHeader("apikey", ANON_KEY)
-            .addHeader("Authorization", "Bearer $ANON_KEY")
+            .addHeader("apikey", BuildConfig.SUPABASE_ANON_KEY)
+            .addHeader("Authorization", "Bearer $jwt")
 
+        // Keep device ID header for backward compatibility during migration
         if (deviceId != null) {
             builder.addHeader("x-device-id", deviceId)
         }
@@ -77,15 +86,24 @@ object SupabaseClient {
     }
 
     /**
-     * Execute request and return response body as string
+     * Execute request and return response body as string (wrapped in Result type)
      */
-    fun execute(request: Request): String? {
-        return httpClient.newCall(request).execute().use { response ->
-            if (response.isSuccessful) {
-                response.body?.string()
-            } else {
-                null
+    fun execute(request: Request): SupabaseResult<String> {
+        return try {
+            httpClient.newCall(request).execute().use { response ->
+                val body = response.body?.string()
+                if (response.isSuccessful) {
+                    SupabaseResult.Success(body ?: "")
+                } else {
+                    SupabaseResult.Error(
+                        code = response.code,
+                        message = response.message,
+                        body = body
+                    )
+                }
             }
+        } catch (e: Exception) {
+            SupabaseResult.NetworkError(e)
         }
     }
 
@@ -94,11 +112,11 @@ object SupabaseClient {
      */
     fun getClient(): OkHttpClient = httpClient
 
-    fun getAnonKey(): String = ANON_KEY
-    fun getStorageUrl(): String = "$SUPABASE_URL/storage/v1"
+    fun getAnonKey(): String = BuildConfig.SUPABASE_ANON_KEY
+    fun getStorageUrl(): String = "${BuildConfig.SUPABASE_URL}/storage/v1"
 
     private fun buildUrl(path: String, queryParams: Map<String, String>): String {
-        val base = "$SUPABASE_URL$path"
+        val base = "${BuildConfig.SUPABASE_URL}$path"
         if (queryParams.isEmpty()) return base
 
         val query = queryParams.entries.joinToString("&") { (key, value) ->

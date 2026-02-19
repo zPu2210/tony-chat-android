@@ -2,6 +2,7 @@ package com.tonychat.ai.provider
 
 import com.tonychat.ai.ImageEditProvider
 import com.tonychat.ai.ImageEditResponse
+import com.tonychat.ai.security.CertificatePinnerFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -27,6 +28,7 @@ class RemoveBgProvider(
     private val client = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
+        .certificatePinner(CertificatePinnerFactory.create())
         .build()
 
     override suspend fun removeBackground(imageFile: File): ImageEditResponse = withContext(Dispatchers.IO) {
