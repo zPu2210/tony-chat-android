@@ -22,8 +22,8 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 33
-    buildToolsVersion '33.0.0'
+    compileSdkVersion 34
+    buildToolsVersion '34.0.0'
 
     defaultConfig.applicationId = APP_PACKAGE
 
@@ -49,16 +49,16 @@ android {
     signingConfigs {
         debug {
             storeFile file("../TMessagesProj/config/release.keystore")
-            storePassword RELEASE_STORE_PASSWORD
-            keyAlias RELEASE_KEY_ALIAS
-            keyPassword RELEASE_KEY_PASSWORD
+            storePassword System.getenv('TONYCHAT_STORE_PASSWORD') ?: findProperty('RELEASE_STORE_PASSWORD') ?: ''
+            keyAlias System.getenv('TONYCHAT_KEY_ALIAS') ?: findProperty('RELEASE_KEY_ALIAS') ?: 'tonychat'
+            keyPassword System.getenv('TONYCHAT_KEY_PASSWORD') ?: findProperty('RELEASE_KEY_PASSWORD') ?: ''
         }
 
         release {
             storeFile file("../TMessagesProj/config/release.keystore")
-            storePassword RELEASE_STORE_PASSWORD
-            keyAlias RELEASE_KEY_ALIAS
-            keyPassword RELEASE_KEY_PASSWORD
+            storePassword System.getenv('TONYCHAT_STORE_PASSWORD') ?: findProperty('RELEASE_STORE_PASSWORD') ?: ''
+            keyAlias System.getenv('TONYCHAT_KEY_ALIAS') ?: findProperty('RELEASE_KEY_ALIAS') ?: 'tonychat'
+            keyPassword System.getenv('TONYCHAT_KEY_PASSWORD') ?: findProperty('RELEASE_KEY_PASSWORD') ?: ''
         }
     }
 
@@ -172,8 +172,8 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 33
+        minSdkVersion 21
+        targetSdkVersion 34
         versionName APP_VERSION_NAME
         ndkVersion "21.4.7075529"
 

@@ -105,4 +105,17 @@
 
 # Use -keep to explicitly keep any other classes shrinking would remove
 -dontoptimize
--dontobfuscate
+
+# JNI native methods - prevent renaming
+-keepclasseswithmembernames class * { native <methods>; }
+
+# Telegram TGNET layer - called from native code
+-keep class org.telegram.tgnet.** { *; }
+-keep class org.telegram.messenger.voip.** { *; }
+
+# Tony Chat custom modules
+-keep class com.tonychat.ai.config.ApiKeyManager { *; }
+-keep class com.tonychat.ai.cache.** { *; }
+-keep class com.tonychat.community.model.** { *; }
+-keep class com.tonychat.ai.model.** { *; }
+-keepclassmembers class * { @com.google.gson.annotations.SerializedName <fields>; }

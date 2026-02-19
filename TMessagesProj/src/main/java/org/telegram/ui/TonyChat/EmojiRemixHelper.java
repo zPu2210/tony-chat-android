@@ -198,7 +198,18 @@ public class EmojiRemixHelper {
         ImageView previewImage = new ImageView(context);
         previewImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
         try {
-            Bitmap bitmap = BitmapFactory.decodeFile(emojiFile.getAbsolutePath());
+            // Downsample large images to prevent OOM
+            BitmapFactory.Options opts = new BitmapFactory.Options();
+            opts.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(emojiFile.getAbsolutePath(), opts);
+            int maxDim = 1920;
+            int inSampleSize = 1;
+            while (opts.outWidth / inSampleSize > maxDim || opts.outHeight / inSampleSize > maxDim) {
+                inSampleSize *= 2;
+            }
+            opts.inJustDecodeBounds = false;
+            opts.inSampleSize = inSampleSize;
+            Bitmap bitmap = BitmapFactory.decodeFile(emojiFile.getAbsolutePath(), opts);
             if (bitmap != null) {
                 previewImage.setImageBitmap(bitmap);
             }

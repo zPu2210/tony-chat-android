@@ -3,6 +3,7 @@ package com.tonychat.community.repository
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tonychat.community.SupabaseClient
+import com.tonychat.community.SupabaseResult
 import com.tonychat.community.model.Comment
 import com.tonychat.community.model.CreateCommentRequest
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +14,23 @@ import kotlinx.coroutines.withContext
  */
 class CommentRepository {
     private val gson = Gson()
+
+    companion object {
+        private const val MAX_CONTENT_LENGTH = 2000
+
+        /**
+         * Validate and sanitize comment content
+         * - Enforce length limit
+         * - Strip HTML tags to prevent XSS
+         */
+        fun validateContent(content: String): String {
+            require(content.length <= MAX_CONTENT_LENGTH) {
+                "Content exceeds maximum length of $MAX_CONTENT_LENGTH characters"
+            }
+            // Strip HTML tags and trim whitespace
+            return content.replace(Regex("<[^>]*>"), "").trim()
+        }
+    }
 
     /**
      * Get comments for a post
@@ -29,13 +47,19 @@ class CommentRepository {
                     "select" to "*"
                 )
             )
-            val response = SupabaseClient.execute(request)
-
-            if (response != null) {
-                val type = object : TypeToken<List<Comment>>() {}.type
-                gson.fromJson<List<Comment>>(response, type) ?: emptyList()
-            } else {
-                emptyList()
+            when (val result = SupabaseClient.execute(request)) {
+                is SupabaseResult.Success -> {
+                    val type = object : TypeToken<List<Comment>>() {}.type
+                    gson.fromJson<List<Comment>>(result.data, type) ?: emptyList()
+                }
+                is SupabaseResult.Error -> {
+                    println("Supabase error ${result.code}: ${result.message}")
+                    emptyList()
+                }
+                is SupabaseResult.NetworkError -> {
+                    result.exception.printStackTrace()
+                    emptyList()
+                }
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -52,14 +76,20 @@ class CommentRepository {
         try {
             val jsonBody = gson.toJson(request)
             val httpRequest = SupabaseClient.post("/rest/v1/comments", jsonBody, request.deviceId)
-            val response = SupabaseClient.execute(httpRequest)
-
-            if (response != null) {
-                val type = object : TypeToken<List<Comment>>() {}.type
-                val comments = gson.fromJson<List<Comment>>(response, type)
-                comments?.firstOrNull()
-            } else {
-                null
+            when (val result = SupabaseClient.execute(httpRequest)) {
+                is SupabaseResult.Success -> {
+                    val type = object : TypeToken<List<Comment>>() {}.type
+                    val comments = gson.fromJson<List<Comment>>(result.data, type)
+                    comments?.firstOrNull()
+                }
+                is SupabaseResult.Error -> {
+                    println("Supabase error ${result.code}: ${result.message}")
+                    null
+                }
+                is SupabaseResult.NetworkError -> {
+                    result.exception.printStackTrace()
+                    null
+                }
             }
         } catch (e: Exception) {
             e.printStackTrace()

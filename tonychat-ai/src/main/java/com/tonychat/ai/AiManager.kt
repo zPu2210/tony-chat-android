@@ -1,6 +1,9 @@
 package com.tonychat.ai
 
 import android.content.Context
+import android.util.Log
+import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.tonychat.ai.cache.AiCacheDao
 import com.tonychat.ai.cache.AiCacheDatabase
 import com.tonychat.ai.cache.AiCacheEntity
@@ -22,13 +25,15 @@ import java.security.MessageDigest
 
 /** Singleton orchestrator: consent check → rate limit → cache → provider selection → execute. */
 object AiManager {
+    private const val TAG = "AiManager"
+
     private lateinit var cache: AiCacheDao
     private lateinit var imageEditCache: ImageEditCacheDao
     private lateinit var imageEditCacheDir: File
     private lateinit var emojiCache: EmojiCacheDao
     private lateinit var emojiCacheDir: File
     private lateinit var transcriptCache: TranscriptCacheDao
-    private val rateLimiter = RateLimiter()
+    private lateinit var rateLimiter: RateLimiter
     private var onDeviceProvider: AiProvider = NoOpProvider()
     private var cloudProvider: AiProvider = NoOpProvider()
     private var removeBgProvider: ImageEditProvider? = null
@@ -44,24 +49,31 @@ object AiManager {
         transcriptCache = db.transcriptCacheDao()
         imageEditCacheDir = File(appContext.cacheDir, "image_edits")
         emojiCacheDir = File(appContext.cacheDir, "emoji_gen").apply { mkdirs() }
+        rateLimiter = RateLimiter(appContext)
 
         refreshProviders()
 
         // Evict expired cache entries on startup
-        CoroutineScope(Dispatchers.IO).launch {
+        ProcessLifecycleOwner.get().lifecycleScope.launch(Dispatchers.IO) {
             try {
                 cache.evictExpired()
                 imageEditCache.evictExpired()
                 emojiCache.evictExpired()
                 transcriptCache.evictExpired()
-            } catch (_: Exception) {}
+            } catch (e: Exception) {
+                Log.w(TAG, "Cache eviction failed", e)
+            }
         }
     }
 
     /** Clear all cached AI responses. */
     fun clearCache(onDone: Runnable? = null) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try { cache.clearAll() } catch (_: Exception) {}
+        ProcessLifecycleOwner.get().lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                cache.clearAll()
+            } catch (e: Exception) {
+                Log.w(TAG, "Cache clear failed", e)
+            }
             onDone?.run()
         }
     }
@@ -144,7 +156,9 @@ object AiManager {
                 cache.getCached(cacheKey)?.let {
                     return AiResponse.Success(it.responseText, fromCache = true)
                 }
-            } catch (_: Exception) {}
+            } catch (e: Exception) {
+                Log.w(TAG, "Cache read failed for $feature", e)
+            }
         }
 
         val provider = pickProvider(feature)
@@ -162,7 +176,9 @@ object AiManager {
                     createdAt = System.currentTimeMillis(),
                     ttlHours = feature.ttlHours
                 ))
-            } catch (_: Exception) {}
+            } catch (e: Exception) {
+                Log.w(TAG, "Cache write failed for $feature", e)
+            }
         }
 
         return result
@@ -201,7 +217,9 @@ object AiManager {
                     return ImageEditResponse.Success(cachedFile, fromCache = true)
                 }
             }
-        } catch (_: Exception) {}
+        } catch (e: Exception) {
+            Log.w(TAG, "ImageEdit cache read failed", e)
+        }
 
         val provider = removeBgProvider ?: return ImageEditResponse.Error("No provider available. Set API key in AI Settings.")
         val response = provider.removeBackground(imageFile)
@@ -216,7 +234,9 @@ object AiManager {
                         ttlHours = 168
                     )
                 )
-            } catch (_: Exception) {}
+            } catch (e: Exception) {
+                Log.w(TAG, "ImageEdit cache write failed", e)
+            }
         }
 
         return response
@@ -253,7 +273,9 @@ object AiManager {
                     return ImageGenerationResponse.Success(cachedFile, fromCache = true, provider = cached.provider)
                 }
             }
-        } catch (_: Exception) {}
+        } catch (e: Exception) {
+            Log.w(TAG, "Emoji cache read failed", e)
+        }
 
         val provider = emojiProvider ?: return ImageGenerationResponse.Error("No provider available. Set Gemini API key in AI Settings.")
         val response = provider.generateEmoji(prompt)
@@ -270,7 +292,9 @@ object AiManager {
                         ttlHours = 720
                     )
                 )
-            } catch (_: Exception) {}
+            } catch (e: Exception) {
+                Log.w(TAG, "Emoji cache write failed", e)
+            }
         }
 
         return response
@@ -298,7 +322,9 @@ object AiManager {
             if (cached != null) {
                 return AiResponse.Success(cached.transcript, fromCache = true)
             }
-        } catch (_: Exception) {}
+        } catch (e: Exception) {
+            Log.w(TAG, "Transcript cache read failed", e)
+        }
 
         val provider = cloudProvider
         if (provider !is OpenAiProvider) {
@@ -317,7 +343,9 @@ object AiManager {
                         ttlHours = 720
                     )
                 )
-            } catch (_: Exception) {}
+            } catch (e: Exception) {
+                Log.w(TAG, "Transcript cache write failed", e)
+            }
         }
 
         return response

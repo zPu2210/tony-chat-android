@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Block cleartext (HTTP) traffic by default -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!--
+    Note: Telegram's MTPROTO protocol may require cleartext for some connections.
+    If build fails or Telegram features break, add domain-specific exceptions here:
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">telegram.org</domain>
+    </domain-config>
+    -->
+</network-security-config>

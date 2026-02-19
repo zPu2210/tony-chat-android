@@ -139,7 +139,18 @@ public class ImageEditHelper {
         ImageView editedView = new ImageView(context);
         editedView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         try {
-            Bitmap editedBitmap = BitmapFactory.decodeFile(edited.getAbsolutePath());
+            // Downsample large images to prevent OOM
+            BitmapFactory.Options opts = new BitmapFactory.Options();
+            opts.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(edited.getAbsolutePath(), opts);
+            int maxDim = 1920;
+            int inSampleSize = 1;
+            while (opts.outWidth / inSampleSize > maxDim || opts.outHeight / inSampleSize > maxDim) {
+                inSampleSize *= 2;
+            }
+            opts.inJustDecodeBounds = false;
+            opts.inSampleSize = inSampleSize;
+            Bitmap editedBitmap = BitmapFactory.decodeFile(edited.getAbsolutePath(), opts);
             if (editedBitmap != null) {
                 editedView.setImageBitmap(editedBitmap);
             }

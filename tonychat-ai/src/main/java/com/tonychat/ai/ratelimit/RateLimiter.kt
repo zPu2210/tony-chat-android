@@ -1,43 +1,69 @@
 package com.tonychat.ai.ratelimit
 
+import android.content.Context
+import android.content.SharedPreferences
 import com.tonychat.ai.AiFeatureType
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
-/** Token bucket rate limiter per AI feature. */
-class RateLimiter {
+/**
+ * Thread-safe, persistent rate limiter per AI feature.
+ * Uses ReentrantLock for thread safety and SharedPreferences for persistence across app restarts.
+ */
+class RateLimiter(context: Context) {
 
-    private data class Bucket(
+    private val prefs: SharedPreferences = context.getSharedPreferences("tonychat_rate_limits", Context.MODE_PRIVATE)
+    private val lock = ReentrantLock()
+
+    private data class Config(
         val maxTokens: Int,
-        val refillPerMinute: Int,
-        var tokens: Double,
-        var lastRefill: Long = System.currentTimeMillis()
+        val refillPerMinute: Int
     )
 
-    private val buckets = mutableMapOf(
-        AiFeatureType.SMART_REPLY to Bucket(60, 60, 60.0),
-        AiFeatureType.SUMMARY to Bucket(10, 10, 10.0),
-        AiFeatureType.TONE_REWRITE to Bucket(30, 30, 30.0),
-        AiFeatureType.TRANSLATE to Bucket(30, 30, 30.0),
-        AiFeatureType.IMAGE_EDIT to Bucket(5, 5, 5.0),
-        AiFeatureType.EMOJI_REMIX to Bucket(250, 250, 250.0),  // 250/day from Gemini free tier
-        AiFeatureType.TRANSCRIBE to Bucket(30, 30, 30.0)       // 30/day for voice transcription
+    private val configs = mapOf(
+        AiFeatureType.SMART_REPLY to Config(60, 60),
+        AiFeatureType.SUMMARY to Config(10, 10),
+        AiFeatureType.TONE_REWRITE to Config(30, 30),
+        AiFeatureType.TRANSLATE to Config(30, 30),
+        AiFeatureType.IMAGE_EDIT to Config(5, 5),
+        AiFeatureType.EMOJI_REMIX to Config(250, 250),  // 250/day from Gemini free tier
+        AiFeatureType.TRANSCRIBE to Config(30, 30)       // 30/day for voice transcription
     )
 
-    fun tryAcquire(feature: AiFeatureType): Boolean {
-        val bucket = buckets[feature] ?: return false
-        refill(bucket)
-        return if (bucket.tokens >= 1.0) {
-            bucket.tokens -= 1.0
+    fun tryAcquire(feature: AiFeatureType): Boolean = lock.withLock {
+        val config = configs[feature] ?: return false
+        val key = feature.name
+        val tokensKey = "${key}_tokens"
+        val timestampKey = "${key}_timestamp"
+
+        val now = System.currentTimeMillis()
+        val lastRefill = prefs.getLong(timestampKey, now)
+        val currentTokens = prefs.getFloat(tokensKey, config.maxTokens.toFloat())
+
+        // Refill tokens based on elapsed time
+        val elapsedMinutes = (now - lastRefill) / 60_000.0
+        val refillAmount = elapsedMinutes * config.refillPerMinute
+        val newTokens = (currentTokens + refillAmount).coerceAtMost(config.maxTokens.toDouble())
+
+        return if (newTokens >= 1.0) {
+            // Consume 1 token
+            prefs.edit()
+                .putFloat(tokensKey, (newTokens - 1.0).toFloat())
+                .putLong(timestampKey, now)
+                .apply()
             true
         } else {
+            // Not enough tokens, but update timestamp to prevent drift
+            prefs.edit()
+                .putFloat(tokensKey, newTokens.toFloat())
+                .putLong(timestampKey, now)
+                .apply()
             false
         }
     }
 
-    private fun refill(bucket: Bucket) {
-        val now = System.currentTimeMillis()
-        val elapsed = (now - bucket.lastRefill) / 60_000.0
-        bucket.tokens = (bucket.tokens + elapsed * bucket.refillPerMinute)
-            .coerceAtMost(bucket.maxTokens.toDouble())
-        bucket.lastRefill = now
+    /** Reset all rate limits (for testing or admin purposes). */
+    fun reset() = lock.withLock {
+        prefs.edit().clear().apply()
     }
 }

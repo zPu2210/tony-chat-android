@@ -1,0 +1,16 @@
+# Tony Chat Android - Local Properties Example
+# Copy these to ~/.gradle/gradle.properties (NOT inside the project!)
+# These values are required for signing release APKs.
+
+# Keystore signing credentials
+RELEASE_KEY_PASSWORD=your_key_password_here
+RELEASE_STORE_PASSWORD=your_store_password_here
+
+# Or set environment variables instead:
+# export TONYCHAT_STORE_PASSWORD=your_store_password_here
+# export TONYCHAT_KEY_PASSWORD=your_key_password_here
+# export TONYCHAT_KEY_ALIAS=tonychat
+
+# Required: aapt2 override for AGP 7.0.3 + compileSdk 34 compatibility
+# Replace with your actual ANDROID_HOME path
+android.aapt2FromMavenOverride=/path/to/Android/sdk/build-tools/34.0.0/aapt2

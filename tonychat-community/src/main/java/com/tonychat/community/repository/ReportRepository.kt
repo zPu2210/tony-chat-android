@@ -2,6 +2,7 @@ package com.tonychat.community.repository
 
 import com.google.gson.Gson
 import com.tonychat.community.SupabaseClient
+import com.tonychat.community.SupabaseResult
 import com.tonychat.community.model.CreateReportRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,8 +25,17 @@ class ReportRepository {
             val request = CreateReportRequest(postId = postId, deviceId = deviceId, reason = reason)
             val jsonBody = gson.toJson(request)
             val httpRequest = SupabaseClient.post("/rest/v1/reports", jsonBody, deviceId)
-            val response = SupabaseClient.execute(httpRequest)
-            response != null
+            when (val result = SupabaseClient.execute(httpRequest)) {
+                is SupabaseResult.Success -> true
+                is SupabaseResult.Error -> {
+                    println("Supabase error ${result.code}: ${result.message}")
+                    false
+                }
+                is SupabaseResult.NetworkError -> {
+                    result.exception.printStackTrace()
+                    false
+                }
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             false
