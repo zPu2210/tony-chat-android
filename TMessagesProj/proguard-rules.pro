@@ -114,11 +114,26 @@
 -keep class org.telegram.messenger.voip.** { *; }
 
 # Tony Chat custom modules
+-keep class com.tonychat.core.TonyConfig { *; }
+-keep class com.tonychat.core.TonyConfig$* { *; }
+-keep class com.tonychat.ai.AiManager { *; }
+-keep class com.tonychat.ai.bridge.AiManagerBridge { *; }
 -keep class com.tonychat.ai.config.ApiKeyManager { *; }
 -keep class com.tonychat.ai.cache.** { *; }
+-keep class com.tonychat.community.CommunityBridge { *; }
 -keep class com.tonychat.community.model.** { *; }
 -keep class com.tonychat.ai.model.** { *; }
 -keepclassmembers class * { @com.google.gson.annotations.SerializedName <fields>; }
+
+# Kotlin singletons
+-keepclassmembers class * {
+    public static final ** INSTANCE;
+}
+
+# Room Database
+-keep class * extends androidx.room.RoomDatabase
+-keep @androidx.room.Entity class *
+-dontwarn androidx.room.paging.**
 
 # Guava j2objc annotations (compile-time only, not needed on Android)
 -dontwarn com.google.j2objc.annotations.RetainedWith
