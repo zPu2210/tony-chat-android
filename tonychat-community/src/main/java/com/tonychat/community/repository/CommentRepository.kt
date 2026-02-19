@@ -1,5 +1,6 @@
 package com.tonychat.community.repository
 
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tonychat.community.SupabaseClient
@@ -16,6 +17,7 @@ class CommentRepository {
     private val gson = Gson()
 
     companion object {
+        private const val TAG = "CommentRepository"
         private const val MAX_CONTENT_LENGTH = 2000
 
         /**
@@ -53,16 +55,16 @@ class CommentRepository {
                     gson.fromJson<List<Comment>>(result.data, type) ?: emptyList()
                 }
                 is SupabaseResult.Error -> {
-                    println("Supabase error ${result.code}: ${result.message}")
+                    Log.w(TAG, "Supabase error ${result.code}: ${result.message}")
                     emptyList()
                 }
                 is SupabaseResult.NetworkError -> {
-                    result.exception.printStackTrace()
+                    Log.w(TAG, "Network error", result.exception)
                     emptyList()
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.w(TAG, "Operation failed", e)
             emptyList()
         }
     }
@@ -74,7 +76,15 @@ class CommentRepository {
      */
     suspend fun createComment(request: CreateCommentRequest): Comment? = withContext(Dispatchers.IO) {
         try {
-            val jsonBody = gson.toJson(request)
+            // Validate content before submission
+            val sanitized = try {
+                validateContent(request.content)
+            } catch (e: IllegalArgumentException) {
+                Log.w(TAG, "Content validation failed: ${e.message}")
+                return@withContext null
+            }
+
+            val jsonBody = gson.toJson(request.copy(content = sanitized))
             val httpRequest = SupabaseClient.post("/rest/v1/comments", jsonBody, request.deviceId)
             when (val result = SupabaseClient.execute(httpRequest)) {
                 is SupabaseResult.Success -> {
@@ -83,16 +93,16 @@ class CommentRepository {
                     comments?.firstOrNull()
                 }
                 is SupabaseResult.Error -> {
-                    println("Supabase error ${result.code}: ${result.message}")
+                    Log.w(TAG, "Supabase error ${result.code}: ${result.message}")
                     null
                 }
                 is SupabaseResult.NetworkError -> {
-                    result.exception.printStackTrace()
+                    Log.w(TAG, "Network error", result.exception)
                     null
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.w(TAG, "Operation failed", e)
             null
         }
     }

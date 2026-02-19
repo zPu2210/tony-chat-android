@@ -218,18 +218,42 @@ public class CommunityFeedFragment extends BaseFragment {
     }
 
     private void onPostClick(Post post) {
-        PostDetailFragment fragment = new PostDetailFragment(post, deviceId);
+        PostDetailFragment fragment = PostDetailFragment.newInstance(post);
         presentFragment(fragment);
     }
 
     private void onLikeClick(Post post, int position) {
+        // Store original state for rollback
+        boolean wasLiked = post.isLiked();
+        long originalCount = post.getLikeCount();
+
         // Toggle like optimistically
-        post.setLiked(!post.isLiked());
-        post.setLikeCount(post.getLikeCount() + (post.isLiked() ? 1 : -1));
+        post.setLiked(!wasLiked);
+        post.setLikeCount(originalCount + (post.isLiked() ? 1 : -1));
         adapter.notifyItemChanged(position);
 
         // Sync with backend
-        // Implementation handled in PostAdapter
+        if (post.isLiked()) {
+            CommunityBridge.likePost(post.getId(), deviceId, success -> {
+                if (!success) {
+                    // Rollback on failure
+                    post.setLiked(wasLiked);
+                    post.setLikeCount(originalCount);
+                    adapter.notifyItemChanged(position);
+                    Toast.makeText(getParentActivity(), "Failed to like post", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            CommunityBridge.unlikePost(post.getId(), deviceId, success -> {
+                if (!success) {
+                    // Rollback on failure
+                    post.setLiked(wasLiked);
+                    post.setLikeCount(originalCount);
+                    adapter.notifyItemChanged(position);
+                    Toast.makeText(getParentActivity(), "Failed to unlike post", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     private void showCreatePostSheet() {

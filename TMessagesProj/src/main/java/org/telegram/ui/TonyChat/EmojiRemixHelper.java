@@ -120,9 +120,25 @@ public class EmojiRemixHelper {
 
     private static void executeGeneration(Context context, String prompt, SendCallback callback) {
         AlertDialog loadingDialog = showLoadingDialog(context);
+        final boolean[] completed = {false};
+
+        // 30s timeout
+        Runnable timeoutRunnable = () -> {
+            if (loadingDialog.isShowing()) {
+                loadingDialog.dismiss();
+                if (!completed[0]) {
+                    Toast.makeText(context, "Request timed out", Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+        AndroidUtilities.runOnUIThread(timeoutRunnable, 30000);
 
         AiManagerBridge.INSTANCE.generateEmoji(prompt, response -> {
-            loadingDialog.dismiss();
+            completed[0] = true;
+            AndroidUtilities.cancelRunOnUIThread(timeoutRunnable);
+            if (loadingDialog.isShowing()) {
+                loadingDialog.dismiss();
+            }
 
             if (response instanceof ImageGenerationResponse.Success) {
                 File emojiFile = ((ImageGenerationResponse.Success) response).getImageFile();
@@ -137,6 +153,12 @@ public class EmojiRemixHelper {
                 String errorMsg = ((ImageGenerationResponse.Error) response).getMessage();
                 Toast.makeText(context, "Error: " + errorMsg, Toast.LENGTH_LONG).show();
             }
+        });
+
+        loadingDialog.setOnCancelListener(dialog -> {
+            completed[0] = true;
+            AndroidUtilities.cancelRunOnUIThread(timeoutRunnable);
+            Toast.makeText(context, "Cancelled", Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -168,7 +190,10 @@ public class EmojiRemixHelper {
         layout.addView(hint);
 
         builder.setView(layout);
-        return builder.show();
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(true);
+        dialog.show();
+        return dialog;
     }
 
     private static void showPreviewDialog(Context context, File emojiFile, boolean fromCache, String provider, SendCallback callback) {
@@ -232,6 +257,19 @@ public class EmojiRemixHelper {
         builder.setNegativeButton("Cancel", null);
 
         AlertDialog dialog = builder.create();
+
+        // Recycle bitmap on dismiss
+        final Bitmap[] bitmapHolder = new Bitmap[1];
+        if (previewImage.getDrawable() instanceof android.graphics.drawable.BitmapDrawable) {
+            bitmapHolder[0] = ((android.graphics.drawable.BitmapDrawable) previewImage.getDrawable()).getBitmap();
+        }
+        dialog.setOnDismissListener(d -> {
+            if (bitmapHolder[0] != null && !bitmapHolder[0].isRecycled()) {
+                previewImage.setImageBitmap(null);
+                bitmapHolder[0].recycle();
+            }
+        });
+
         dialog.show();
     }
 }

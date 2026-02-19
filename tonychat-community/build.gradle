@@ -13,6 +13,15 @@ android {
         buildConfigField "String", "SUPABASE_ANON_KEY", "\"${project.findProperty('SUPABASE_ANON_KEY') ?: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tdWFqcnJ2a2h6ZXJ1dXB3am90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyMzM0NDUsImV4cCI6MjA4NjgwOTQ0NX0.6v5fA9uxYxQ89AskrJQoYb5BwOgttt5x9z9VQFaIe3g'}\""
     }
 
+    buildTypes {
+        debug {
+            matchingFallbacks = ['debug']
+        }
+        release {
+            matchingFallbacks = ['release']
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
@@ -34,14 +43,14 @@ configurations.all {
 }
 
 dependencies {
-    implementation "androidx.core:core-ktx:1.12.0"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
+    implementation Deps.coreKtx
+    implementation Deps.coroutinesAndroid
     implementation "androidx.lifecycle:lifecycle-process:2.6.2"
-    implementation "com.google.android.material:material:1.6.1"
+    implementation Deps.material
 
     // HTTP client for Supabase REST API
-    implementation "com.squareup.okhttp3:okhttp:4.12.0"
-    implementation "com.google.code.gson:gson:2.10"
+    implementation Deps.okhttp
+    implementation Deps.gson
 
     // Location services
     implementation "com.google.android.gms:play-services-location:21.0.1"
@@ -49,8 +58,10 @@ dependencies {
     // Certificate pinning from tonychat-ai module
     implementation project(":tonychat-ai")
 
-    testImplementation 'junit:junit:4.13.2'
-    testImplementation 'io.mockk:mockk:1.13.8'
-    testImplementation 'com.squareup.okhttp3:mockwebserver:4.12.0'
-    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
+    testImplementation Deps.junit
+    testImplementation Deps.mockk
+    testImplementation Deps.mockwebserver
+    testImplementation Deps.coroutinesTest
+    testImplementation Deps.robolectric
+    testImplementation 'androidx.test:core:1.5.0'
 }

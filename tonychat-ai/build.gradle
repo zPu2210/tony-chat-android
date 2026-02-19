@@ -11,6 +11,15 @@ android {
         targetSdkVersion 34
     }
 
+    buildTypes {
+        debug {
+            matchingFallbacks = ['debug']
+        }
+        release {
+            matchingFallbacks = ['release']
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
@@ -31,22 +40,27 @@ android {
     namespace "com.tonychat.ai"
 }
 
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 dependencies {
-    implementation "androidx.core:core-ktx:1.12.0"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
+    implementation Deps.coreKtx
+    implementation Deps.coroutinesAndroid
     implementation "androidx.lifecycle:lifecycle-process:2.6.2"
-    implementation "com.squareup.okhttp3:okhttp:4.12.0"
-    implementation "com.google.code.gson:gson:2.10"
+    implementation Deps.okhttp
+    implementation Deps.gson
 
     // Room for AI response caching
     implementation "androidx.room:room-runtime:2.5.2"
     implementation "androidx.room:room-ktx:2.5.2"
     ksp "androidx.room:room-compiler:2.5.2"
 
-    testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.robolectric:robolectric:4.14.1'
+    testImplementation Deps.junit
+    testImplementation Deps.robolectric
     testImplementation 'androidx.test:core:1.5.0'
-    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
-    testImplementation 'io.mockk:mockk:1.13.8'
-    testImplementation 'com.squareup.okhttp3:mockwebserver:4.12.0'
+    testImplementation Deps.coroutinesTest
+    testImplementation Deps.mockk
+    testImplementation Deps.mockwebserver
+    testImplementation 'org.json:json:20231013'
 }

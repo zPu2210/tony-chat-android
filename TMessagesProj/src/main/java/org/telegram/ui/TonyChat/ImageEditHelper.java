@@ -71,9 +71,25 @@ public class ImageEditHelper {
 
     private static void executeRemoveBackground(Context context, File imageFile, ResultCallback callback) {
         AlertDialog loadingDialog = showLoadingDialog(context);
+        final boolean[] completed = {false};
+
+        // 30s timeout
+        Runnable timeoutRunnable = () -> {
+            if (loadingDialog.isShowing()) {
+                loadingDialog.dismiss();
+                if (!completed[0]) {
+                    Toast.makeText(context, "Request timed out", Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+        AndroidUtilities.runOnUIThread(timeoutRunnable, 30000);
 
         AiManagerBridge.INSTANCE.removeBackground(imageFile, response -> {
-            loadingDialog.dismiss();
+            completed[0] = true;
+            AndroidUtilities.cancelRunOnUIThread(timeoutRunnable);
+            if (loadingDialog.isShowing()) {
+                loadingDialog.dismiss();
+            }
 
             if (response instanceof ImageEditResponse.Success) {
                 File resultFile = ((ImageEditResponse.Success) response).getResultFile();
@@ -87,6 +103,12 @@ public class ImageEditHelper {
                 String errorMsg = ((ImageEditResponse.Error) response).getMessage();
                 Toast.makeText(context, "Error: " + errorMsg, Toast.LENGTH_LONG).show();
             }
+        });
+
+        loadingDialog.setOnCancelListener(dialog -> {
+            completed[0] = true;
+            AndroidUtilities.cancelRunOnUIThread(timeoutRunnable);
+            Toast.makeText(context, "Cancelled", Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -111,7 +133,10 @@ public class ImageEditHelper {
         layout.addView(text);
 
         builder.setView(layout);
-        return builder.show();
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(true);
+        dialog.show();
+        return dialog;
     }
 
     private static void showPreviewDialog(Context context, File original, File edited, boolean fromCache, ResultCallback callback) {
@@ -205,6 +230,18 @@ public class ImageEditHelper {
         builder.setNegativeButton("Cancel", null);
 
         AlertDialog dialog = builder.create();
+
+        // Recycle bitmap on dismiss
+        final Bitmap[] bitmapHolder = new Bitmap[1];
+        if (editedView.getDrawable() instanceof android.graphics.drawable.BitmapDrawable) {
+            bitmapHolder[0] = ((android.graphics.drawable.BitmapDrawable) editedView.getDrawable()).getBitmap();
+        }
+        dialog.setOnDismissListener(d -> {
+            if (bitmapHolder[0] != null && !bitmapHolder[0].isRecycled()) {
+                editedView.setImageBitmap(null);
+                bitmapHolder[0].recycle();
+            }
+        });
 
         btnSave.setOnClickListener(v -> {
             saveToGallery(context, edited);

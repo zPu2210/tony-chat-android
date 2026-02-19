@@ -2,6 +2,11 @@ package com.tonychat.community.auth
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
+import android.util.Base64
+import android.util.Log
 import com.google.gson.Gson
 import com.tonychat.community.BuildConfig
 import kotlinx.coroutines.Dispatchers
@@ -10,26 +15,35 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.security.KeyStore
 import java.util.concurrent.TimeUnit
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+import javax.crypto.spec.GCMParameterSpec
 
 /**
  * Manages Supabase anonymous authentication with JWT token storage
- * Replaces device-ID-only auth for better security
- *
- * Note: Uses regular SharedPreferences for token storage. For production,
- * consider adding androidx.security:security-crypto for encrypted storage
- * (requires minSdk 21+).
+ * Uses Android Keystore encryption for token security (API 23+)
  */
 object SupabaseAuthManager {
+    private const val TAG = "SupabaseAuthManager"
     private const val PREFS_NAME = "supabase_auth_prefs"
+    private const val PREFS_NAME_OLD = "supabase_auth_prefs_old" // Legacy plaintext
     private const val KEY_ACCESS_TOKEN = "access_token"
     private const val KEY_REFRESH_TOKEN = "refresh_token"
     private const val KEY_EXPIRES_AT = "expires_at"
+    private const val KEYSTORE_ALIAS = "tonychat_supabase_key"
+    private const val ANDROID_KEYSTORE = "AndroidKeyStore"
+    private const val GCM_TAG_LENGTH = 128
+    private const val GCM_IV_LENGTH = 12
 
     private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
 
     private var prefs: SharedPreferences? = null
+    private var context: Context? = null
     private val gson = Gson()
+    private var useEncryption = true
 
     private val httpClient = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
@@ -41,14 +55,22 @@ object SupabaseAuthManager {
      */
     fun init(context: Context) {
         if (prefs != null) return
+        this.context = context.applicationContext
+
+        // Try to use encryption, fall back to plaintext if Keystore fails
+        useEncryption = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+        // Migrate from old plaintext prefs if they exist
+        migrateFromPlaintext(context.applicationContext)
     }
 
     /**
      * Get valid JWT token, refreshing if needed
      */
     suspend fun getToken(): String? {
-        val token = prefs?.getString(KEY_ACCESS_TOKEN, null)
+        val encryptedToken = prefs?.getString(KEY_ACCESS_TOKEN, null)
+        val token = encryptedToken?.let { decrypt(it) }
         val expiresAt = prefs?.getLong(KEY_EXPIRES_AT, 0L) ?: 0L
 
         // Token valid for at least 5 minutes
@@ -57,7 +79,8 @@ object SupabaseAuthManager {
         }
 
         // Try refresh first
-        val refreshToken = prefs?.getString(KEY_REFRESH_TOKEN, null)
+        val encryptedRefresh = prefs?.getString(KEY_REFRESH_TOKEN, null)
+        val refreshToken = encryptedRefresh?.let { decrypt(it) }
         if (refreshToken != null) {
             val refreshed = refreshToken(refreshToken)
             if (refreshed != null) return refreshed
@@ -134,8 +157,8 @@ object SupabaseAuthManager {
             val expiresAt = System.currentTimeMillis() + (expiresIn * 1000)
 
             prefs?.edit()?.apply {
-                putString(KEY_ACCESS_TOKEN, accessToken)
-                putString(KEY_REFRESH_TOKEN, refreshToken)
+                putString(KEY_ACCESS_TOKEN, encrypt(accessToken))
+                refreshToken?.let { putString(KEY_REFRESH_TOKEN, encrypt(it)) }
                 putLong(KEY_EXPIRES_AT, expiresAt)
                 apply()
             }
@@ -152,5 +175,112 @@ object SupabaseAuthManager {
      */
     fun signOut() {
         prefs?.edit()?.clear()?.apply()
+    }
+
+    /**
+     * Migrate tokens from old plaintext storage to encrypted storage
+     */
+    private fun migrateFromPlaintext(context: Context) {
+        try {
+            val oldPrefs = context.getSharedPreferences(PREFS_NAME_OLD, Context.MODE_PRIVATE)
+            val oldAccessToken = oldPrefs.getString(KEY_ACCESS_TOKEN, null)
+            val oldRefreshToken = oldPrefs.getString(KEY_REFRESH_TOKEN, null)
+            val oldExpiresAt = oldPrefs.getLong(KEY_EXPIRES_AT, 0L)
+
+            // If old prefs exist and new prefs are empty, migrate
+            if (oldAccessToken != null && prefs?.getString(KEY_ACCESS_TOKEN, null) == null) {
+                Log.d(TAG, "Migrating tokens from plaintext to encrypted storage")
+                prefs?.edit()?.apply {
+                    putString(KEY_ACCESS_TOKEN, encrypt(oldAccessToken))
+                    oldRefreshToken?.let { putString(KEY_REFRESH_TOKEN, encrypt(it)) }
+                    putLong(KEY_EXPIRES_AT, oldExpiresAt)
+                    apply()
+                }
+                // Clear old plaintext prefs
+                oldPrefs.edit().clear().apply()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Migration failed", e)
+            // If migration fails, don't crash - just lose old tokens
+        }
+    }
+
+    /**
+     * Encrypt string using Android Keystore (API 23+) or Base64 fallback
+     */
+    private fun encrypt(plainText: String): String {
+        if (!useEncryption || Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return Base64.encodeToString(plainText.toByteArray(), Base64.NO_WRAP)
+        }
+        try {
+            val key = getOrCreateKey()
+            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            cipher.init(Cipher.ENCRYPT_MODE, key)
+            val iv = cipher.iv
+            val encrypted = cipher.doFinal(plainText.toByteArray(Charsets.UTF_8))
+            // Prepend IV to ciphertext
+            val combined = ByteArray(iv.size + encrypted.size)
+            System.arraycopy(iv, 0, combined, 0, iv.size)
+            System.arraycopy(encrypted, 0, combined, iv.size, encrypted.size)
+            return Base64.encodeToString(combined, Base64.NO_WRAP)
+        } catch (e: Exception) {
+            Log.e(TAG, "Encryption failed, falling back to Base64", e)
+            useEncryption = false
+            return Base64.encodeToString(plainText.toByteArray(), Base64.NO_WRAP)
+        }
+    }
+
+    /**
+     * Decrypt string using Android Keystore (API 23+) or Base64 fallback
+     */
+    private fun decrypt(cipherText: String): String? {
+        if (!useEncryption || Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return try {
+                String(Base64.decode(cipherText, Base64.NO_WRAP))
+            } catch (e: Exception) {
+                Log.e(TAG, "Base64 decryption failed", e)
+                null
+            }
+        }
+        try {
+            val combined = Base64.decode(cipherText, Base64.NO_WRAP)
+            val iv = combined.copyOfRange(0, GCM_IV_LENGTH)
+            val encrypted = combined.copyOfRange(GCM_IV_LENGTH, combined.size)
+            val key = getOrCreateKey()
+            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            cipher.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(GCM_TAG_LENGTH, iv))
+            return String(cipher.doFinal(encrypted), Charsets.UTF_8)
+        } catch (e: Exception) {
+            Log.e(TAG, "Decryption failed", e)
+            // Try Base64 fallback for old data
+            return try {
+                String(Base64.decode(cipherText, Base64.NO_WRAP))
+            } catch (e2: Exception) {
+                Log.e(TAG, "Base64 fallback also failed", e2)
+                null
+            }
+        }
+    }
+
+    /**
+     * Get or create encryption key in Android Keystore
+     */
+    private fun getOrCreateKey(): SecretKey {
+        val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
+        keyStore.getEntry(KEYSTORE_ALIAS, null)?.let {
+            return (it as KeyStore.SecretKeyEntry).secretKey
+        }
+        val keyGen = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEYSTORE)
+        keyGen.init(
+            KeyGenParameterSpec.Builder(
+                KEYSTORE_ALIAS,
+                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+            )
+                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                .setKeySize(256)
+                .build()
+        )
+        return keyGen.generateKey()
     }
 }

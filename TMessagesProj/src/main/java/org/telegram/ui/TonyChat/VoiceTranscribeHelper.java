@@ -50,9 +50,25 @@ public class VoiceTranscribeHelper {
 
     private static void executeTranscribe(Context context, File audioFile) {
         AlertDialog loadingDialog = showLoadingDialog(context);
+        final boolean[] completed = {false};
+
+        // 30s timeout
+        Runnable timeoutRunnable = () -> {
+            if (loadingDialog.isShowing()) {
+                loadingDialog.dismiss();
+                if (!completed[0]) {
+                    Toast.makeText(context, "Request timed out", Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+        AndroidUtilities.runOnUIThread(timeoutRunnable, 30000);
 
         AiManagerBridge.INSTANCE.transcribeVoice(audioFile, response -> {
-            loadingDialog.dismiss();
+            completed[0] = true;
+            AndroidUtilities.cancelRunOnUIThread(timeoutRunnable);
+            if (loadingDialog.isShowing()) {
+                loadingDialog.dismiss();
+            }
 
             if (response instanceof AiResponse.Success) {
                 String transcript = ((AiResponse.Success<String>) response).getData();
@@ -66,6 +82,12 @@ public class VoiceTranscribeHelper {
                 String errorMsg = ((AiResponse.Error<String>) response).getMessage();
                 Toast.makeText(context, "Transcription failed: " + errorMsg, Toast.LENGTH_LONG).show();
             }
+        });
+
+        loadingDialog.setOnCancelListener(dialog -> {
+            completed[0] = true;
+            AndroidUtilities.cancelRunOnUIThread(timeoutRunnable);
+            Toast.makeText(context, "Cancelled", Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -90,7 +112,10 @@ public class VoiceTranscribeHelper {
         layout.addView(text);
 
         builder.setView(layout);
-        return builder.show();
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(true);
+        dialog.show();
+        return dialog;
     }
 
     private static void showTranscriptDialog(Context context, String transcript, boolean fromCache) {

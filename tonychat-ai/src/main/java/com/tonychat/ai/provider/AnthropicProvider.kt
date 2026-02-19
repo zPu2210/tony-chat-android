@@ -3,7 +3,6 @@ package com.tonychat.ai.provider
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.tonychat.ai.*
-import com.tonychat.ai.security.CertificatePinnerFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -12,7 +11,10 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.concurrent.TimeUnit
 
-class AnthropicProvider(private val apiKey: String) : AiProvider {
+class AnthropicProvider(
+    private val apiKey: String,
+    private val baseUrl: String = "https://api.anthropic.com"
+) : AiProvider {
     override val name = "anthropic"
     override val isOnDevice = false
     override val isAvailable get() = apiKey.isNotBlank()
@@ -20,7 +22,6 @@ class AnthropicProvider(private val apiKey: String) : AiProvider {
     private val client = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
-        .certificatePinner(CertificatePinnerFactory.create())
         .build()
     private val gson = Gson()
     private val jsonMedia = "application/json".toMediaType()
@@ -79,7 +80,7 @@ class AnthropicProvider(private val apiKey: String) : AiProvider {
                 "messages" to messages
             ))
             val request = Request.Builder()
-                .url("https://api.anthropic.com/v1/messages")
+                .url("$baseUrl/v1/messages")
                 .header("x-api-key", apiKey)
                 .header("anthropic-version", "2023-06-01")
                 .header("content-type", "application/json")

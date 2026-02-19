@@ -69,6 +69,8 @@ public class AiConsentDialog {
             case TONE_REWRITE: return "Enable Tone Rewrite";
             case TRANSLATE: return "Enable AI Translation";
             case IMAGE_EDIT: return "Enable Background Removal";
+            case EMOJI_REMIX: return "Enable Emoji Remix";
+            case TRANSCRIBE: return "Enable Voice Transcription";
             default: return "Enable AI Feature";
         }
     }
@@ -85,6 +87,10 @@ public class AiConsentDialog {
                 return "AI Translation translates messages between languages using AI.";
             case IMAGE_EDIT:
                 return "Background Removal removes backgrounds from images using AI. Images are sent to remove.bg API for processing.";
+            case EMOJI_REMIX:
+                return "Emoji Remix uses AI to generate creative emoji combinations. Your emoji selections will be sent to Google's Gemini API for processing.";
+            case TRANSCRIBE:
+                return "Voice Transcription uses AI to convert voice messages to text. Audio files will be sent to OpenAI's Whisper API for processing.";
             default:
                 return "This feature uses AI to enhance your messaging experience.";
         }

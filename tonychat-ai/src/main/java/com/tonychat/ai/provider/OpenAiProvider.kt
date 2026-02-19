@@ -4,7 +4,6 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.tonychat.ai.*
-import com.tonychat.ai.security.CertificatePinnerFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -18,7 +17,10 @@ import org.json.JSONObject
 import java.io.File
 import java.util.concurrent.TimeUnit
 
-class OpenAiProvider(private val apiKey: String) : AiProvider {
+class OpenAiProvider(
+    private val apiKey: String,
+    private val baseUrl: String = "https://api.openai.com"
+) : AiProvider {
     override val name = "openai"
     override val isOnDevice = false
     override val isAvailable get() = apiKey.isNotBlank()
@@ -26,7 +28,6 @@ class OpenAiProvider(private val apiKey: String) : AiProvider {
     private val client = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
-        .certificatePinner(CertificatePinnerFactory.create())
         .build()
     private val gson = Gson()
     private val jsonMedia = "application/json".toMediaType()
@@ -86,7 +87,7 @@ class OpenAiProvider(private val apiKey: String) : AiProvider {
                 .build()
 
             val request = Request.Builder()
-                .url("https://api.openai.com/v1/audio/transcriptions")
+                .url("$baseUrl/v1/audio/transcriptions")
                 .header("Authorization", "Bearer $apiKey")
                 .post(requestBody)
                 .build()
@@ -126,7 +127,7 @@ class OpenAiProvider(private val apiKey: String) : AiProvider {
                 "max_tokens" to 512
             ))
             val request = Request.Builder()
-                .url("https://api.openai.com/v1/chat/completions")
+                .url("$baseUrl/v1/chat/completions")
                 .header("Authorization", "Bearer $apiKey")
                 .post(body.toRequestBody(jsonMedia))
                 .build()

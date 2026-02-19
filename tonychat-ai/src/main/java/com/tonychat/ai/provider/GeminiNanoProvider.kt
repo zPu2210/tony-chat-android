@@ -11,10 +11,10 @@ import com.tonychat.ai.*
  * NOTE: Actual Google AI Edge SDK integration deferred until we can test on a physical device.
  * This is a structural placeholder that returns Unavailable until SDK is wired.
  */
-class GeminiNanoProvider(private val context: Context) : AiProvider {
+class GeminiNanoProvider(private val _context: Context) : AiProvider {
     override val name = "gemini-nano"
     override val isOnDevice = true
-    override val isAvailable: Boolean get() = checkAvailability(context)
+    override val isAvailable: Boolean get() = checkAvailability(_context)
 
     override suspend fun generateReply(context: List<AiMessage>, count: Int): AiResponse<List<String>> {
         if (!isAvailable) return AiResponse.Unavailable()

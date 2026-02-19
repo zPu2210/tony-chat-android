@@ -48,6 +48,8 @@ public class AiSettingsActivity extends BaseFragment {
     private int apiKeysHeaderRow;
     private int openAiKeyRow;
     private int anthropicKeyRow;
+    private int removeBgKeyRow;
+    private int geminiKeyRow;
     private int apiKeysSectionRow;
     private int preferencesHeaderRow;
     private int preferOnDeviceRow;
@@ -75,6 +77,8 @@ public class AiSettingsActivity extends BaseFragment {
         apiKeysHeaderRow = rowCount++;
         openAiKeyRow = rowCount++;
         anthropicKeyRow = rowCount++;
+        removeBgKeyRow = rowCount++;
+        geminiKeyRow = rowCount++;
         apiKeysSectionRow = rowCount++;
         preferencesHeaderRow = rowCount++;
         preferOnDeviceRow = rowCount++;
@@ -131,6 +135,18 @@ public class AiSettingsActivity extends BaseFragment {
                 AiConfig.INSTANCE.setAnthropicApiKey(key);
                 AiManager.INSTANCE.refreshProviders();
                 if (listAdapter != null) listAdapter.notifyItemChanged(anthropicKeyRow);
+            });
+        } else if (position == removeBgKeyRow) {
+            showApiKeyDialog("Remove.bg API Key", AiConfig.INSTANCE.getRemoveBgApiKey(), key -> {
+                AiConfig.INSTANCE.setRemoveBgApiKey(key);
+                AiManager.INSTANCE.refreshProviders();
+                if (listAdapter != null) listAdapter.notifyItemChanged(removeBgKeyRow);
+            });
+        } else if (position == geminiKeyRow) {
+            showApiKeyDialog("Gemini API Key", AiConfig.INSTANCE.getGeminiApiKey(), key -> {
+                AiConfig.INSTANCE.setGeminiApiKey(key);
+                AiManager.INSTANCE.refreshProviders();
+                if (listAdapter != null) listAdapter.notifyItemChanged(geminiKeyRow);
             });
         } else if (position == preferOnDeviceRow) {
             boolean newValue = !AiConfig.INSTANCE.getPreferOnDevice();
@@ -336,7 +352,13 @@ public class AiSettingsActivity extends BaseFragment {
                         cell.setTextAndValue("OpenAI", key != null ? "Configured" : "Not set", true);
                     } else if (position == anthropicKeyRow) {
                         String key = AiConfig.INSTANCE.getAnthropicApiKey();
-                        cell.setTextAndValue("Anthropic", key != null ? "Configured" : "Not set", false);
+                        cell.setTextAndValue("Anthropic", key != null ? "Configured" : "Not set", true);
+                    } else if (position == removeBgKeyRow) {
+                        String key = AiConfig.INSTANCE.getRemoveBgApiKey();
+                        cell.setTextAndValue("Remove.bg", key != null ? "Configured" : "Not set", true);
+                    } else if (position == geminiKeyRow) {
+                        String key = AiConfig.INSTANCE.getGeminiApiKey();
+                        cell.setTextAndValue("Gemini", key != null ? "Configured" : "Not set", false);
                     } else if (position == clearCacheRow) {
                         cell.setText("Clear AI Cache", false);
                     }
