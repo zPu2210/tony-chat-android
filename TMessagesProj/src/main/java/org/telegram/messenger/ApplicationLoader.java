@@ -266,6 +266,18 @@ public class ApplicationLoader extends Application {
             applicationContext = getApplicationContext();
         }
 
+        // Initialize Tony Chat modules before Telegram subsystems
+        try {
+            com.tonychat.core.TonyConfig.INSTANCE.init(applicationContext);
+        } catch (Exception e) {
+            FileLog.e("TonyConfig init failed", e);
+        }
+        try {
+            com.tonychat.ai.AiManager.INSTANCE.init(applicationContext);
+        } catch (Exception e) {
+            FileLog.e("AiManager init failed", e);
+        }
+
         NativeLoader.initNativeLibs(ApplicationLoader.applicationContext);
         try {
             ConnectionsManager.native_setJava(false);

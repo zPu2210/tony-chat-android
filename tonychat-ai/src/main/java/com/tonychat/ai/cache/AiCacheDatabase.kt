@@ -76,6 +76,7 @@ abstract class AiCacheDatabase : RoomDatabase() {
                     "tonychat_ai_cache.db"
                 )
                 .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                .fallbackToDestructiveMigration()
                 .build().also { INSTANCE = it }
             }
         }
