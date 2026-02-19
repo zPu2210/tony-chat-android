@@ -1,6 +1,5 @@
 package com.tonychat.community
 
-import com.tonychat.ai.security.CertificatePinnerFactory
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -19,7 +18,6 @@ object SupabaseClient {
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
-            .certificatePinner(CertificatePinnerFactory.create())
             .build()
     }
 

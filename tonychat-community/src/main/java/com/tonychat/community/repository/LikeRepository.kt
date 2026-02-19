@@ -1,5 +1,6 @@
 package com.tonychat.community.repository
 
+import android.util.Log
 import com.google.gson.Gson
 import com.tonychat.community.SupabaseClient
 import com.tonychat.community.SupabaseResult
@@ -12,6 +13,10 @@ import kotlinx.coroutines.withContext
  */
 class LikeRepository {
     private val gson = Gson()
+
+    companion object {
+        private const val TAG = "LikeRepository"
+    }
 
     /**
      * Like a post
@@ -27,16 +32,16 @@ class LikeRepository {
             when (val result = SupabaseClient.execute(httpRequest)) {
                 is SupabaseResult.Success -> true
                 is SupabaseResult.Error -> {
-                    println("Supabase error ${result.code}: ${result.message}")
+                    Log.w(TAG, "Supabase error ${result.code}: ${result.message}")
                     false
                 }
                 is SupabaseResult.NetworkError -> {
-                    result.exception.printStackTrace()
+                    Log.w(TAG, "Network error", result.exception)
                     false
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.w(TAG, "Operation failed", e)
             false
         }
     }
@@ -60,16 +65,16 @@ class LikeRepository {
             when (val result = SupabaseClient.execute(request)) {
                 is SupabaseResult.Success -> true
                 is SupabaseResult.Error -> {
-                    println("Supabase error ${result.code}: ${result.message}")
+                    Log.w(TAG, "Supabase error ${result.code}: ${result.message}")
                     false
                 }
                 is SupabaseResult.NetworkError -> {
-                    result.exception.printStackTrace()
+                    Log.w(TAG, "Network error", result.exception)
                     false
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.w(TAG, "Operation failed", e)
             false
         }
     }

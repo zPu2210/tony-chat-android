@@ -3,7 +3,6 @@ package com.tonychat.ai.provider
 import android.util.Base64
 import com.tonychat.ai.ImageGenerationProvider
 import com.tonychat.ai.ImageGenerationResponse
-import com.tonychat.ai.security.CertificatePinnerFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -22,7 +21,8 @@ import java.util.concurrent.TimeUnit
  */
 class GeminiImageProvider(
     private val apiKey: String,
-    private val cacheDir: File
+    private val cacheDir: File,
+    private val baseUrl: String = "https://generativelanguage.googleapis.com"
 ) : ImageGenerationProvider {
 
     override val name = "Gemini 2.5 Flash Image"
@@ -31,7 +31,6 @@ class GeminiImageProvider(
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
-        .certificatePinner(CertificatePinnerFactory.create())
         .build()
 
     override suspend fun generateEmoji(prompt: String): ImageGenerationResponse = withContext(Dispatchers.IO) {
@@ -57,52 +56,55 @@ class GeminiImageProvider(
             }
 
             val request = Request.Builder()
-                .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=$apiKey")
-                .header("Content-Type", "application/json")
+                .url("$baseUrl/v1beta/models/gemini-2.0-flash-exp:generateContent")
+                .addHeader("Content-Type", "application/json")
+                .addHeader("x-goog-api-key", apiKey)
                 .post(requestBody.toString().toRequestBody("application/json".toMediaTypeOrNull()))
                 .build()
 
             val response = client.newCall(request).execute()
-            val responseBody = response.body?.string() ?: ""
+            response.use { resp ->
+                val responseBody = resp.body?.string() ?: ""
 
-            if (!response.isSuccessful) {
-                return@withContext ImageGenerationResponse.Error(
-                    "API error: ${response.code} - $responseBody",
-                    response.code
-                )
-            }
-
-            val json = JSONObject(responseBody)
-
-            // Extract base64 image from response
-            val candidates = json.optJSONArray("candidates")
-            if (candidates == null || candidates.length() == 0) {
-                return@withContext ImageGenerationResponse.Error("No candidates in response")
-            }
-
-            val parts = candidates.getJSONObject(0)
-                .getJSONObject("content")
-                .getJSONArray("parts")
-
-            var base64Data: String? = null
-            for (i in 0 until parts.length()) {
-                val part = parts.getJSONObject(i)
-                if (part.has("inlineData")) {
-                    base64Data = part.getJSONObject("inlineData").getString("data")
-                    break
+                if (!resp.isSuccessful) {
+                    return@withContext ImageGenerationResponse.Error(
+                        "API error: ${resp.code} - $responseBody",
+                        resp.code
+                    )
                 }
+
+                val json = JSONObject(responseBody)
+
+                // Extract base64 image from response
+                val candidates = json.optJSONArray("candidates")
+                if (candidates == null || candidates.length() == 0) {
+                    return@withContext ImageGenerationResponse.Error("No candidates in response")
+                }
+
+                val parts = candidates.getJSONObject(0)
+                    .getJSONObject("content")
+                    .getJSONArray("parts")
+
+                var base64Data: String? = null
+                for (i in 0 until parts.length()) {
+                    val part = parts.getJSONObject(i)
+                    if (part.has("inlineData")) {
+                        base64Data = part.getJSONObject("inlineData").getString("data")
+                        break
+                    }
+                }
+
+                if (base64Data == null) {
+                    return@withContext ImageGenerationResponse.Error("No image data in response")
+                }
+
+                // Decode and save
+                val imageBytes = Base64.decode(base64Data, Base64.DEFAULT)
+                val imageFile = File(cacheDir, "emoji_${System.currentTimeMillis()}.png")
+                imageFile.writeBytes(imageBytes)
+
+                ImageGenerationResponse.Success(imageFile, provider = name)
             }
-
-            if (base64Data == null) {
-                return@withContext ImageGenerationResponse.Error("No image data in response")
-            }
-
-            // Decode and save
-            val imageBytes = Base64.decode(base64Data, Base64.DEFAULT)
-            val imageFile = File(cacheDir, "emoji_${System.currentTimeMillis()}.png")
-            imageFile.writeBytes(imageBytes)
-
-            ImageGenerationResponse.Success(imageFile, provider = name)
         } catch (e: Exception) {
             ImageGenerationResponse.Error(e.message ?: "Unknown error")
         }

@@ -1,5 +1,6 @@
 package com.tonychat.community.repository
 
+import android.util.Log
 import com.tonychat.community.SupabaseClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -15,6 +16,10 @@ import java.util.UUID
  */
 class ImageUploader {
     private val bucketName = "community-images"
+
+    companion object {
+        private const val TAG = "ImageUploader"
+    }
 
     /**
      * Upload image to Supabase Storage
@@ -53,7 +58,7 @@ class ImageUploader {
                 null
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.w(TAG, "Image upload failed", e)
             null
         }
     }

@@ -2,6 +2,7 @@ package com.tonychat.ai
 
 import android.content.Context
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.tonychat.ai.cache.AiCacheDao
@@ -38,6 +39,31 @@ object AiManager {
     private var cloudProvider: AiProvider = NoOpProvider()
     private var removeBgProvider: ImageEditProvider? = null
     private var emojiProvider: ImageGenerationProvider? = null
+
+    /** Reset singleton state for testing */
+    @VisibleForTesting
+    internal fun resetForTesting() {
+        onDeviceProvider = NoOpProvider()
+        cloudProvider = NoOpProvider()
+        removeBgProvider = null
+        emojiProvider = null
+    }
+
+    /** Inject cache DAO for testing */
+    @VisibleForTesting
+    internal fun setCacheForTesting(
+        cacheDao: AiCacheDao,
+        imageEditDao: ImageEditCacheDao,
+        emojiDao: EmojiCacheDao,
+        transcriptDao: TranscriptCacheDao,
+        limiter: RateLimiter
+    ) {
+        cache = cacheDao
+        imageEditCache = imageEditDao
+        emojiCache = emojiDao
+        transcriptCache = transcriptDao
+        rateLimiter = limiter
+    }
 
     fun init(appContext: Context) {
         AiConfig.init(appContext)

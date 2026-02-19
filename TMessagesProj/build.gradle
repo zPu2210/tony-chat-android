@@ -68,10 +68,6 @@ android {
         disable 'BlockedPrivateApi'
     }
 
-    dexOptions {
-        jumboMode = true
-    }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -84,7 +80,7 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 34
-        versionName "8.9.0"
+        versionName APP_VERSION_NAME
 
         vectorDrawables.generatedDensities = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi']
 

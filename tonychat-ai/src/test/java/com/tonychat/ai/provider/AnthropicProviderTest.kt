@@ -19,7 +19,7 @@ class AnthropicProviderTest {
     fun setup() {
         mockServer = MockWebServer()
         mockServer.start()
-        provider = AnthropicProvider(testApiKey)
+        provider = AnthropicProvider(testApiKey, mockServer.url("/").toString().removeSuffix("/"))
     }
 
     @After
@@ -198,7 +198,7 @@ class AnthropicProviderTest {
 
     @Test
     fun `provider is unavailable when API key is blank`() {
-        val emptyProvider = AnthropicProvider("")
+        val emptyProvider = AnthropicProvider("", mockServer.url("/").toString().removeSuffix("/"))
         assertFalse(emptyProvider.isAvailable)
     }
 

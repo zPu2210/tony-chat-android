@@ -22,7 +22,7 @@ class OpenAiProviderTest {
     fun setup() {
         mockServer = MockWebServer()
         mockServer.start()
-        provider = OpenAiProvider(testApiKey)
+        provider = OpenAiProvider(testApiKey, mockServer.url("/").toString().removeSuffix("/"))
     }
 
     @After
@@ -178,39 +178,43 @@ class OpenAiProviderTest {
     }
 
     @Test
-    fun `transcribe returns success with valid audio file`() = runBlocking {
-        val mockResponse = MockResponse()
-            .setResponseCode(200)
-            .setBody("""{"text": "This is a transcribed audio message"}""")
-        mockServer.enqueue(mockResponse)
+    fun `transcribe returns success with valid audio file`() {
+        runBlocking {
+            val mockResponse = MockResponse()
+                .setResponseCode(200)
+                .setBody("""{"text": "This is a transcribed audio message"}""")
+            mockServer.enqueue(mockResponse)
 
-        val tempFile = File.createTempFile("test_audio", ".ogg")
-        tempFile.writeText("fake audio data")
+            val tempFile = File.createTempFile("test_audio", ".ogg")
+            tempFile.writeText("fake audio data")
 
-        val result = provider.transcribe(tempFile)
+            val result = provider.transcribe(tempFile)
 
-        assertTrue(result is AiResponse.Success)
-        assertEquals("This is a transcribed audio message", (result as AiResponse.Success).data)
+            assertTrue(result is AiResponse.Success)
+            assertEquals("This is a transcribed audio message", (result as AiResponse.Success).data)
 
-        tempFile.delete()
+            tempFile.delete()
+        }
     }
 
     @Test
-    fun `transcribe returns error for file too large`() = runBlocking {
-        val mockResponse = MockResponse()
-            .setResponseCode(413)
-            .setBody("""{"error": "File too large"}""")
-        mockServer.enqueue(mockResponse)
+    fun `transcribe returns error for file too large`() {
+        runBlocking {
+            val mockResponse = MockResponse()
+                .setResponseCode(413)
+                .setBody("""{"error": "File too large"}""")
+            mockServer.enqueue(mockResponse)
 
-        val tempFile = File.createTempFile("test_audio", ".ogg")
-        tempFile.writeText("fake audio data")
+            val tempFile = File.createTempFile("test_audio", ".ogg")
+            tempFile.writeText("fake audio data")
 
-        val result = provider.transcribe(tempFile)
+            val result = provider.transcribe(tempFile)
 
-        assertTrue(result is AiResponse.Error)
-        assertEquals(413, (result as AiResponse.Error).code)
+            assertTrue(result is AiResponse.Error)
+            assertEquals(413, (result as AiResponse.Error).code)
 
-        tempFile.delete()
+            tempFile.delete()
+        }
     }
 
     @Test
@@ -222,7 +226,7 @@ class OpenAiProviderTest {
 
     @Test
     fun `provider is unavailable when API key is blank`() {
-        val emptyProvider = OpenAiProvider("")
+        val emptyProvider = OpenAiProvider("", mockServer.url("/").toString().removeSuffix("/"))
         assertFalse(emptyProvider.isAvailable)
     }
 }

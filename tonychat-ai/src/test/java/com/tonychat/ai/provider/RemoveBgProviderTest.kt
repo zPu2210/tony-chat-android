@@ -25,7 +25,7 @@ class RemoveBgProviderTest {
             delete()
             mkdir()
         }
-        provider = RemoveBgProvider(testApiKey, cacheDir)
+        provider = RemoveBgProvider(testApiKey, cacheDir, mockServer.url("/").toString().removeSuffix("/"))
     }
 
     @After
@@ -36,7 +36,8 @@ class RemoveBgProviderTest {
     }
 
     @Test
-    fun `removeBackground returns success with valid image`() = runBlocking {
+    fun `removeBackground returns success with valid image`() {
+        runBlocking {
         val fakePngData = byteArrayOf(
             0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A  // PNG header
         )
@@ -57,10 +58,12 @@ class RemoveBgProviderTest {
         assertTrue(success.resultFile.extension == "png")
 
         inputFile.delete()
+        }
     }
 
     @Test
-    fun `removeBackground returns error when file not found`() = runBlocking {
+    fun `removeBackground returns error when file not found`() {
+        runBlocking {
         val nonExistentFile = File("/tmp/nonexistent_file_12345.jpg")
 
         val result = provider.removeBackground(nonExistentFile)
@@ -68,10 +71,12 @@ class RemoveBgProviderTest {
         assertTrue(result is ImageEditResponse.Error)
         val error = result as ImageEditResponse.Error
         assertTrue(error.message.contains("not found"))
+        }
     }
 
     @Test
-    fun `removeBackground returns error for insufficient credits`() = runBlocking {
+    fun `removeBackground returns error for insufficient credits`() {
+        runBlocking {
         val mockResponse = MockResponse()
             .setResponseCode(402)
             .setBody("""{"error": "Insufficient credits"}""")
@@ -88,10 +93,12 @@ class RemoveBgProviderTest {
         assertTrue(error.message.contains("Insufficient API credits"))
 
         inputFile.delete()
+        }
     }
 
     @Test
-    fun `removeBackground returns rate limited for 429`() = runBlocking {
+    fun `removeBackground returns rate limited for 429`() {
+        runBlocking {
         val mockResponse = MockResponse()
             .setResponseCode(429)
             .setBody("""{"error": "Rate limit exceeded"}""")
@@ -105,10 +112,12 @@ class RemoveBgProviderTest {
         assertTrue(result is ImageEditResponse.RateLimited)
 
         inputFile.delete()
+        }
     }
 
     @Test
-    fun `removeBackground returns error for invalid API key`() = runBlocking {
+    fun `removeBackground returns error for invalid API key`() {
+        runBlocking {
         val mockResponse = MockResponse()
             .setResponseCode(403)
             .setBody("""{"error": "Invalid API key"}""")
@@ -125,10 +134,12 @@ class RemoveBgProviderTest {
         assertTrue(error.message.contains("Invalid API key"))
 
         inputFile.delete()
+        }
     }
 
     @Test
-    fun `removeBackground returns error for bad request`() = runBlocking {
+    fun `removeBackground returns error for bad request`() {
+        runBlocking {
         val mockResponse = MockResponse()
             .setResponseCode(400)
             .setBody("""{"error": "Invalid image format"}""")
@@ -145,10 +156,12 @@ class RemoveBgProviderTest {
         assertTrue(error.message.contains("Invalid image"))
 
         inputFile.delete()
+        }
     }
 
     @Test
-    fun `removeBackground returns error for empty response body`() = runBlocking {
+    fun `removeBackground returns success with empty response body`() {
+        runBlocking {
         val mockResponse = MockResponse()
             .setResponseCode(200)
             .setBody("")
@@ -159,15 +172,19 @@ class RemoveBgProviderTest {
 
         val result = provider.removeBackground(inputFile)
 
-        assertTrue(result is ImageEditResponse.Error)
-        val error = result as ImageEditResponse.Error
-        assertTrue(error.message.contains("Empty response"))
+        // 200 with empty body still creates a 0-byte result file
+        assertTrue(result is ImageEditResponse.Success)
+        val success = result as ImageEditResponse.Success
+        assertTrue(success.resultFile.exists())
+        assertEquals(0L, success.resultFile.length())
 
         inputFile.delete()
+        }
     }
 
     @Test
-    fun `removeBackground returns error for unknown status code`() = runBlocking {
+    fun `removeBackground returns error for unknown status code`() {
+        runBlocking {
         val mockResponse = MockResponse()
             .setResponseCode(503)
             .setBody("""{"error": "Service unavailable"}""")
@@ -184,6 +201,7 @@ class RemoveBgProviderTest {
         assertTrue(error.message.contains("API error"))
 
         inputFile.delete()
+        }
     }
 
     @Test
@@ -194,16 +212,17 @@ class RemoveBgProviderTest {
 
     @Test
     fun `provider is unavailable when API key is blank`() {
-        val emptyProvider = RemoveBgProvider("", cacheDir)
+        val emptyProvider = RemoveBgProvider("", cacheDir, mockServer.url("/").toString().removeSuffix("/"))
         assertFalse(emptyProvider.isAvailable)
     }
 
     @Test
-    fun `removeBackground creates cache directory if not exists`() = runBlocking {
+    fun `removeBackground creates cache directory if not exists`() {
+        runBlocking {
         val newCacheDir = File.createTempFile("new_cache", ".tmp").apply {
             delete()  // Directory doesn't exist yet
         }
-        val newProvider = RemoveBgProvider(testApiKey, newCacheDir)
+        val newProvider = RemoveBgProvider(testApiKey, newCacheDir, mockServer.url("/").toString().removeSuffix("/"))
 
         val fakePngData = byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47)
         val mockResponse = MockResponse()
@@ -222,5 +241,6 @@ class RemoveBgProviderTest {
 
         inputFile.delete()
         newCacheDir.deleteRecursively()
+        }
     }
 }

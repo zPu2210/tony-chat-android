@@ -5,6 +5,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.tonychat.ai.cache.AiCacheDao
 import com.tonychat.ai.cache.AiCacheDatabase
 import com.tonychat.ai.cache.AiCacheEntity
+import com.tonychat.ai.config.AiConfig
 import com.tonychat.ai.consent.AiConsentManager
 import com.tonychat.ai.provider.NoOpProvider
 import com.tonychat.ai.provider.OpenAiProvider
@@ -31,13 +32,25 @@ class AiManagerTest {
     fun setup() {
         context = ApplicationProvider.getApplicationContext()
 
+        // Reset singleton state
+        AiManager.resetForTesting()
+
         // Mock dependencies
         mockCacheDao = mockk(relaxed = true)
         mockRateLimiter = mockk(relaxed = true)
+        coEvery { mockRateLimiter.tryAcquire(any()) } returns true
 
         // Mock static objects
         mockkObject(AiConsentManager)
         every { AiConsentManager.hasConsent(any()) } returns true
+
+        // Mock AiConfig early — before init() calls refreshProviders()
+        mockkObject(AiConfig)
+        every { AiConfig.openAiApiKey } returns null
+        every { AiConfig.anthropicApiKey } returns null
+        every { AiConfig.removeBgApiKey } returns null
+        every { AiConfig.geminiApiKey } returns null
+        every { AiConfig.preferOnDevice } returns false
 
         mockkObject(AiCacheDatabase)
         val mockDb = mockk<AiCacheDatabase>(relaxed = true)
@@ -46,6 +59,16 @@ class AiManagerTest {
         every { mockDb.imageEditCacheDao() } returns mockk(relaxed = true)
         every { mockDb.emojiCacheDao() } returns mockk(relaxed = true)
         every { mockDb.transcriptCacheDao() } returns mockk(relaxed = true)
+
+        // Initialize and inject mocks
+        AiManager.init(context)
+        AiManager.setCacheForTesting(
+            mockCacheDao,
+            mockk(relaxed = true),
+            mockk(relaxed = true),
+            mockk(relaxed = true),
+            mockRateLimiter
+        )
     }
 
     @After
@@ -57,7 +80,6 @@ class AiManagerTest {
     fun `generateReply returns ConsentRequired when consent not given`() = runBlocking {
         every { AiConsentManager.hasConsent(AiFeatureType.SMART_REPLY) } returns false
 
-        AiManager.init(context)
         val result = AiManager.generateReply(listOf(AiMessage("Test", true)), 3)
 
         assertTrue(result is AiResponse.ConsentRequired)
@@ -65,6 +87,7 @@ class AiManagerTest {
 
     @Test
     fun `summarize returns cached result when available`() = runBlocking {
+        // Mock cache with 2-arg version (hash + now default param)
         val cachedEntity = AiCacheEntity(
             queryHash = "test-hash",
             feature = AiFeatureType.SUMMARY.name,
@@ -72,140 +95,102 @@ class AiManagerTest {
             createdAt = System.currentTimeMillis(),
             ttlHours = 168
         )
-        coEvery { mockCacheDao.getCached(any()) } returns cachedEntity
+        coEvery { mockCacheDao.getCached(any(), any()) } returns cachedEntity
 
-        AiManager.init(context)
         val messages = listOf(AiMessage("Test message", true))
         val result = AiManager.summarize(messages, 150)
 
-        assertTrue(result is AiResponse.Success)
+        assertTrue("Expected Success but got ${result::class.simpleName}", result is AiResponse.Success)
         assertEquals("Cached summary result", (result as AiResponse.Success).data)
         assertTrue(result.fromCache)
     }
 
     @Test
     fun `summarize returns RateLimited when rate limit exceeded`() = runBlocking {
-        mockkObject(AiManager)
-        every { AiConsentManager.hasConsent(AiFeatureType.SUMMARY) } returns true
-
-        // Create a mock RateLimiter that returns false
-        val mockLimiter = mockk<RateLimiter>()
-        every { mockLimiter.tryAcquire(AiFeatureType.SUMMARY) } returns false
-
-        AiManager.init(context)
-
-        // We need to simulate rate limiting at the orchestration level
-        // This test validates the orchestration logic
-        every { AiConsentManager.hasConsent(any()) } returns true
+        coEvery { mockRateLimiter.tryAcquire(AiFeatureType.SUMMARY) } returns false
 
         val messages = listOf(AiMessage("Test", true))
+        val result = AiManager.summarize(messages, 150)
 
-        // Since we can't easily inject the rate limiter, this test validates
-        // that the code path exists. In a real scenario, we'd refactor
-        // AiManager to accept dependencies via constructor.
-
-        // For now, verify the flow exists by checking the code structure
-        assertTrue(true) // Placeholder - would need dependency injection to test properly
+        assertTrue(result is AiResponse.RateLimited)
     }
 
     @Test
-    fun `rewriteTone caches successful responses`() = runBlocking {
+    fun `rewriteTone returns Unavailable when no provider configured`() = runBlocking {
+        // Ensure no cache hit and no provider
         coEvery { mockCacheDao.getCached(any()) } returns null
-        coEvery { mockCacheDao.insert(any()) } just Runs
+        coEvery { mockCacheDao.getCached(any(), any()) } returns null
+        AiManager.resetForTesting()
 
-        AiManager.init(context)
+        val result = AiManager.rewriteTone("Test", ToneStyle.FORMAL)
 
-        // This test validates that cache insertion is called
-        // Full integration would require a real provider
-        assertTrue(true) // Placeholder
+        assertTrue("Expected Unavailable but got ${result::class.simpleName}", result is AiResponse.Unavailable)
     }
 
     @Test
     fun `translate returns Unavailable when no provider configured`() = runBlocking {
+        // Ensure no cache hit and no provider
         coEvery { mockCacheDao.getCached(any()) } returns null
-
-        AiManager.init(context)
-        AiManager.refreshProviders() // No API keys set
+        coEvery { mockCacheDao.getCached(any(), any()) } returns null
+        AiManager.resetForTesting()
 
         val result = AiManager.translate("Hello", "en", "fr")
 
-        assertTrue(result is AiResponse.Unavailable)
+        assertTrue("Expected Unavailable but got ${result::class.simpleName}", result is AiResponse.Unavailable)
     }
 
     @Test
     fun `clearCache deletes all cached entries`() = runBlocking {
         coEvery { mockCacheDao.clearAll() } just Runs
 
-        AiManager.init(context)
         AiManager.clearCache()
 
-        // Wait a bit for coroutine to complete
         Thread.sleep(100)
 
         coVerify(timeout = 1000) { mockCacheDao.clearAll() }
     }
 
     @Test
-    fun `refreshProviders creates OpenAiProvider when key is set`() = runBlocking {
-        mockkObject(com.tonychat.ai.config.AiConfig)
-        every { com.tonychat.ai.config.AiConfig.openAiApiKey } returns "sk-test-key"
-        every { com.tonychat.ai.config.AiConfig.anthropicApiKey } returns null
-        every { com.tonychat.ai.config.AiConfig.removeBgApiKey } returns null
-        every { com.tonychat.ai.config.AiConfig.geminiApiKey } returns null
-        every { com.tonychat.ai.config.AiConfig.preferOnDevice } returns false
+    fun `refreshProviders updates providers based on API keys`() = runBlocking {
+        every { AiConfig.openAiApiKey } returns "sk-test-key"
 
-        AiManager.init(context)
         AiManager.refreshProviders()
 
-        // Verify provider is configured (would need reflection or getter to fully test)
-        assertTrue(true) // Placeholder - validates code path exists
+        // After refresh with OpenAI key, translate should not return Unavailable
+        val result = AiManager.translate("Hello", "en", "fr")
+
+        // Provider is available but will fail without real API - verify not Unavailable
+        assertTrue(result is AiResponse.Error || result is AiResponse.Success)
     }
 
     @Test
     fun `init evicts expired cache entries on startup`() = runBlocking {
-        coEvery { mockCacheDao.evictExpired() } just Runs
+        coEvery { mockCacheDao.evictExpired(any()) } just Runs
 
-        AiManager.init(context)
-
-        // Wait for background coroutine
+        // Init is called in setup(), eviction happens in background
         Thread.sleep(200)
 
-        coVerify(timeout = 1000) { mockCacheDao.evictExpired() }
+        coVerify(timeout = 1000) { mockCacheDao.evictExpired(any()) }
     }
 
     @Test
-    fun `pickProvider prefers on-device when enabled`() {
-        // This test validates the provider selection logic exists
-        // Full testing would require exposing pickProvider or using reflection
-
-        mockkObject(com.tonychat.ai.config.AiConfig)
-        every { com.tonychat.ai.config.AiConfig.preferOnDevice } returns true
-
-        AiManager.init(context)
-
-        // Validates the preferOnDevice config is respected in code
-        assertTrue(true) // Placeholder
-    }
-
-    @Test
-    fun `cacheHash generates consistent hashes`() {
-        // This test would validate hash generation is deterministic
-        // Would require exposing the private method or using reflection
-
-        AiManager.init(context)
-
-        // Validates cache key generation logic exists
-        assertTrue(true) // Placeholder
-    }
-
-    @Test
-    fun `executeWithCache skips cache when ttl is zero`() = runBlocking {
-        // Smart reply has ttl of 0, should not cache
-        AiManager.init(context)
-
+    fun `generateReply bypasses cache with zero TTL`() = runBlocking {
+        // Smart reply has ttl of 0, should not attempt cache operations
         val result = AiManager.generateReply(listOf(AiMessage("Test", true)), 3)
 
-        // Should not attempt cache read for zero-ttl features
-        coVerify(exactly = 0) { mockCacheDao.getCached(any()) }
+        // Should not attempt cache read/write for zero-ttl features
+        coVerify(exactly = 0) { mockCacheDao.getCached(any(), any()) }
+        coVerify(exactly = 0) { mockCacheDao.insert(any()) }
+    }
+
+    @Test
+    fun `clearCache invokes cache deletion`() = runBlocking {
+        coEvery { mockCacheDao.clearAll() } just Runs
+
+        AiManager.clearCache()
+
+        Thread.sleep(150)
+
+        coVerify(timeout = 1000) { mockCacheDao.clearAll() }
     }
 }

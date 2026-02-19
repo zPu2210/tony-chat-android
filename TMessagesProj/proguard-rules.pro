@@ -119,3 +119,7 @@
 -keep class com.tonychat.community.model.** { *; }
 -keep class com.tonychat.ai.model.** { *; }
 -keepclassmembers class * { @com.google.gson.annotations.SerializedName <fields>; }
+
+# Guava j2objc annotations (compile-time only, not needed on Android)
+-dontwarn com.google.j2objc.annotations.RetainedWith
+-dontwarn com.google.j2objc.annotations.Weak

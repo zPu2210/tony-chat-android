@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.tonychat.community.CommunityBridge;
+import com.tonychat.community.DeviceIdHelper;
 import com.tonychat.community.model.Comment;
 import com.tonychat.community.model.CreateCommentRequest;
 import com.tonychat.community.model.Post;
@@ -40,8 +41,10 @@ import java.util.TimeZone;
  * Post detail view showing full content, comments, and like functionality.
  */
 public class PostDetailFragment extends BaseFragment {
-    private final Post post;
-    private final String deviceId;
+    private static final String ARG_POST_JSON = "post_json";
+
+    private Post post;
+    private String deviceId;
 
     private RecyclerView commentsRecyclerView;
     private CommentAdapter commentAdapter;
@@ -52,14 +55,41 @@ public class PostDetailFragment extends BaseFragment {
 
     private List<Comment> comments = new ArrayList<>();
 
-    public PostDetailFragment(Post post, String deviceId) {
-        this.post = post;
-        this.deviceId = deviceId;
+    public static PostDetailFragment newInstance(Post post) {
+        PostDetailFragment fragment = new PostDetailFragment();
+        android.os.Bundle args = new android.os.Bundle();
+        // Serialize Post to JSON using Gson
+        args.putString(ARG_POST_JSON, new com.google.gson.Gson().toJson(post));
+        fragment.arguments = args;
+        return fragment;
+    }
+
+    public PostDetailFragment() {
+        // Required empty constructor
     }
 
     @Override
     public boolean onFragmentCreate() {
         super.onFragmentCreate();
+
+        android.os.Bundle args = getArguments();
+        if (args == null) {
+            return false;
+        }
+
+        String postJson = args.getString(ARG_POST_JSON);
+        if (postJson == null) {
+            return false;
+        }
+
+        // Deserialize Post from JSON
+        try {
+            post = new com.google.gson.Gson().fromJson(postJson, Post.class);
+            deviceId = DeviceIdHelper.INSTANCE.getDeviceId(getParentActivity());
+        } catch (Exception e) {
+            return false;
+        }
+
         return true;
     }
 
