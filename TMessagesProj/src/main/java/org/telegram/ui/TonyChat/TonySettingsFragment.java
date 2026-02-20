@@ -11,6 +11,7 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -89,6 +90,7 @@ public class TonySettingsFragment extends BaseFragment {
         buildGhostModeCard(context);
         buildSettingsGroup1(context);
         buildSettingsGroup2(context);
+        buildQuickActionsGroup(context);
         buildSettingsGroup3(context);
 
         return fragmentView;
@@ -118,6 +120,8 @@ public class TonySettingsFragment extends BaseFragment {
         if (user != null) {
             avatarDrawable.setInfo(user);
             avatarView.setForUserOrChat(user, avatarDrawable);
+            String userName = ContactsController.formatName(user.first_name, user.last_name);
+            avatarView.setContentDescription(userName + " avatar");
         }
         inner.addView(avatarView, LayoutHelper.createLinear(56, 56, Gravity.CENTER_VERTICAL, 0, 0, 14, 0));
 
@@ -163,10 +167,11 @@ public class TonySettingsFragment extends BaseFragment {
         inner.addView(textCol, new LinearLayout.LayoutParams(
             0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        // Chevron
+        // Chevron (decorative)
         ImageView chevron = new ImageView(context);
         chevron.setImageResource(R.drawable.msg_arrowright);
         chevron.setColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
+        chevron.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         inner.addView(chevron, LayoutHelper.createLinear(24, 24, Gravity.CENTER_VERTICAL));
 
         card.addView(inner, LayoutHelper.createFrame(
@@ -197,10 +202,11 @@ public class TonySettingsFragment extends BaseFragment {
             AndroidUtilities.dp(16), AndroidUtilities.dp(14));
         inner.setGravity(Gravity.CENTER_VERTICAL);
 
-        // Ghost icon
+        // Ghost icon (decorative)
         TextView ghostIcon = new TextView(context);
         ghostIcon.setText("\uD83D\uDC7B"); // Ghost emoji
         ghostIcon.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 24);
+        ghostIcon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         inner.addView(ghostIcon, LayoutHelper.createLinear(
             LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER_VERTICAL, 0, 0, 12, 0));
 
@@ -238,6 +244,18 @@ public class TonySettingsFragment extends BaseFragment {
 
         card.addView(inner, LayoutHelper.createFrame(
             LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
+
+        // Switch accessibility semantics
+        card.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+            @Override
+            public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfo info) {
+                super.onInitializeAccessibilityNodeInfo(host, info);
+                info.setClassName("android.widget.Switch");
+                info.setCheckable(true);
+                info.setChecked(TonyConfig.INSTANCE.getPrivacy().isGhostModeActive());
+                info.setContentDescription("Ghost Mode, hide online status and read receipts");
+            }
+        });
 
         card.setOnClickListener(v -> {
             boolean current = TonyConfig.INSTANCE.getPrivacy().isGhostModeActive();
@@ -320,6 +338,33 @@ public class TonySettingsFragment extends BaseFragment {
         contentLayout.addView(card, cardParams);
     }
 
+    private void buildQuickActionsGroup(Context context) {
+        RoundedCardView card = new RoundedCardView(context);
+        card.setCardColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+
+        LinearLayout inner = new LinearLayout(context);
+        inner.setOrientation(LinearLayout.VERTICAL);
+
+        addSettingsItem(inner, context, R.drawable.msg_saved, COLOR_BLUE,
+            "Saved Messages", "Your cloud storage",
+            v -> {
+                android.os.Bundle args = new android.os.Bundle();
+                args.putLong("user_id", UserConfig.getInstance(currentAccount).getClientUserId());
+                presentFragment(new org.telegram.ui.ChatActivity(args));
+            }, true);
+        addSettingsItem(inner, context, R.drawable.msg_invite, COLOR_GREEN,
+            "Invite Friends", "Share Tony Chat",
+            v -> presentFragment(new org.telegram.ui.InviteContactsActivity()), false);
+
+        card.addView(inner, LayoutHelper.createFrame(
+            LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
+
+        LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        cardParams.bottomMargin = AndroidUtilities.dp(12);
+        contentLayout.addView(card, cardParams);
+    }
+
     private void buildSettingsGroup3(Context context) {
         RoundedCardView card = new RoundedCardView(context);
         card.setCardColor(Theme.getColor(Theme.key_windowBackgroundWhite));
@@ -355,11 +400,13 @@ public class TonySettingsFragment extends BaseFragment {
         row.setPadding(AndroidUtilities.dp(14), AndroidUtilities.dp(12),
             AndroidUtilities.dp(14), AndroidUtilities.dp(12));
         row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setMinimumHeight(AndroidUtilities.dp(48));
 
-        // Colored icon
+        // Colored icon (decorative — text label provides info)
         ImageView icon = new ImageView(context);
         icon.setImageResource(iconRes);
         icon.setColorFilter(new PorterDuffColorFilter(iconColor, PorterDuff.Mode.SRC_IN));
+        icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         row.addView(icon, LayoutHelper.createLinear(24, 24, Gravity.CENTER_VERTICAL, 0, 0, 14, 0));
 
         // Text column
@@ -385,10 +432,11 @@ public class TonySettingsFragment extends BaseFragment {
         row.addView(textCol, new LinearLayout.LayoutParams(
             0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        // Chevron
+        // Chevron (decorative)
         ImageView chevron = new ImageView(context);
         chevron.setImageResource(R.drawable.msg_arrowright);
         chevron.setColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
+        chevron.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         row.addView(chevron, LayoutHelper.createLinear(16, 16, Gravity.CENTER_VERTICAL));
 
         row.setOnClickListener(onClick);

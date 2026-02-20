@@ -3125,6 +3125,13 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 optionsItem.toggleSubMenu();
             });
         }
+        // Tony Chat: action bar buttons when bottom nav replaces drawer
+        if (TonyConfig.INSTANCE.getBottomNavEnabled() && !onlySelect && folderId == 0 && searchString == null) {
+            menu.addItem(100, R.drawable.msg_contacts)
+                .setContentDescription("Contacts");
+            menu.addItem(101, R.drawable.floating_pencil)
+                .setContentDescription("New Chat");
+        }
         searchItem.setSearchFieldHint(LocaleController.getString("Search", R.string.Search));
         searchItem.setContentDescription(LocaleController.getString("Search", R.string.Search));
         if (onlySelect) {
@@ -5128,7 +5135,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
             @Override
             public void openAnimationStarted(boolean open) {
-                if (!isArchive()) {
+                if (!isArchive() && !TonyConfig.INSTANCE.getBottomNavEnabled()) {
                     actionBar.setBackButtonDrawable(menuDrawable = new MenuDrawable());
                     menuDrawable.setRoundCap();
                 }
@@ -6233,6 +6240,14 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                         presentFragment(new ArchiveSettingsActivity());
                     } else if (id == 6) {
                         showArchiveHelp();
+                    } else if (id == 100) {
+                        // Tony Chat: Contacts button
+                        Bundle args = new Bundle();
+                        args.putBoolean("destroyAfterSelect", true);
+                        presentFragment(new ContactsActivity(args));
+                    } else if (id == 101) {
+                        // Tony Chat: Compose menu
+                        showTonyComposeMenu();
                     } else if (id >= 10 && id < 10 + UserConfig.MAX_ACCOUNT_COUNT) {
                         if (getParentActivity() == null) {
                             return;
@@ -6910,6 +6925,37 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             .setCustomView(archiveHelp, Gravity.TOP | Gravity.CENTER_HORIZONTAL)
             .show();
         bottomSheet[0].fixNavigationBar(Theme.getColor(Theme.key_dialogBackground));
+    }
+
+    /** Tony Chat: compose menu from action bar "+" button. */
+    private void showTonyComposeMenu() {
+        if (getParentActivity() == null) return;
+        CharSequence[] items = {"New Message", "New Group", "New Channel", "New Secret Chat"};
+        int[] icons = {R.drawable.msg_openin, R.drawable.msg_groups, R.drawable.msg_channel, R.drawable.msg_secret};
+        AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
+        builder.setItems(items, icons, (dialog, which) -> {
+            Bundle args = new Bundle();
+            switch (which) {
+                case 0:
+                    args.putBoolean("destroyAfterSelect", true);
+                    presentFragment(new ContactsActivity(args));
+                    break;
+                case 1:
+                    presentFragment(new GroupCreateActivity(new Bundle()));
+                    break;
+                case 2:
+                    args.putInt("step", 0);
+                    presentFragment(new ChannelCreateActivity(args));
+                    break;
+                case 3:
+                    args.putBoolean("onlyUsers", true);
+                    args.putBoolean("destroyAfterSelect", true);
+                    args.putBoolean("createSecretChat", true);
+                    presentFragment(new ContactsActivity(args));
+                    break;
+            }
+        });
+        builder.show();
     }
 
     @Override

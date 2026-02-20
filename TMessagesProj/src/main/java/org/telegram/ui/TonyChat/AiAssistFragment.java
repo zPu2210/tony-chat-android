@@ -32,9 +32,10 @@ import com.tonychat.ai.consent.AiConsentManager;
  */
 public class AiAssistFragment extends BaseFragment {
 
-    private static final int COLOR_AMBER = 0xFFD97706;
+    private static final int COLOR_AMBER = 0xFFD97706;       // text-safe amber (WCAG AA)
     private static final int COLOR_INDIGO = 0xFF6366F1;
-    private static final int COLOR_AMBER_ICON = 0xFFF59E0B;
+    private static final int COLOR_INDIGO_SMALL = 0xFF4F46E5; // for small text (<18sp bold)
+    private static final int COLOR_AMBER_ICON = 0xFFF59E0B;   // icons/decorative only
 
     private LinearLayout contentLayout;
 
@@ -101,6 +102,7 @@ public class AiAssistFragment extends BaseFragment {
 
         View dot = new View(context);
         dot.setBackgroundColor(hasKeys ? 0xFF10B981 : 0xFFF43F5E);
+        dot.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         LinearLayout.LayoutParams dotParams = new LinearLayout.LayoutParams(
             AndroidUtilities.dp(8), AndroidUtilities.dp(8));
         dotParams.rightMargin = AndroidUtilities.dp(8);
@@ -141,6 +143,7 @@ public class AiAssistFragment extends BaseFragment {
         header.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
         header.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
         header.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+        setAccessibilityHeading(header);
         contentLayout.addView(header, LayoutHelper.createLinear(
             LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 0, 0, 12));
 
@@ -198,10 +201,11 @@ public class AiAssistFragment extends BaseFragment {
         inner.setPadding(AndroidUtilities.dp(14), AndroidUtilities.dp(14),
             AndroidUtilities.dp(14), AndroidUtilities.dp(14));
 
-        // Icon
+        // Icon (decorative — card itself is clickable)
         ImageView icon = new ImageView(context);
         icon.setImageResource(item.iconRes);
         icon.setColorFilter(COLOR_AMBER_ICON);
+        icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         inner.addView(icon, LayoutHelper.createLinear(28, 28, Gravity.START, 0, 0, 0, 8));
 
         // Title
@@ -237,6 +241,7 @@ public class AiAssistFragment extends BaseFragment {
         header.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
         header.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
         header.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+        setAccessibilityHeading(header);
         LinearLayout.LayoutParams headerParams = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         headerParams.topMargin = AndroidUtilities.dp(4);
@@ -252,10 +257,11 @@ public class AiAssistFragment extends BaseFragment {
             AndroidUtilities.dp(16), AndroidUtilities.dp(16));
         inner.setGravity(Gravity.CENTER_VERTICAL);
 
-        // Mic icon
+        // Mic icon (decorative)
         ImageView mic = new ImageView(context);
         mic.setImageResource(R.drawable.input_mic);
         mic.setColorFilter(COLOR_AMBER_ICON);
+        mic.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         inner.addView(mic, LayoutHelper.createLinear(32, 32, Gravity.CENTER_VERTICAL, 0, 0, 14, 0));
 
         // Text
@@ -304,7 +310,7 @@ public class AiAssistFragment extends BaseFragment {
         TextView title = new TextView(context);
         title.setText("Set up AI providers to get started");
         title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
-        title.setTextColor(COLOR_INDIGO);
+        title.setTextColor(COLOR_INDIGO_SMALL); // small text needs darker indigo for WCAG AA
         title.setGravity(Gravity.CENTER);
         title.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
         inner.addView(title, LayoutHelper.createLinear(
@@ -317,6 +323,7 @@ public class AiAssistFragment extends BaseFragment {
         btn.setTextColor(0xFFFFFFFF);
         btn.setBackgroundColor(COLOR_INDIGO);
         btn.setGravity(Gravity.CENTER);
+        btn.setMinimumHeight(AndroidUtilities.dp(48));
         btn.setPadding(AndroidUtilities.dp(24), AndroidUtilities.dp(10),
             AndroidUtilities.dp(24), AndroidUtilities.dp(10));
         btn.setOnClickListener(v -> presentFragment(new AiSettingsActivity()));
@@ -333,7 +340,7 @@ public class AiAssistFragment extends BaseFragment {
     private void showFeatureTooltip(FeatureItem item) {
         Context context = getParentActivity();
         if (context == null) return;
-        android.widget.Toast.makeText(context, item.tooltip, android.widget.Toast.LENGTH_SHORT).show();
+        android.widget.Toast.makeText(context, item.tooltip, android.widget.Toast.LENGTH_LONG).show();
     }
 
     private boolean hasAnyApiKey() {
@@ -360,6 +367,18 @@ public class AiAssistFragment extends BaseFragment {
             // AiConfig may not be initialized
         }
         return count;
+    }
+
+    private static void setAccessibilityHeading(View view) {
+        if (android.os.Build.VERSION.SDK_INT >= 28) {
+            view.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+                @Override
+                public void onInitializeAccessibilityNodeInfo(View host, android.view.accessibility.AccessibilityNodeInfo info) {
+                    super.onInitializeAccessibilityNodeInfo(host, info);
+                    info.setHeading(true);
+                }
+            });
+        }
     }
 
     private static class FeatureItem {

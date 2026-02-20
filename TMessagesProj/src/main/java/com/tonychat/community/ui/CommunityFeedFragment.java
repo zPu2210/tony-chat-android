@@ -116,6 +116,7 @@ public class CommunityFeedFragment extends BaseFragment {
         // FAB for create post
         fabCreate = new FloatingActionButton(context);
         fabCreate.setImageResource(R.drawable.msg_send);
+        fabCreate.setContentDescription("Create new post");
         fabCreate.setBackgroundTintList(
             android.content.res.ColorStateList.valueOf(Theme.getColor(Theme.key_chats_actionBackground))
         );
@@ -153,7 +154,7 @@ public class CommunityFeedFragment extends BaseFragment {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 loadInitialPosts();
             } else {
-                Toast.makeText(getParentActivity(), "Location permission required for nearby posts", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getParentActivity(), "Location permission required. Go to Settings to enable.", Toast.LENGTH_LONG).show();
                 showEmptyState();
             }
         }
@@ -207,7 +208,7 @@ public class CommunityFeedFragment extends BaseFragment {
                     }
                 );
             } else {
-                Toast.makeText(getParentActivity(), "Unable to get location", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getParentActivity(), "Unable to get location. Pull down to retry.", Toast.LENGTH_LONG).show();
                 isLoading = false;
                 if (swipeRefreshLayout.isRefreshing()) {
                     swipeRefreshLayout.setRefreshing(false);
@@ -217,7 +218,7 @@ public class CommunityFeedFragment extends BaseFragment {
     }
 
     private void showEmptyState() {
-        Toast.makeText(getParentActivity(), "No posts nearby. Be the first!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getParentActivity(), "No posts nearby. Be the first!", Toast.LENGTH_LONG).show();
     }
 
     private void onPostClick(Post post) {
@@ -243,7 +244,7 @@ public class CommunityFeedFragment extends BaseFragment {
                     post.setLiked(wasLiked);
                     post.setLikeCount(originalCount);
                     adapter.notifyItemChanged(position);
-                    Toast.makeText(getParentActivity(), "Failed to like post", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getParentActivity(), "Failed to like post. Tap to retry.", Toast.LENGTH_LONG).show();
                 }
             });
         } else {
@@ -253,7 +254,7 @@ public class CommunityFeedFragment extends BaseFragment {
                     post.setLiked(wasLiked);
                     post.setLikeCount(originalCount);
                     adapter.notifyItemChanged(position);
-                    Toast.makeText(getParentActivity(), "Failed to unlike post", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getParentActivity(), "Failed to unlike post. Tap to retry.", Toast.LENGTH_LONG).show();
                 }
             });
         }
@@ -261,7 +262,7 @@ public class CommunityFeedFragment extends BaseFragment {
 
     private void showCreatePostSheet() {
         if (lastLocation == null) {
-            Toast.makeText(getParentActivity(), "Getting your location...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getParentActivity(), "Getting your location...", Toast.LENGTH_LONG).show();
             return;
         }
 

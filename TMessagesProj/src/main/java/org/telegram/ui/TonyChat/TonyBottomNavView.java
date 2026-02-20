@@ -8,6 +8,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -43,7 +44,7 @@ public class TonyBottomNavView extends FrameLayout {
     };
 
     private static final String[] CONTENT_DESCRIPTIONS = {
-        "Community", "AI Assist", "Chats", "Settings"
+        "Community Board tab", "AI Assist tab", "Chats tab", "Settings tab"
     };
 
     private final ImageView[] icons = new ImageView[TAB_COUNT];
@@ -81,8 +82,20 @@ public class TonyBottomNavView extends FrameLayout {
             ImageView icon = new ImageView(context);
             icon.setImageResource(ICON_RES[i]);
             icon.setScaleType(ImageView.ScaleType.CENTER);
-            icon.setContentDescription(CONTENT_DESCRIPTIONS[i]);
+            icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
             tabContainer.addView(icon, LayoutHelper.createFrame(24, 24, Gravity.CENTER));
+
+            // Tab accessibility: role + selected state
+            tabContainer.setContentDescription(CONTENT_DESCRIPTIONS[tabIndex]
+                + (tabIndex == activeTab ? ", selected" : ""));
+            tabContainer.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+                @Override
+                public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfo info) {
+                    super.onInitializeAccessibilityNodeInfo(host, info);
+                    info.setClassName("android.widget.TabWidget");
+                    info.setSelected(tabIndex == activeTab);
+                }
+            });
 
             tabContainer.setOnClickListener(v -> {
                 if (listener != null) {
@@ -110,6 +123,18 @@ public class TonyBottomNavView extends FrameLayout {
         if (index < 0 || index >= TAB_COUNT) return;
         activeTab = index;
         updateIconColors();
+        // Update accessibility selected state
+        View tabRow = getChildAt(0);
+        if (tabRow instanceof LinearLayout) {
+            for (int i = 0; i < TAB_COUNT; i++) {
+                View tab = ((LinearLayout) tabRow).getChildAt(i);
+                if (tab != null) {
+                    tab.setSelected(i == activeTab);
+                    tab.setContentDescription(CONTENT_DESCRIPTIONS[i]
+                        + (i == activeTab ? ", selected" : ""));
+                }
+            }
+        }
     }
 
     public int getActiveTab() {

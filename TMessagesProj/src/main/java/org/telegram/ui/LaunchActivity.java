@@ -7627,6 +7627,9 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                     allow = false;
                 }
             }
+            if (allow && isTonyBottomNavActive()) {
+                allow = false; // Bottom nav replaces drawer — never re-enable
+            }
             drawerLayoutContainer.setAllowOpenDrawer(allow, false);
         }
         return true;
@@ -7710,6 +7713,9 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                     allow = false;
                 }
             }
+            if (allow && isTonyBottomNavActive()) {
+                allow = false; // Bottom nav replaces drawer — never re-enable
+            }
             drawerLayoutContainer.setAllowOpenDrawer(allow, false);
         }
         return true;
@@ -7738,7 +7744,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 return false;
             }
             if (layout.getFragmentStack().size() >= 2 && !(layout.getFragmentStack().get(0) instanceof LoginActivity)) {
-                drawerLayoutContainer.setAllowOpenDrawer(true, false);
+                drawerLayoutContainer.setAllowOpenDrawer(!isTonyBottomNavActive(), false);
             }
         }
         return true;
