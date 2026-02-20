@@ -67,6 +67,10 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.tonychat.core.TonyConfig;
+import org.telegram.ui.TonyChat.TonyBottomNavView;
+import org.telegram.ui.TonyChat.TonyTabPlaceholderView;
+
 import androidx.annotation.NonNull;
 import androidx.arch.core.util.Function;
 import androidx.core.app.ActivityCompat;
@@ -261,6 +265,13 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
     private SideMenultItemAnimator itemAnimator;
     private FrameLayout sideMenuContainer;
     private View rippleAbove;
+
+    // Tony Chat bottom nav
+    private TonyBottomNavView tonyBottomNav;
+    private LinearLayout tonyMainContainer;
+    private FrameLayout tonyTabContainer;
+    private View[] tonyTabViews = new View[4];
+    private int tonyCurrentTab = TonyBottomNavView.TAB_CHATS;
     private IUpdateLayout updateLayout;
 
     private AlertDialog localeDialog;
@@ -453,6 +464,9 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 setVisibility(GONE);
             }
         });
+        if (savedInstanceState != null) {
+            tonyCurrentTab = savedInstanceState.getInt("tony_current_tab", TonyBottomNavView.TAB_CHATS);
+        }
         setupActionBarLayout();
         sideMenuContainer = new FrameLayout(this);
         sideMenu = new RecyclerListView(this) {
@@ -1131,14 +1145,142 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
             }
 
             actionBarLayout.setFragmentStack(mainFragmentsStack);
-            if (i != -1) {
-                drawerLayoutContainer.addView(actionBarLayout.getView(), i, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+            if (TonyConfig.INSTANCE.getBottomNavEnabled()) {
+                setupTonyBottomNav(i);
             } else {
-                drawerLayoutContainer.addView(actionBarLayout.getView(), new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                cleanupTonyBottomNav();
+                if (i != -1) {
+                    drawerLayoutContainer.addView(actionBarLayout.getView(), i, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                } else {
+                    drawerLayoutContainer.addView(actionBarLayout.getView(), new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                }
             }
         }
         FloatingDebugController.setActive(this, SharedConfig.isFloatingDebugActive, false);
     }
+
+    // ==================== Tony Chat Bottom Nav ====================
+
+    private void setupTonyBottomNav(int insertIndex) {
+        // Remove any previous bottom nav container
+        if (tonyMainContainer != null && tonyMainContainer.getParent() != null) {
+            ((ViewGroup) tonyMainContainer.getParent()).removeView(tonyMainContainer);
+        }
+
+        // Vertical container: [tabContent (weight=1)] + [bottomNav (56dp)]
+        tonyMainContainer = new LinearLayout(this);
+        tonyMainContainer.setOrientation(LinearLayout.VERTICAL);
+
+        // Tab content area — stacks all tab views
+        tonyTabContainer = new FrameLayout(this);
+        tonyMainContainer.addView(tonyTabContainer, new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
+
+        // ActionBarLayout goes inside tab container (Chats tab)
+        tonyTabContainer.addView(actionBarLayout.getView(),
+            new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        // Bottom navigation bar
+        tonyBottomNav = new TonyBottomNavView(this);
+        tonyBottomNav.setActiveTab(tonyCurrentTab);
+        tonyBottomNav.setOnTabSelectedListener(this::switchTonyTab);
+        tonyMainContainer.addView(tonyBottomNav, new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, AndroidUtilities.dp(56)));
+
+        // Add to drawer container
+        if (insertIndex != -1) {
+            drawerLayoutContainer.addView(tonyMainContainer, insertIndex,
+                new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT));
+        } else {
+            drawerLayoutContainer.addView(tonyMainContainer,
+                new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT));
+        }
+
+        // Disable drawer swipe — bottom nav replaces it
+        drawerLayoutContainer.setAllowOpenDrawer(false, false);
+
+        // Ensure correct initial visibility
+        actionBarLayout.getView().setVisibility(
+            tonyCurrentTab == TonyBottomNavView.TAB_CHATS ? View.VISIBLE : View.GONE);
+    }
+
+    private void cleanupTonyBottomNav() {
+        if (tonyMainContainer != null && tonyMainContainer.getParent() != null) {
+            ((ViewGroup) tonyMainContainer.getParent()).removeView(tonyMainContainer);
+        }
+        tonyBottomNav = null;
+        tonyMainContainer = null;
+        tonyTabContainer = null;
+        for (int j = 0; j < tonyTabViews.length; j++) {
+            tonyTabViews[j] = null;
+        }
+    }
+
+    private void switchTonyTab(int index) {
+        if (index == tonyCurrentTab || tonyTabContainer == null) return;
+
+        // Hide current tab
+        if (tonyCurrentTab == TonyBottomNavView.TAB_CHATS) {
+            actionBarLayout.getView().setVisibility(View.GONE);
+        } else if (tonyTabViews[tonyCurrentTab] != null) {
+            tonyTabViews[tonyCurrentTab].setVisibility(View.GONE);
+        }
+
+        // Show/create target tab
+        if (index == TonyBottomNavView.TAB_CHATS) {
+            actionBarLayout.getView().setVisibility(View.VISIBLE);
+        } else {
+            if (tonyTabViews[index] == null) {
+                tonyTabViews[index] = createTonyTabView(index);
+                tonyTabContainer.addView(tonyTabViews[index],
+                    new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT));
+            }
+            tonyTabViews[index].setVisibility(View.VISIBLE);
+        }
+
+        tonyCurrentTab = index;
+        if (tonyBottomNav != null) {
+            tonyBottomNav.setActiveTab(index);
+        }
+    }
+
+    private View createTonyTabView(int index) {
+        switch (index) {
+            case TonyBottomNavView.TAB_COMMUNITY:
+                return new TonyTabPlaceholderView(this,
+                    R.drawable.ic_tony_community, "Community",
+                    "Coming soon in Phase 3");
+            case TonyBottomNavView.TAB_AI_ASSIST:
+                return new TonyTabPlaceholderView(this,
+                    R.drawable.ic_tony_ai, "Tony Assist",
+                    "AI features coming in Phase 3");
+            case TonyBottomNavView.TAB_SETTINGS:
+                return new TonyTabPlaceholderView(this,
+                    R.drawable.ic_tony_settings, "Settings",
+                    "Coming soon in Phase 3");
+            default:
+                return new FrameLayout(this);
+        }
+    }
+
+    /** Check if Tony bottom nav is active and visible. */
+    public boolean isTonyBottomNavActive() {
+        return tonyBottomNav != null && TonyConfig.INSTANCE.getBottomNavEnabled();
+    }
+
+    /** Get the Tony bottom nav view (for badge updates etc). */
+    public TonyBottomNavView getTonyBottomNav() {
+        return tonyBottomNav;
+    }
+
+    // ==================== End Tony Chat Bottom Nav ====================
 
     public void addOnUserLeaveHintListener(Runnable callback) {
         onUserLeaveHintListeners.add(callback);
@@ -7093,6 +7235,9 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
     protected void onSaveInstanceState(Bundle outState) {
         try {
             super.onSaveInstanceState(outState);
+            if (isTonyBottomNavActive()) {
+                outState.putInt("tony_current_tab", tonyCurrentTab);
+            }
             BaseFragment lastFragment = null;
             if (AndroidUtilities.isTablet()) {
                 if (layersActionBarLayout != null && !layersActionBarLayout.getFragmentStack().isEmpty()) {
@@ -7168,6 +7313,15 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 } else {
                     actionBarLayout.onBackPressed();
                 }
+            }
+        } else if (isTonyBottomNavActive()) {
+            // Bottom nav mode: try fragment stack first, then switch to Chats, then exit
+            if (actionBarLayout.getFragmentStack().size() > 1 && tonyCurrentTab == TonyBottomNavView.TAB_CHATS) {
+                actionBarLayout.onBackPressed();
+            } else if (tonyCurrentTab != TonyBottomNavView.TAB_CHATS) {
+                switchTonyTab(TonyBottomNavView.TAB_CHATS);
+            } else {
+                actionBarLayout.onBackPressed();
             }
         } else {
             actionBarLayout.onBackPressed();

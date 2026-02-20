@@ -65,6 +65,8 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
+import com.tonychat.core.TonyConfig;
+
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -3169,9 +3171,14 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             if (searchString != null || folderId != 0) {
                 actionBar.setBackButtonDrawable(backDrawable = new BackDrawable(false));
             } else {
-                actionBar.setBackButtonDrawable(menuDrawable = new MenuDrawable());
-                menuDrawable.setRoundCap();
-                actionBar.setBackButtonContentDescription(LocaleController.getString("AccDescrOpenMenu", R.string.AccDescrOpenMenu));
+                if (TonyConfig.INSTANCE.getBottomNavEnabled()) {
+                    // No hamburger when bottom nav replaces drawer
+                    actionBar.setBackButtonDrawable(null);
+                } else {
+                    actionBar.setBackButtonDrawable(menuDrawable = new MenuDrawable());
+                    menuDrawable.setRoundCap();
+                    actionBar.setBackButtonContentDescription(LocaleController.getString("AccDescrOpenMenu", R.string.AccDescrOpenMenu));
+                }
             }
             if (folderId != 0) {
                 actionBar.setTitle(LocaleController.getString("ArchivedChats", R.string.ArchivedChats));
@@ -6203,7 +6210,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                             }
                         } else if (onlySelect || folderId != 0) {
                             finishFragment();
-                        } else if (parentLayout != null) {
+                        } else if (parentLayout != null && !TonyConfig.INSTANCE.getBottomNavEnabled()) {
                             parentLayout.getDrawerLayoutContainer().openDrawer(false);
                         }
                     } else if (id == 1) {
@@ -6527,6 +6534,10 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
     private void updateDrawerSwipeEnabled() {
         if (parentLayout != null && parentLayout.getDrawerLayoutContainer() != null) {
+            if (TonyConfig.INSTANCE.getBottomNavEnabled()) {
+                parentLayout.getDrawerLayoutContainer().setAllowOpenDrawerBySwipe(false);
+                return;
+            }
             parentLayout.getDrawerLayoutContainer().setAllowOpenDrawerBySwipe(((isFirstTab && SharedConfig.getChatSwipeAction(currentAccount) == SwipeGestureSettingsView.SWIPE_GESTURE_FOLDERS) || SharedConfig.getChatSwipeAction(currentAccount) != SwipeGestureSettingsView.SWIPE_GESTURE_FOLDERS) && !searchIsShowed && (rightSlidingDialogContainer == null || !rightSlidingDialogContainer.hasFragment()));
         }
     }
