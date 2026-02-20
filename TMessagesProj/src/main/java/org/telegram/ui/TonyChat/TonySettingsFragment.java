@@ -1,12 +1,10 @@
 package org.telegram.ui.TonyChat;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
-import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -45,16 +43,7 @@ import com.tonychat.core.TonyConfig;
  */
 public class TonySettingsFragment extends BaseFragment {
 
-    // Icon colors per design system
-    private static final int COLOR_AMBER = 0xFFD97706;
-    private static final int COLOR_GREEN = 0xFF10B981;
-    private static final int COLOR_RED = 0xFFF43F5E;
-    private static final int COLOR_BLUE = 0xFF3B82F6;
-    private static final int COLOR_PURPLE = 0xFF8B5CF6;
-    private static final int COLOR_CYAN = 0xFF06B6D4;
-    private static final int COLOR_VIOLET = 0xFF7C3AED;
-    private static final int COLOR_ORANGE = 0xFFF97316;
-    private static final int COLOR_INDIGO = 0xFF6366F1;
+    private static final int GHOST_ANIM_DURATION = 200;
 
     private LinearLayout contentLayout;
     private TextView ghostStatusText;
@@ -99,7 +88,7 @@ public class TonySettingsFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        updateGhostState();
+        updateGhostState(false);
     }
 
     private void buildProfileHeader(Context context) {
@@ -157,7 +146,7 @@ public class TonySettingsFragment extends BaseFragment {
                 TextView usernameView = new TextView(context);
                 usernameView.setText("@" + username);
                 usernameView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
-                usernameView.setTextColor(COLOR_INDIGO);
+                usernameView.setTextColor(TonyColors.primary());
                 usernameView.setSingleLine(true);
                 textCol.addView(usernameView, LayoutHelper.createLinear(
                     LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
@@ -223,7 +212,7 @@ public class TonySettingsFragment extends BaseFragment {
             LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 0, 0, 2));
 
         ghostStatusText = new TextView(context);
-        ghostStatusText.setText(isActive ? "Active — hiding all activity" : "Off — normal visibility");
+        ghostStatusText.setText(isActive ? "Active \u2014 hiding all activity" : "Off \u2014 normal visibility");
         ghostStatusText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
         ghostStatusText.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
         textCol.addView(ghostStatusText, LayoutHelper.createLinear(
@@ -236,7 +225,8 @@ public class TonySettingsFragment extends BaseFragment {
         TextView toggleText = new TextView(context);
         toggleText.setText(isActive ? "ON" : "OFF");
         toggleText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
-        toggleText.setTextColor(isActive ? COLOR_INDIGO : Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
+        toggleText.setTextColor(isActive ? TonyColors.primary()
+            : Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
         toggleText.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
         toggleText.setTag("ghost_toggle_label");
         inner.addView(toggleText, LayoutHelper.createLinear(
@@ -260,7 +250,7 @@ public class TonySettingsFragment extends BaseFragment {
         card.setOnClickListener(v -> {
             boolean current = TonyConfig.INSTANCE.getPrivacy().isGhostModeActive();
             TonyConfig.INSTANCE.getPrivacy().setGhostMode(!current);
-            updateGhostState();
+            updateGhostState(true);
         });
 
         LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
@@ -269,19 +259,30 @@ public class TonySettingsFragment extends BaseFragment {
         contentLayout.addView(card, cardParams);
     }
 
-    private void updateGhostState() {
+    private void updateGhostState(boolean animate) {
         if (ghostStatusText == null || ghostToggleView == null) return;
         boolean isActive = TonyConfig.INSTANCE.getPrivacy().isGhostModeActive();
-        ghostStatusText.setText(isActive ? "Active — hiding all activity" : "Off — normal visibility");
+        ghostStatusText.setText(isActive ? "Active \u2014 hiding all activity" : "Off \u2014 normal visibility");
 
-        // Update toggle label
+        // Update toggle label with optional color animation
         View inner = ((ViewGroup) ghostToggleView).getChildAt(0);
         if (inner instanceof ViewGroup) {
             TextView toggleLabel = inner.findViewWithTag("ghost_toggle_label");
             if (toggleLabel != null) {
                 toggleLabel.setText(isActive ? "ON" : "OFF");
-                toggleLabel.setTextColor(isActive ? COLOR_INDIGO
-                    : Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
+
+                int targetColor = isActive ? TonyColors.primary()
+                    : Theme.getColor(Theme.key_windowBackgroundWhiteGrayText);
+
+                if (animate) {
+                    int fromColor = toggleLabel.getCurrentTextColor();
+                    ValueAnimator anim = ValueAnimator.ofObject(new ArgbEvaluator(), fromColor, targetColor);
+                    anim.setDuration(GHOST_ANIM_DURATION);
+                    anim.addUpdateListener(a -> toggleLabel.setTextColor((int) a.getAnimatedValue()));
+                    anim.start();
+                } else {
+                    toggleLabel.setTextColor(targetColor);
+                }
             }
         }
     }
@@ -293,13 +294,13 @@ public class TonySettingsFragment extends BaseFragment {
         LinearLayout inner = new LinearLayout(context);
         inner.setOrientation(LinearLayout.VERTICAL);
 
-        addSettingsItem(inner, context, R.drawable.msg_settings_old, COLOR_AMBER,
+        addSettingsItem(inner, context, R.drawable.msg_settings_old, TonyColors.aiAccent(),
             "AI Settings", "Providers, keys, features",
             v -> presentFragment(new AiSettingsActivity()), true);
-        addSettingsItem(inner, context, R.drawable.msg_secret, COLOR_GREEN,
+        addSettingsItem(inner, context, R.drawable.msg_secret, TonyColors.success(),
             "Privacy & Ghost Mode", "Control your visibility",
             v -> presentFragment(new PrivacySettingsActivity()), true);
-        addSettingsItem(inner, context, R.drawable.msg_notifications, COLOR_RED,
+        addSettingsItem(inner, context, R.drawable.msg_notifications, TonyColors.error(),
             "Notifications", "Sounds, alerts, badges",
             v -> presentFragment(new NotificationsSettingsActivity()), false);
 
@@ -319,13 +320,13 @@ public class TonySettingsFragment extends BaseFragment {
         LinearLayout inner = new LinearLayout(context);
         inner.setOrientation(LinearLayout.VERTICAL);
 
-        addSettingsItem(inner, context, R.drawable.msg_discussion, COLOR_BLUE,
+        addSettingsItem(inner, context, R.drawable.msg_discussion, TonyColors.blue(),
             "Chat Settings", "Themes, wallpapers, bubbles",
             v -> presentFragment(new org.telegram.ui.ThemeActivity(org.telegram.ui.ThemeActivity.THEME_TYPE_BASIC)), true);
-        addSettingsItem(inner, context, R.drawable.msg_filled_datausage, COLOR_PURPLE,
+        addSettingsItem(inner, context, R.drawable.msg_filled_datausage, TonyColors.purple(),
             "Data & Storage", "Network, cache, downloads",
             v -> presentFragment(new DataSettingsActivity()), true);
-        addSettingsItem(inner, context, R.drawable.msg_folders, COLOR_CYAN,
+        addSettingsItem(inner, context, R.drawable.msg_folders, TonyColors.cyan(),
             "Chat Folders", "Organize conversations",
             v -> presentFragment(new FiltersSetupActivity()), false);
 
@@ -345,14 +346,14 @@ public class TonySettingsFragment extends BaseFragment {
         LinearLayout inner = new LinearLayout(context);
         inner.setOrientation(LinearLayout.VERTICAL);
 
-        addSettingsItem(inner, context, R.drawable.msg_saved, COLOR_BLUE,
+        addSettingsItem(inner, context, R.drawable.msg_saved, TonyColors.blue(),
             "Saved Messages", "Your cloud storage",
             v -> {
                 android.os.Bundle args = new android.os.Bundle();
                 args.putLong("user_id", UserConfig.getInstance(currentAccount).getClientUserId());
                 presentFragment(new org.telegram.ui.ChatActivity(args));
             }, true);
-        addSettingsItem(inner, context, R.drawable.msg_invite, COLOR_GREEN,
+        addSettingsItem(inner, context, R.drawable.msg_invite, TonyColors.success(),
             "Invite Friends", "Share Tony Chat",
             v -> presentFragment(new org.telegram.ui.InviteContactsActivity()), false);
 
@@ -372,13 +373,13 @@ public class TonySettingsFragment extends BaseFragment {
         LinearLayout inner = new LinearLayout(context);
         inner.setOrientation(LinearLayout.VERTICAL);
 
-        addSettingsItem(inner, context, R.drawable.msg_language, COLOR_VIOLET,
+        addSettingsItem(inner, context, R.drawable.msg_language, TonyColors.violet(),
             "Language", "App display language",
             v -> presentFragment(new LanguageSelectActivity()), true);
-        addSettingsItem(inner, context, R.drawable.msg_premium_speed, COLOR_ORANGE,
+        addSettingsItem(inner, context, R.drawable.msg_premium_speed, TonyColors.orange(),
             "Power Saving", "Reduce animations, data",
             v -> presentFragment(new LiteModeSettingsActivity()), true);
-        addSettingsItem(inner, context, R.drawable.msg_info, COLOR_INDIGO,
+        addSettingsItem(inner, context, R.drawable.msg_info, TonyColors.primary(),
             "About Tony Chat", "Version, licenses, links",
             v -> presentFragment(new TonyAboutActivity()), false);
 
@@ -402,7 +403,10 @@ public class TonySettingsFragment extends BaseFragment {
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setMinimumHeight(AndroidUtilities.dp(48));
 
-        // Colored icon (decorative — text label provides info)
+        // Ripple on each row
+        TonyColors.applyRipple(row, context, 0);
+
+        // Colored icon (decorative)
         ImageView icon = new ImageView(context);
         icon.setImageResource(iconRes);
         icon.setColorFilter(new PorterDuffColorFilter(iconColor, PorterDuff.Mode.SRC_IN));
@@ -458,29 +462,5 @@ public class TonySettingsFragment extends BaseFragment {
 
         parent.addView(wrapper, LayoutHelper.createLinear(
             LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
-    }
-
-    /** Simple rounded-corner card wrapper. */
-    static class RoundedCardView extends FrameLayout {
-        private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        private final RectF rect = new RectF();
-        private final float radius = AndroidUtilities.dp(12);
-
-        RoundedCardView(Context context) {
-            super(context);
-            setWillNotDraw(false);
-            paint.setColor(Theme.getColor(Theme.key_windowBackgroundWhite));
-        }
-
-        void setCardColor(int color) {
-            paint.setColor(color);
-            invalidate();
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            rect.set(0, 0, getWidth(), getHeight());
-            canvas.drawRoundRect(rect, radius, radius, paint);
-        }
     }
 }

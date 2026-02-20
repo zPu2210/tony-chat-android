@@ -71,6 +71,7 @@ import com.tonychat.core.TonyConfig;
 import com.tonychat.community.ui.CommunityFeedFragment;
 import org.telegram.ui.TonyChat.AiAssistFragment;
 import org.telegram.ui.TonyChat.TonyBottomNavView;
+import org.telegram.ui.TonyChat.TonyMigrationSheet;
 import org.telegram.ui.TonyChat.TonySettingsFragment;
 
 import androidx.annotation.NonNull;
@@ -1213,6 +1214,9 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
 
         // Initial unread badge
         updateTonyUnreadBadge();
+
+        // One-time "What's New" migration sheet
+        TonyMigrationSheet.showIfNeeded(this);
     }
 
     private void cleanupTonyBottomNav() {

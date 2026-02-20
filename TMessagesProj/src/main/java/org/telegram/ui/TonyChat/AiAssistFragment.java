@@ -1,9 +1,6 @@
 package org.telegram.ui.TonyChat;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.RectF;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -31,11 +28,6 @@ import com.tonychat.ai.consent.AiConsentManager;
  * Shows status card, 2x3 feature grid, voice card, and settings link.
  */
 public class AiAssistFragment extends BaseFragment {
-
-    private static final int COLOR_AMBER = 0xFFD97706;       // text-safe amber (WCAG AA)
-    private static final int COLOR_INDIGO = 0xFF6366F1;
-    private static final int COLOR_INDIGO_SMALL = 0xFF4F46E5; // for small text (<18sp bold)
-    private static final int COLOR_AMBER_ICON = 0xFFF59E0B;   // icons/decorative only
 
     private LinearLayout contentLayout;
 
@@ -101,7 +93,7 @@ public class AiAssistFragment extends BaseFragment {
         statusRow.setGravity(Gravity.CENTER_VERTICAL);
 
         View dot = new View(context);
-        dot.setBackgroundColor(hasKeys ? 0xFF10B981 : 0xFFF43F5E);
+        dot.setBackgroundColor(hasKeys ? TonyColors.success() : TonyColors.error());
         dot.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         LinearLayout.LayoutParams dotParams = new LinearLayout.LayoutParams(
             AndroidUtilities.dp(8), AndroidUtilities.dp(8));
@@ -201,10 +193,10 @@ public class AiAssistFragment extends BaseFragment {
         inner.setPadding(AndroidUtilities.dp(14), AndroidUtilities.dp(14),
             AndroidUtilities.dp(14), AndroidUtilities.dp(14));
 
-        // Icon (decorative — card itself is clickable)
+        // Icon (decorative)
         ImageView icon = new ImageView(context);
         icon.setImageResource(item.iconRes);
-        icon.setColorFilter(COLOR_AMBER_ICON);
+        icon.setColorFilter(TonyColors.aiAccentIcon());
         icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         inner.addView(icon, LayoutHelper.createLinear(28, 28, Gravity.START, 0, 0, 0, 8));
 
@@ -260,7 +252,7 @@ public class AiAssistFragment extends BaseFragment {
         // Mic icon (decorative)
         ImageView mic = new ImageView(context);
         mic.setImageResource(R.drawable.input_mic);
-        mic.setColorFilter(COLOR_AMBER_ICON);
+        mic.setColorFilter(TonyColors.aiAccentIcon());
         mic.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         inner.addView(mic, LayoutHelper.createLinear(32, 32, Gravity.CENTER_VERTICAL, 0, 0, 14, 0));
 
@@ -299,7 +291,7 @@ public class AiAssistFragment extends BaseFragment {
         if (hasAnyApiKey()) return;
 
         RoundedCardView card = new RoundedCardView(context);
-        card.setCardColor(0x1A6366F1); // Indigo 10% alpha
+        card.setCardColor(TonyColors.setupPromptBg());
 
         LinearLayout inner = new LinearLayout(context);
         inner.setOrientation(LinearLayout.VERTICAL);
@@ -310,7 +302,7 @@ public class AiAssistFragment extends BaseFragment {
         TextView title = new TextView(context);
         title.setText("Set up AI providers to get started");
         title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
-        title.setTextColor(COLOR_INDIGO_SMALL); // small text needs darker indigo for WCAG AA
+        title.setTextColor(TonyColors.primarySmall());
         title.setGravity(Gravity.CENTER);
         title.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
         inner.addView(title, LayoutHelper.createLinear(
@@ -321,7 +313,7 @@ public class AiAssistFragment extends BaseFragment {
         btn.setText("Open AI Settings");
         btn.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
         btn.setTextColor(0xFFFFFFFF);
-        btn.setBackgroundColor(COLOR_INDIGO);
+        btn.setBackgroundColor(TonyColors.primary());
         btn.setGravity(Gravity.CENTER);
         btn.setMinimumHeight(AndroidUtilities.dp(48));
         btn.setPadding(AndroidUtilities.dp(24), AndroidUtilities.dp(10),
@@ -395,30 +387,6 @@ public class AiAssistFragment extends BaseFragment {
             this.iconRes = iconRes;
             this.featureType = featureType;
             this.tooltip = tooltip;
-        }
-    }
-
-    /** Simple rounded-corner card wrapper. */
-    static class RoundedCardView extends FrameLayout {
-        private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        private final RectF rect = new RectF();
-        private final float radius = AndroidUtilities.dp(12);
-
-        RoundedCardView(Context context) {
-            super(context);
-            setWillNotDraw(false);
-            paint.setColor(Theme.getColor(Theme.key_windowBackgroundWhite));
-        }
-
-        void setCardColor(int color) {
-            paint.setColor(color);
-            invalidate();
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            rect.set(0, 0, getWidth(), getHeight());
-            canvas.drawRoundRect(rect, radius, radius, paint);
         }
     }
 }

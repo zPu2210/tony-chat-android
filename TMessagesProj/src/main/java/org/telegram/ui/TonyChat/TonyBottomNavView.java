@@ -1,18 +1,18 @@
 package org.telegram.ui.TonyChat;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.R;
@@ -22,7 +22,7 @@ import org.telegram.ui.Components.LayoutHelper;
 /**
  * Icon-only bottom navigation for Tony Chat.
  * 4 tabs: Community | AI Assist | Chats (default) | Settings
- * Active tab = Indigo icon, inactive = gray.
+ * Active tab = Indigo icon (animated), inactive = gray.
  */
 public class TonyBottomNavView extends FrameLayout {
 
@@ -35,6 +35,7 @@ public class TonyBottomNavView extends FrameLayout {
     public static final int TAB_CHATS = 2;
     public static final int TAB_SETTINGS = 3;
     private static final int TAB_COUNT = 4;
+    private static final int ANIM_DURATION = 200;
 
     private static final int[] ICON_RES = {
         R.drawable.ic_tony_community,
@@ -48,6 +49,7 @@ public class TonyBottomNavView extends FrameLayout {
     };
 
     private final ImageView[] icons = new ImageView[TAB_COUNT];
+    private final int[] currentIconColors = new int[TAB_COUNT];
     private final Paint separatorPaint = new Paint();
     private final Paint badgePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint badgeTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -63,17 +65,19 @@ public class TonyBottomNavView extends FrameLayout {
         separatorPaint.setColor(Theme.getColor(Theme.key_divider));
         separatorPaint.setStrokeWidth(1);
 
-        badgePaint.setColor(0xFF6366F1); // Indigo primary
+        badgePaint.setColor(TonyColors.primary());
         badgeTextPaint.setColor(0xFFFFFFFF);
         badgeTextPaint.setTextSize(AndroidUtilities.dp(10));
         badgeTextPaint.setTextAlign(Paint.Align.CENTER);
 
         setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
 
-        // Container with maxWidth 600dp, centered
         LinearLayout tabRow = new LinearLayout(context);
         tabRow.setOrientation(LinearLayout.HORIZONTAL);
         tabRow.setGravity(Gravity.CENTER_VERTICAL);
+
+        int activeColor = TonyColors.primary();
+        int inactiveColor = Theme.getColor(Theme.key_windowBackgroundWhiteGrayText);
 
         for (int i = 0; i < TAB_COUNT; i++) {
             final int tabIndex = i;
@@ -85,7 +89,6 @@ public class TonyBottomNavView extends FrameLayout {
             icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
             tabContainer.addView(icon, LayoutHelper.createFrame(24, 24, Gravity.CENTER));
 
-            // Tab accessibility: role + selected state
             tabContainer.setContentDescription(CONTENT_DESCRIPTIONS[tabIndex]
                 + (tabIndex == activeTab ? ", selected" : ""));
             tabContainer.setAccessibilityDelegate(new View.AccessibilityDelegate() {
@@ -103,16 +106,17 @@ public class TonyBottomNavView extends FrameLayout {
                 }
             });
 
+            int color = (i == activeTab) ? activeColor : inactiveColor;
+            currentIconColors[i] = color;
+            icon.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN));
+
             icons[i] = icon;
             tabRow.addView(tabContainer, new LinearLayout.LayoutParams(
                 0, LinearLayout.LayoutParams.MATCH_PARENT, 1f));
         }
 
-        int maxWidth = AndroidUtilities.dp(600);
         addView(tabRow, LayoutHelper.createFrame(
             LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.CENTER));
-
-        updateIconColors();
     }
 
     public void setOnTabSelectedListener(OnTabSelectedListener listener) {
@@ -121,20 +125,10 @@ public class TonyBottomNavView extends FrameLayout {
 
     public void setActiveTab(int index) {
         if (index < 0 || index >= TAB_COUNT) return;
+        int prevTab = activeTab;
         activeTab = index;
-        updateIconColors();
-        // Update accessibility selected state
-        View tabRow = getChildAt(0);
-        if (tabRow instanceof LinearLayout) {
-            for (int i = 0; i < TAB_COUNT; i++) {
-                View tab = ((LinearLayout) tabRow).getChildAt(i);
-                if (tab != null) {
-                    tab.setSelected(i == activeTab);
-                    tab.setContentDescription(CONTENT_DESCRIPTIONS[i]
-                        + (i == activeTab ? ", selected" : ""));
-                }
-            }
-        }
+        animateIconColors(prevTab, index);
+        updateAccessibility();
     }
 
     public int getActiveTab() {
@@ -148,13 +142,47 @@ public class TonyBottomNavView extends FrameLayout {
         }
     }
 
-    private void updateIconColors() {
-        int activeColor = 0xFF6366F1; // Indigo primary
+    /** Animate color transition for old and new active tab icons. */
+    private void animateIconColors(int fromTab, int toTab) {
+        int activeColor = TonyColors.primary();
         int inactiveColor = Theme.getColor(Theme.key_windowBackgroundWhiteGrayText);
 
-        for (int i = 0; i < TAB_COUNT; i++) {
-            int color = (i == activeTab) ? activeColor : inactiveColor;
-            icons[i].setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN));
+        // Deactivate old tab
+        if (fromTab >= 0 && fromTab < TAB_COUNT && fromTab != toTab) {
+            animateSingleIcon(fromTab, currentIconColors[fromTab], inactiveColor);
+        }
+        // Activate new tab
+        if (toTab >= 0 && toTab < TAB_COUNT) {
+            animateSingleIcon(toTab, currentIconColors[toTab], activeColor);
+        }
+    }
+
+    private void animateSingleIcon(int tabIndex, int fromColor, int toColor) {
+        if (fromColor == toColor) {
+            return;
+        }
+        ValueAnimator animator = ValueAnimator.ofObject(new ArgbEvaluator(), fromColor, toColor);
+        animator.setDuration(ANIM_DURATION);
+        animator.addUpdateListener(anim -> {
+            int color = (int) anim.getAnimatedValue();
+            currentIconColors[tabIndex] = color;
+            icons[tabIndex].setColorFilter(
+                new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN));
+        });
+        animator.start();
+    }
+
+    private void updateAccessibility() {
+        View tabRow = getChildAt(0);
+        if (tabRow instanceof LinearLayout) {
+            for (int i = 0; i < TAB_COUNT; i++) {
+                View tab = ((LinearLayout) tabRow).getChildAt(i);
+                if (tab != null) {
+                    tab.setSelected(i == activeTab);
+                    tab.setContentDescription(CONTENT_DESCRIPTIONS[i]
+                        + (i == activeTab ? ", selected" : ""));
+                }
+            }
         }
     }
 
@@ -206,7 +234,15 @@ public class TonyBottomNavView extends FrameLayout {
     public void updateColors() {
         setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
         separatorPaint.setColor(Theme.getColor(Theme.key_divider));
-        updateIconColors();
+        badgePaint.setColor(TonyColors.primary());
+
+        int activeColor = TonyColors.primary();
+        int inactiveColor = Theme.getColor(Theme.key_windowBackgroundWhiteGrayText);
+        for (int i = 0; i < TAB_COUNT; i++) {
+            int color = (i == activeTab) ? activeColor : inactiveColor;
+            currentIconColors[i] = color;
+            icons[i].setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN));
+        }
         invalidate();
     }
 }
