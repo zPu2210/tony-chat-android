@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tony Chat Color Palette — Dark Theme Overrides -->
+
+    <!-- Primary (lighter for dark backgrounds) -->
+    <color name="tony_primary_500">#818CF8</color>
+
+    <!-- AI Accent (brighter for dark backgrounds) -->
+    <color name="tony_ai_accent">#FBBF24</color>
+    <color name="tony_ai_accent_text">#F59E0B</color>
+
+    <!-- Semantic -->
+    <color name="tony_success">#34D399</color>
+    <color name="tony_error">#FB7185</color>
+
+    <!-- Surfaces (true dark for OLED) -->
+    <color name="tony_background">#0F172A</color>
+    <color name="tony_surface">#1E293B</color>
+    <color name="tony_surface_variant">#334155</color>
+    <color name="tony_border">#475569</color>
+
+    <!-- Text -->
+    <color name="tony_text_primary">#F1F5F9</color>
+    <color name="tony_text_secondary">#94A3B8</color>
+    <color name="tony_text_tertiary">#64748B</color>
+    <color name="tony_text_disabled">#475569</color>
+
+    <!-- Bottom nav frosted glass -->
+    <color name="tony_nav_glass">#CC0F172A</color>
+</resources>

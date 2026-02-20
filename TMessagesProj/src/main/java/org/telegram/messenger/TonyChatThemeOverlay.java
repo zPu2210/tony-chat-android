@@ -5,7 +5,7 @@ import com.tonychat.core.TonyConfig;
 import org.telegram.ui.ActionBar.Theme;
 
 /**
- * Applies Tony Chat brand colors onto Telegram's theme key system.
+ * Applies Tony Chat v2.0 Warm Indigo brand colors onto Telegram's theme key system.
  * Called after Theme.refreshThemeColors() to overlay brand identity.
  */
 public class TonyChatThemeOverlay {
@@ -15,9 +15,10 @@ public class TonyChatThemeOverlay {
             return;
         }
         boolean dark = TonyConfig.INSTANCE.getDarkMode();
+        int primary = dark ? TonyColors.DARK_PRIMARY : TonyColors.PRIMARY;
 
         // Action bar
-        Theme.setColor(Theme.key_actionBarDefault, TonyColors.PRIMARY, false);
+        Theme.setColor(Theme.key_actionBarDefault, primary, false);
         Theme.setColor(Theme.key_actionBarDefaultIcon, 0xFFFFFFFF, false);
         Theme.setColor(Theme.key_actionBarDefaultTitle, 0xFFFFFFFF, false);
         Theme.setColor(Theme.key_actionBarDefaultSubtitle, 0xCCFFFFFF, false);
@@ -44,28 +45,41 @@ public class TonyChatThemeOverlay {
         Theme.setColor(Theme.key_chats_name, textPrimary, false);
         Theme.setColor(Theme.key_chats_message, textSecondary, false);
         Theme.setColor(Theme.key_chats_date, textSecondary, false);
-        Theme.setColor(Theme.key_chats_unreadCounter, TonyColors.PRIMARY, false);
+        Theme.setColor(Theme.key_chats_unreadCounter, primary, false);
         Theme.setColor(Theme.key_chats_unreadCounterText, 0xFFFFFFFF, false);
 
-        // Chat bubbles
-        int inBubble = dark ? TonyColors.DARK_CHAT_IN_BUBBLE : TonyColors.LIGHT_CHAT_IN_BUBBLE;
-        int outBubble = dark ? TonyColors.DARK_CHAT_OUT_BUBBLE : TonyColors.LIGHT_CHAT_OUT_BUBBLE;
-        Theme.setColor(Theme.key_chat_inBubble, inBubble, false);
-        Theme.setColor(Theme.key_chat_outBubble, outBubble, false);
-
         // Links and accent elements
-        Theme.setColor(Theme.key_windowBackgroundWhiteBlueText, TonyColors.PRIMARY, false);
-        Theme.setColor(Theme.key_windowBackgroundWhiteBlueText2, TonyColors.PRIMARY, false);
-        Theme.setColor(Theme.key_windowBackgroundWhiteValueText, TonyColors.PRIMARY, false);
-        Theme.setColor(Theme.key_chat_messageLinkIn, TonyColors.PRIMARY, false);
-        Theme.setColor(Theme.key_chat_messageLinkOut, TonyColors.PRIMARY, false);
+        Theme.setColor(Theme.key_windowBackgroundWhiteBlueText, primary, false);
+        Theme.setColor(Theme.key_windowBackgroundWhiteBlueText2, primary, false);
+        Theme.setColor(Theme.key_windowBackgroundWhiteValueText, primary, false);
+        Theme.setColor(Theme.key_chat_messageLinkIn, primary, false);
+        Theme.setColor(Theme.key_chat_messageLinkOut, primary, false);
 
         // FAB / floating button
-        Theme.setColor(Theme.key_chats_actionBackground, TonyColors.PRIMARY, false);
+        Theme.setColor(Theme.key_chats_actionBackground, primary, false);
         Theme.setColor(Theme.key_chats_actionIcon, 0xFFFFFFFF, false);
 
         // Dividers
-        int divider = dark ? TonyColors.DARK_DIVIDER : TonyColors.LIGHT_DIVIDER;
-        Theme.setColor(Theme.key_divider, divider, false);
+        int border = dark ? TonyColors.DARK_BORDER : TonyColors.LIGHT_BORDER;
+        Theme.setColor(Theme.key_divider, border, false);
+
+        // Tony Chat design tokens (for custom screens)
+        Theme.setColor(Theme.key_tony_primary, primary, false);
+        Theme.setColor(Theme.key_tony_primaryDark, TonyColors.PRIMARY_DARK, false);
+        Theme.setColor(Theme.key_tony_primaryLight, TonyColors.PRIMARY_LIGHT, false);
+        Theme.setColor(Theme.key_tony_aiAccent, dark ? TonyColors.DARK_AI_ACCENT : TonyColors.AI_ACCENT, false);
+        Theme.setColor(Theme.key_tony_aiAccentText, dark ? TonyColors.DARK_AI_ACCENT_TEXT : TonyColors.AI_ACCENT_TEXT, false);
+        Theme.setColor(Theme.key_tony_aiLight, TonyColors.AI_LIGHT, false);
+        Theme.setColor(Theme.key_tony_success, dark ? TonyColors.DARK_SUCCESS : TonyColors.SUCCESS, false);
+        Theme.setColor(Theme.key_tony_error, dark ? TonyColors.DARK_ERROR : TonyColors.ERROR, false);
+        Theme.setColor(Theme.key_tony_warning, TonyColors.WARNING, false);
+        Theme.setColor(Theme.key_tony_background, bg, false);
+        Theme.setColor(Theme.key_tony_surface, surface, false);
+        Theme.setColor(Theme.key_tony_surface2, dark ? TonyColors.DARK_SURFACE2 : TonyColors.LIGHT_SURFACE2, false);
+        Theme.setColor(Theme.key_tony_border, border, false);
+        Theme.setColor(Theme.key_tony_textPrimary, textPrimary, false);
+        Theme.setColor(Theme.key_tony_textSecondary, textSecondary, false);
+        Theme.setColor(Theme.key_tony_textTertiary, dark ? TonyColors.DARK_TEXT_TERTIARY : TonyColors.LIGHT_TEXT_TERTIARY, false);
+        Theme.setColor(Theme.key_tony_navGlass, dark ? TonyColors.DARK_NAV_GLASS : TonyColors.LIGHT_NAV_GLASS, false);
     }
 }

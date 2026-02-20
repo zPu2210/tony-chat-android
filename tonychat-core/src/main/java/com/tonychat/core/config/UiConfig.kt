@@ -15,6 +15,11 @@ class UiConfig(private val prefs: SharedPreferences) {
         get() = prefs.getBoolean("use_tony_theme", true)
         set(value) = prefs.edit().putBoolean("use_tony_theme", value).apply()
 
+    /** Theme mode: 0=system, 1=light, 2=dark */
+    var themeMode: Int
+        get() = prefs.getInt("theme_mode", 0)
+        set(value) = prefs.edit().putInt("theme_mode", value).apply()
+
     // Visual settings
     var disableVibration: Boolean
         get() = prefs.getBoolean("disable_vibration", false)

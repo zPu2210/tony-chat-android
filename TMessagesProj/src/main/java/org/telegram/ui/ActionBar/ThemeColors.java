@@ -781,6 +781,25 @@ public class ThemeColors {
         defaultColors[key_code_comment] = 0x80000000;
         defaultColors[key_code_function] = 0xFFF28C39;
 
+        // Tony Chat design tokens (light defaults)
+        defaultColors[key_tony_primary] = 0xFF6366F1;
+        defaultColors[key_tony_primaryDark] = 0xFF4F46E5;
+        defaultColors[key_tony_primaryLight] = 0xFFE0E7FF;
+        defaultColors[key_tony_aiAccent] = 0xFFF59E0B;
+        defaultColors[key_tony_aiAccentText] = 0xFFD97706;
+        defaultColors[key_tony_aiLight] = 0xFFFEF3C7;
+        defaultColors[key_tony_success] = 0xFF10B981;
+        defaultColors[key_tony_error] = 0xFFF43F5E;
+        defaultColors[key_tony_warning] = 0xFFF59E0B;
+        defaultColors[key_tony_background] = 0xFFFAFAFA;
+        defaultColors[key_tony_surface] = 0xFFFFFFFF;
+        defaultColors[key_tony_surface2] = 0xFFF3F4F6;
+        defaultColors[key_tony_border] = 0xFFE5E7EB;
+        defaultColors[key_tony_textPrimary] = 0xFF1A1A1A;
+        defaultColors[key_tony_textSecondary] = 0xFF64748B;
+        defaultColors[key_tony_textTertiary] = 0xFF9CA3AF;
+        defaultColors[key_tony_navGlass] = 0xCCFFFFFF;
+
         return defaultColors;
     }
 
@@ -1521,6 +1540,26 @@ public class ThemeColors {
         colorKeysMap.put(key_code_number, "code_number");
         colorKeysMap.put(key_code_comment, "code_comment");
         colorKeysMap.put(key_code_function, "code_function");
+
+        // Tony Chat design tokens
+        colorKeysMap.put(key_tony_primary, "tony_primary");
+        colorKeysMap.put(key_tony_primaryDark, "tony_primaryDark");
+        colorKeysMap.put(key_tony_primaryLight, "tony_primaryLight");
+        colorKeysMap.put(key_tony_aiAccent, "tony_aiAccent");
+        colorKeysMap.put(key_tony_aiAccentText, "tony_aiAccentText");
+        colorKeysMap.put(key_tony_aiLight, "tony_aiLight");
+        colorKeysMap.put(key_tony_success, "tony_success");
+        colorKeysMap.put(key_tony_error, "tony_error");
+        colorKeysMap.put(key_tony_warning, "tony_warning");
+        colorKeysMap.put(key_tony_background, "tony_background");
+        colorKeysMap.put(key_tony_surface, "tony_surface");
+        colorKeysMap.put(key_tony_surface2, "tony_surface2");
+        colorKeysMap.put(key_tony_border, "tony_border");
+        colorKeysMap.put(key_tony_textPrimary, "tony_textPrimary");
+        colorKeysMap.put(key_tony_textSecondary, "tony_textSecondary");
+        colorKeysMap.put(key_tony_textTertiary, "tony_textTertiary");
+        colorKeysMap.put(key_tony_navGlass, "tony_navGlass");
+
         return colorKeysMap;
     }
 

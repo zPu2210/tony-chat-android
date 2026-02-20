@@ -26,6 +26,10 @@ object TonyConfig {
         private set
 
     // ============ Feature Flags (Tony Chat specific) ============
+    var bottomNavEnabled: Boolean
+        get() = prefs.getBoolean("bottom_nav_enabled", false)
+        set(value) = prefs.edit().putBoolean("bottom_nav_enabled", value).apply()
+
     var showStories: Boolean
         get() = prefs.getBoolean("show_stories", false)
         set(value) = prefs.edit().putBoolean("show_stories", value).apply()

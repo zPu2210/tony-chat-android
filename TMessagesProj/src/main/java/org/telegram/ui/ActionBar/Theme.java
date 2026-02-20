@@ -4125,6 +4125,25 @@ public class Theme {
     public static final int key_code_comment = colorsCount++;
     public static final int key_code_function = colorsCount++;
 
+    // Tony Chat design tokens
+    public static final int key_tony_primary = colorsCount++;
+    public static final int key_tony_primaryDark = colorsCount++;
+    public static final int key_tony_primaryLight = colorsCount++;
+    public static final int key_tony_aiAccent = colorsCount++;
+    public static final int key_tony_aiAccentText = colorsCount++;
+    public static final int key_tony_aiLight = colorsCount++;
+    public static final int key_tony_success = colorsCount++;
+    public static final int key_tony_error = colorsCount++;
+    public static final int key_tony_warning = colorsCount++;
+    public static final int key_tony_background = colorsCount++;
+    public static final int key_tony_surface = colorsCount++;
+    public static final int key_tony_surface2 = colorsCount++;
+    public static final int key_tony_border = colorsCount++;
+    public static final int key_tony_textPrimary = colorsCount++;
+    public static final int key_tony_textSecondary = colorsCount++;
+    public static final int key_tony_textTertiary = colorsCount++;
+    public static final int key_tony_navGlass = colorsCount++;
+
     public static final String key_drawable_botInline = "drawableBotInline";
     public static final String key_drawable_botLink = "drawableBotLink";
     public static final String key_drawable_botWebView = "drawableBotWebView";
