@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tony Chat Color Palette — Light Theme -->
+
+    <!-- Primary Indigo -->
+    <color name="tony_primary_50">#EEF2FF</color>
+    <color name="tony_primary_100">#E0E7FF</color>
+    <color name="tony_primary_200">#C7D2FE</color>
+    <color name="tony_primary_300">#A5B4FC</color>
+    <color name="tony_primary_400">#818CF8</color>
+    <color name="tony_primary_500">#6366F1</color>
+    <color name="tony_primary_600">#4F46E5</color>
+    <color name="tony_primary_700">#4338CA</color>
+    <color name="tony_primary_800">#3730A3</color>
+    <color name="tony_primary_900">#312E81</color>
+    <color name="tony_primary_950">#1E1B4B</color>
+
+    <!-- AI Accent (Amber) -->
+    <color name="tony_ai_accent">#F59E0B</color>
+    <color name="tony_ai_accent_text">#D97706</color>
+    <color name="tony_ai_accent_light">#FEF3C7</color>
+    <color name="tony_ai_accent_dark">#92400E</color>
+
+    <!-- Semantic -->
+    <color name="tony_success">#10B981</color>
+    <color name="tony_success_light">#D1FAE5</color>
+    <color name="tony_warning">#F59E0B</color>
+    <color name="tony_warning_light">#FEF3C7</color>
+    <color name="tony_error">#F43F5E</color>
+    <color name="tony_error_light">#FFE4E6</color>
+
+    <!-- Surfaces -->
+    <color name="tony_background">#FAFAFA</color>
+    <color name="tony_surface">#FFFFFF</color>
+    <color name="tony_surface_variant">#F3F4F6</color>
+    <color name="tony_border">#E5E7EB</color>
+
+    <!-- Text -->
+    <color name="tony_text_primary">#1A1A1A</color>
+    <color name="tony_text_secondary">#64748B</color>
+    <color name="tony_text_tertiary">#9CA3AF</color>
+    <color name="tony_text_disabled">#CBD5E1</color>
+    <color name="tony_text_on_primary">#FFFFFF</color>
+
+    <!-- Bottom nav frosted glass -->
+    <color name="tony_nav_glass">#CCFFFFFF</color>
+    <color name="tony_nav_pill">#6366F1</color>
+</resources>

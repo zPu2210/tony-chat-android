@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tony Chat Design Tokens — Spacing (8dp base grid) -->
+    <dimen name="tony_space_xs">4dp</dimen>
+    <dimen name="tony_space_sm">8dp</dimen>
+    <dimen name="tony_space_md">12dp</dimen>
+    <dimen name="tony_space_base">16dp</dimen>
+    <dimen name="tony_space_lg">24dp</dimen>
+    <dimen name="tony_space_xl">32dp</dimen>
+    <dimen name="tony_space_2xl">48dp</dimen>
+    <dimen name="tony_space_3xl">64dp</dimen>
+
+    <!-- Corner radius -->
+    <dimen name="tony_radius_xs">4dp</dimen>
+    <dimen name="tony_radius_sm">8dp</dimen>
+    <dimen name="tony_radius_md">12dp</dimen>
+    <dimen name="tony_radius_lg">16dp</dimen>
+    <dimen name="tony_radius_xl">24dp</dimen>
+    <dimen name="tony_radius_full">9999dp</dimen>
+
+    <!-- Component sizes -->
+    <dimen name="tony_bottom_nav_height">56dp</dimen>
+    <dimen name="tony_bottom_nav_total_height">80dp</dimen>
+    <dimen name="tony_avatar_sm">32dp</dimen>
+    <dimen name="tony_avatar_md">48dp</dimen>
+    <dimen name="tony_avatar_lg">72dp</dimen>
+    <dimen name="tony_touch_target_min">48dp</dimen>
+    <dimen name="tony_chat_item_height">72dp</dimen>
+    <dimen name="tony_settings_item_height">56dp</dimen>
+    <dimen name="tony_card_elevation">2dp</dimen>
+    <dimen name="tony_pill_height">32dp</dimen>
+    <dimen name="tony_pill_radius">16dp</dimen>
+</resources>
