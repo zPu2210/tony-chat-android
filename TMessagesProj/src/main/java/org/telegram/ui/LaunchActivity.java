@@ -68,8 +68,10 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.tonychat.core.TonyConfig;
+import com.tonychat.community.ui.CommunityFeedFragment;
+import org.telegram.ui.TonyChat.AiAssistFragment;
 import org.telegram.ui.TonyChat.TonyBottomNavView;
-import org.telegram.ui.TonyChat.TonyTabPlaceholderView;
+import org.telegram.ui.TonyChat.TonySettingsFragment;
 
 import androidx.annotation.NonNull;
 import androidx.arch.core.util.Function;
@@ -271,6 +273,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
     private LinearLayout tonyMainContainer;
     private FrameLayout tonyTabContainer;
     private View[] tonyTabViews = new View[4];
+    private INavigationLayout[] tonyTabLayouts = new INavigationLayout[4];
     private int tonyCurrentTab = TonyBottomNavView.TAB_CHATS;
     private IUpdateLayout updateLayout;
 
@@ -1207,6 +1210,9 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         // Ensure correct initial visibility
         actionBarLayout.getView().setVisibility(
             tonyCurrentTab == TonyBottomNavView.TAB_CHATS ? View.VISIBLE : View.GONE);
+
+        // Initial unread badge
+        updateTonyUnreadBadge();
     }
 
     private void cleanupTonyBottomNav() {
@@ -1218,6 +1224,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         tonyTabContainer = null;
         for (int j = 0; j < tonyTabViews.length; j++) {
             tonyTabViews[j] = null;
+            tonyTabLayouts[j] = null;
         }
     }
 
@@ -1252,22 +1259,38 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
     }
 
     private View createTonyTabView(int index) {
+        BaseFragment fragment;
         switch (index) {
             case TonyBottomNavView.TAB_COMMUNITY:
-                return new TonyTabPlaceholderView(this,
-                    R.drawable.ic_tony_community, "Community",
-                    "Coming soon in Phase 3");
+                fragment = new CommunityFeedFragment();
+                break;
             case TonyBottomNavView.TAB_AI_ASSIST:
-                return new TonyTabPlaceholderView(this,
-                    R.drawable.ic_tony_ai, "Tony Assist",
-                    "AI features coming in Phase 3");
+                fragment = new AiAssistFragment();
+                break;
             case TonyBottomNavView.TAB_SETTINGS:
-                return new TonyTabPlaceholderView(this,
-                    R.drawable.ic_tony_settings, "Settings",
-                    "Coming soon in Phase 3");
+                fragment = new TonySettingsFragment();
+                break;
             default:
                 return new FrameLayout(this);
         }
+        INavigationLayout tabLayout = INavigationLayout.newLayout(this);
+        tabLayout.setFragmentStack(new ArrayList<>());
+        tabLayout.addFragmentToStack(fragment);
+        tabLayout.setDelegate(this);
+        tonyTabLayouts[index] = tabLayout;
+        return tabLayout.getView();
+    }
+
+    /** Update unread badge count on Tony bottom nav Chats tab. */
+    private void updateTonyUnreadBadge() {
+        if (tonyBottomNav == null) return;
+        int totalUnread = 0;
+        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+            if (UserConfig.getInstance(a).isClientActivated()) {
+                totalUnread += NotificationsController.getInstance(a).getTotalUnreadCount();
+            }
+        }
+        tonyBottomNav.setUnreadCount(totalUnread);
     }
 
     /** Check if Tony bottom nav is active and visible. */
@@ -6522,6 +6545,8 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                     }
                 }
             }
+            // Update Tony bottom nav unread badge
+            updateTonyUnreadBadge();
         } else if (id == NotificationCenter.needShowPlayServicesAlert) {
             try {
                 final Status status = (Status) args[0];
@@ -7315,8 +7340,13 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 }
             }
         } else if (isTonyBottomNavActive()) {
-            // Bottom nav mode: try fragment stack first, then switch to Chats, then exit
-            if (actionBarLayout.getFragmentStack().size() > 1 && tonyCurrentTab == TonyBottomNavView.TAB_CHATS) {
+            // Bottom nav mode: try tab's fragment stack first, then switch to Chats, then exit
+            if (tonyCurrentTab != TonyBottomNavView.TAB_CHATS
+                && tonyTabLayouts[tonyCurrentTab] != null
+                && tonyTabLayouts[tonyCurrentTab].getFragmentStack().size() > 1) {
+                tonyTabLayouts[tonyCurrentTab].onBackPressed();
+            } else if (tonyCurrentTab == TonyBottomNavView.TAB_CHATS
+                && actionBarLayout.getFragmentStack().size() > 1) {
                 actionBarLayout.onBackPressed();
             } else if (tonyCurrentTab != TonyBottomNavView.TAB_CHATS) {
                 switchTonyTab(TonyBottomNavView.TAB_CHATS);

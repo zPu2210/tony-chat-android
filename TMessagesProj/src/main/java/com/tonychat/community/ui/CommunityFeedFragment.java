@@ -60,7 +60,10 @@ public class CommunityFeedFragment extends BaseFragment {
 
     @Override
     public View createView(Context context) {
-        actionBar.setBackButtonImage(R.drawable.ic_ab_back);
+        // Only show back button if not the root fragment (e.g., opened from drawer)
+        if (getParentLayout() != null && getParentLayout().getFragmentStack().size() > 1) {
+            actionBar.setBackButtonImage(R.drawable.ic_ab_back);
+        }
         actionBar.setAllowOverlayTitle(true);
         actionBar.setTitle("Community Board");
         actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
@@ -150,8 +153,8 @@ public class CommunityFeedFragment extends BaseFragment {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 loadInitialPosts();
             } else {
-                Toast.makeText(getParentActivity(), "Location permission required", Toast.LENGTH_SHORT).show();
-                finishFragment();
+                Toast.makeText(getParentActivity(), "Location permission required for nearby posts", Toast.LENGTH_SHORT).show();
+                showEmptyState();
             }
         }
     }
