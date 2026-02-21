@@ -53,13 +53,18 @@ public class CommunityFeedFragment extends BaseFragment {
     @Override
     public boolean onFragmentCreate() {
         super.onFragmentCreate();
-        locationHelper = new LocationHelper(getParentActivity());
-        deviceId = DeviceIdHelper.INSTANCE.getDeviceId(getParentActivity());
         return true;
     }
 
     @Override
     public View createView(Context context) {
+        // Initialize helpers here (not in onFragmentCreate) because
+        // parentLayout isn't set until after onFragmentCreate returns,
+        // so getParentActivity() would return null there.
+        if (locationHelper == null) {
+            locationHelper = new LocationHelper(context);
+            deviceId = DeviceIdHelper.INSTANCE.getDeviceId(context);
+        }
         // Only show back button if not the root fragment (e.g., opened from drawer)
         if (getParentLayout() != null && getParentLayout().getFragmentStack().size() > 1) {
             actionBar.setBackButtonImage(R.drawable.ic_ab_back);
