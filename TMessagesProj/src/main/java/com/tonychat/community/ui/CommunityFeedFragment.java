@@ -1,6 +1,7 @@
 package com.tonychat.community.ui;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -44,6 +45,9 @@ public class CommunityFeedFragment extends BaseFragment {
 
     private LocationHelper locationHelper;
     private String deviceId;
+    // Cached context from createView — safe to use throughout the fragment lifecycle.
+    // getParentActivity() can return null when fragment is inside a tab INavigationLayout.
+    private Context safeContext;
 
     private List<Post> posts = new ArrayList<>();
     private boolean isLoading = false;
@@ -58,14 +62,14 @@ public class CommunityFeedFragment extends BaseFragment {
 
     @Override
     public View createView(Context context) {
-        // Initialize helpers here (not in onFragmentCreate) because
-        // parentLayout isn't set until after onFragmentCreate returns,
-        // so getParentActivity() would return null there.
+        safeContext = context;
+
+        // Initialize helpers using the guaranteed non-null context param
         if (locationHelper == null) {
             locationHelper = new LocationHelper(context);
             deviceId = DeviceIdHelper.INSTANCE.getDeviceId(context);
         }
-        // Only show back button if not the root fragment (e.g., opened from drawer)
+
         if (getParentLayout() != null && getParentLayout().getFragmentStack().size() > 1) {
             actionBar.setBackButtonImage(R.drawable.ic_ab_back);
         }
@@ -134,6 +138,12 @@ public class CommunityFeedFragment extends BaseFragment {
         return fragmentView;
     }
 
+    /** Return a non-null context: prefer getParentActivity(), fall back to cached context. */
+    private Context ctx() {
+        Activity a = getParentActivity();
+        return a != null ? a : safeContext;
+    }
+
     private void checkLocationPermissionAndLoad() {
         if (!locationHelper.hasLocationPermission()) {
             requestLocationPermission();
@@ -143,8 +153,14 @@ public class CommunityFeedFragment extends BaseFragment {
     }
 
     private void requestLocationPermission() {
+        Activity activity = getParentActivity();
+        if (activity == null) {
+            // Can't request permissions without an Activity — load without location
+            showEmptyState();
+            return;
+        }
         ActivityCompat.requestPermissions(
-            getParentActivity(),
+            activity,
             new String[]{
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION
@@ -159,7 +175,7 @@ public class CommunityFeedFragment extends BaseFragment {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 loadInitialPosts();
             } else {
-                Toast.makeText(getParentActivity(), "Location permission required. Go to Settings to enable.", Toast.LENGTH_LONG).show();
+                Toast.makeText(ctx(), "Location permission required. Go to Settings to enable.", Toast.LENGTH_LONG).show();
                 showEmptyState();
             }
         }
@@ -186,7 +202,7 @@ public class CommunityFeedFragment extends BaseFragment {
         if (isLoading) return;
         isLoading = true;
 
-        CommunityBridge.getCurrentLocation(getParentActivity(), location -> {
+        CommunityBridge.getCurrentLocation(ctx(), location -> {
             if (location != null) {
                 lastLocation = location;
                 CommunityBridge.getNearbyPosts(
@@ -213,7 +229,7 @@ public class CommunityFeedFragment extends BaseFragment {
                     }
                 );
             } else {
-                Toast.makeText(getParentActivity(), "Unable to get location. Pull down to retry.", Toast.LENGTH_LONG).show();
+                Toast.makeText(ctx(), "Unable to get location. Pull down to retry.", Toast.LENGTH_LONG).show();
                 isLoading = false;
                 if (swipeRefreshLayout.isRefreshing()) {
                     swipeRefreshLayout.setRefreshing(false);
@@ -223,7 +239,7 @@ public class CommunityFeedFragment extends BaseFragment {
     }
 
     private void showEmptyState() {
-        Toast.makeText(getParentActivity(), "No posts nearby. Be the first!", Toast.LENGTH_LONG).show();
+        Toast.makeText(ctx(), "No posts nearby. Be the first!", Toast.LENGTH_LONG).show();
     }
 
     private void onPostClick(Post post) {
@@ -232,51 +248,48 @@ public class CommunityFeedFragment extends BaseFragment {
     }
 
     private void onLikeClick(Post post, int position) {
-        // Store original state for rollback
         boolean wasLiked = post.isLiked();
         long originalCount = post.getLikeCount();
 
-        // Toggle like optimistically
         post.setLiked(!wasLiked);
         post.setLikeCount(originalCount + (post.isLiked() ? 1 : -1));
         adapter.notifyItemChanged(position);
 
-        // Sync with backend
         if (post.isLiked()) {
             CommunityBridge.likePost(post.getId(), deviceId, success -> {
                 if (!success) {
-                    // Rollback on failure
                     post.setLiked(wasLiked);
                     post.setLikeCount(originalCount);
                     adapter.notifyItemChanged(position);
-                    Toast.makeText(getParentActivity(), "Failed to like post. Tap to retry.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ctx(), "Failed to like post. Tap to retry.", Toast.LENGTH_LONG).show();
                 }
             });
         } else {
             CommunityBridge.unlikePost(post.getId(), deviceId, success -> {
                 if (!success) {
-                    // Rollback on failure
                     post.setLiked(wasLiked);
                     post.setLikeCount(originalCount);
                     adapter.notifyItemChanged(position);
-                    Toast.makeText(getParentActivity(), "Failed to unlike post. Tap to retry.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ctx(), "Failed to unlike post. Tap to retry.", Toast.LENGTH_LONG).show();
                 }
             });
         }
     }
 
     private void showCreatePostSheet() {
+        Activity activity = getParentActivity();
+        if (activity == null) return;
+
         if (lastLocation == null) {
-            Toast.makeText(getParentActivity(), "Getting your location...", Toast.LENGTH_LONG).show();
+            Toast.makeText(activity, "Getting your location...", Toast.LENGTH_LONG).show();
             return;
         }
 
         CreatePostBottomSheet sheet = new CreatePostBottomSheet(
-            getParentActivity(),
+            activity,
             lastLocation,
             deviceId,
             post -> {
-                // Add new post to top of list
                 posts.add(0, post);
                 adapter.notifyItemInserted(0);
                 recyclerView.scrollToPosition(0);
