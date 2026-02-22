@@ -172,26 +172,26 @@ public class ThemeColors {
         defaultColors[key_avatar_nameInMessageBlue] = 0xff368AD1;
         defaultColors[key_avatar_nameInMessagePink] = 0xffC7508B;
 
-        defaultColors[key_actionBarDefault] = 0xff527da3;
-        defaultColors[key_actionBarDefaultIcon] = 0xffffffff;
+        defaultColors[key_actionBarDefault] = 0xffffffff;
+        defaultColors[key_actionBarDefaultIcon] = 0xff222222;
         defaultColors[key_actionBarActionModeDefault] = 0xffffffff;
         defaultColors[key_actionBarActionModeDefaultTop] = 0x10000000;
         defaultColors[key_actionBarActionModeDefaultIcon] = 0xff676a6f;
-        defaultColors[key_actionBarDefaultTitle] = 0xffffffff;
-        defaultColors[key_actionBarDefaultSubtitle] = 0xffd5e8f7;
-        defaultColors[key_actionBarDefaultSelector] = 0xff406d94;
+        defaultColors[key_actionBarDefaultTitle] = 0xff222222;
+        defaultColors[key_actionBarDefaultSubtitle] = 0xff8a8a8a;
+        defaultColors[key_actionBarDefaultSelector] = 0x0f000000;
         defaultColors[key_actionBarWhiteSelector] = 0x1d000000;
-        defaultColors[key_actionBarDefaultSearch] = 0xffffffff;
-        defaultColors[key_actionBarDefaultSearchPlaceholder] = 0x88ffffff;
+        defaultColors[key_actionBarDefaultSearch] = 0xff222222;
+        defaultColors[key_actionBarDefaultSearchPlaceholder] = 0x88222222;
         defaultColors[key_actionBarDefaultSubmenuItem] = 0xff222222;
         defaultColors[key_actionBarDefaultSubmenuItemIcon] = 0xff676b70;
         defaultColors[key_actionBarDefaultSubmenuBackground] = 0xffffffff;
         defaultColors[key_actionBarDefaultSubmenuSeparator] = 0xfff5f5f5;
         defaultColors[key_actionBarActionModeDefaultSelector] = 0xffe2e2e2;
-        defaultColors[key_actionBarTabActiveText] = 0xffffffff;
-        defaultColors[key_actionBarTabUnactiveText] = 0xffd5e8f7;
-        defaultColors[key_actionBarTabLine] = 0xffffffff;
-        defaultColors[key_actionBarTabSelector] = 0xff406d94;
+        defaultColors[key_actionBarTabActiveText] = 0xff222222;
+        defaultColors[key_actionBarTabUnactiveText] = 0xff999999;
+        defaultColors[key_actionBarTabLine] = 0xfff9e000;
+        defaultColors[key_actionBarTabSelector] = 0x0f000000;
 
         defaultColors[key_actionBarBrowser] = 0xffffffff;
 
@@ -288,7 +288,7 @@ public class ThemeColors {
         defaultColors[key_chat_inBubble] = 0xffffffff;
         defaultColors[key_chat_inBubbleSelected] = 0xffecf7fd;
         defaultColors[key_chat_inBubbleShadow] = 0xff1d3753;
-        defaultColors[key_chat_outBubble] = 0xffefffde;
+        defaultColors[key_chat_outBubble] = 0xfffffdf2;
         defaultColors[key_chat_outBubbleGradientSelectedOverlay] = 0x14000000;
         defaultColors[key_chat_outBubbleSelected] = 0xffd9f7c5;
         defaultColors[key_chat_outBubbleShadow] = 0xff1e750c;

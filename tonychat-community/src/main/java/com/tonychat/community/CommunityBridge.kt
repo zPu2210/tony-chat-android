@@ -15,6 +15,7 @@ import com.tonychat.community.repository.LocationHelper
 import com.tonychat.community.repository.PostRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -25,8 +26,15 @@ import kotlinx.coroutines.withContext
 object CommunityBridge {
     private const val TAG = "CommunityBridge"
 
+    private val fallbackScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
     private val scope: CoroutineScope
-        get() = ProcessLifecycleOwner.get().lifecycleScope
+        get() = try {
+            ProcessLifecycleOwner.get().lifecycleScope
+        } catch (e: Exception) {
+            Log.w(TAG, "ProcessLifecycleOwner not ready, using fallback scope", e)
+            fallbackScope
+        }
 
     private val postRepository = PostRepository()
     private val commentRepository = CommentRepository()

@@ -5,6 +5,7 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -16,8 +17,15 @@ import java.io.File
 object AiManagerBridge {
     private const val TAG = "AiManagerBridge"
 
+    private val fallbackScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
     private val scope: CoroutineScope
-        get() = ProcessLifecycleOwner.get().lifecycleScope
+        get() = try {
+            ProcessLifecycleOwner.get().lifecycleScope
+        } catch (e: Exception) {
+            Log.w(TAG, "ProcessLifecycleOwner not ready, using fallback scope", e)
+            fallbackScope
+        }
 
     fun interface ResultCallback<T> {
         fun onResult(response: AiResponse<T>)

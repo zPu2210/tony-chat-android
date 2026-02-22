@@ -51,6 +51,7 @@ public class CommunityFeedFragment extends BaseFragment {
 
     private List<Post> posts = new ArrayList<>();
     private boolean isLoading = false;
+    private boolean hasLoadedInitial = false;
     private int pageOffset = 0;
     private Location lastLocation;
 
@@ -127,15 +128,27 @@ public class CommunityFeedFragment extends BaseFragment {
         fabCreate.setImageResource(R.drawable.msg_send);
         fabCreate.setContentDescription("Create new post");
         fabCreate.setBackgroundTintList(
-            android.content.res.ColorStateList.valueOf(Theme.getColor(Theme.key_chats_actionBackground))
+            android.content.res.ColorStateList.valueOf(0xFFF9E000)
+        );
+        fabCreate.setImageTintList(
+            android.content.res.ColorStateList.valueOf(0xFF111111)
         );
         fabCreate.setOnClickListener(v -> showCreatePostSheet());
+        // Bottom margin accounts for floating pill nav bar (66dp + 24dp margin + 16dp gap)
         frameLayout.addView(fabCreate, LayoutHelper.createFrame(
-            56, 56, Gravity.END | Gravity.BOTTOM, 0, 0, 16, 16
+            56, 56, Gravity.END | Gravity.BOTTOM, 0, 0, 16, 106
         ));
 
-        checkLocationPermissionAndLoad();
         return fragmentView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!hasLoadedInitial) {
+            hasLoadedInitial = true;
+            checkLocationPermissionAndLoad();
+        }
     }
 
     /** Return a non-null context: prefer getParentActivity(), fall back to cached context. */
@@ -145,6 +158,7 @@ public class CommunityFeedFragment extends BaseFragment {
     }
 
     private void checkLocationPermissionAndLoad() {
+        if (locationHelper == null) return;
         if (!locationHelper.hasLocationPermission()) {
             requestLocationPermission();
         } else {
@@ -200,9 +214,11 @@ public class CommunityFeedFragment extends BaseFragment {
 
     private void loadPosts() {
         if (isLoading) return;
+        Context c = ctx();
+        if (c == null) return;
         isLoading = true;
 
-        CommunityBridge.getCurrentLocation(ctx(), location -> {
+        CommunityBridge.getCurrentLocation(c, location -> {
             if (location != null) {
                 lastLocation = location;
                 CommunityBridge.getNearbyPosts(

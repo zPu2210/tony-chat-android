@@ -20,6 +20,7 @@ import com.tonychat.ai.provider.*
 import com.tonychat.ai.ratelimit.RateLimiter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.io.File
 import java.security.MessageDigest
@@ -39,6 +40,15 @@ object AiManager {
     private var cloudProvider: AiProvider = NoOpProvider()
     private var removeBgProvider: ImageEditProvider? = null
     private var emojiProvider: ImageGenerationProvider? = null
+
+    private val fallbackScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private val safeScope: CoroutineScope
+        get() = try {
+            ProcessLifecycleOwner.get().lifecycleScope
+        } catch (e: Exception) {
+            Log.w(TAG, "ProcessLifecycleOwner not ready, using fallback scope", e)
+            fallbackScope
+        }
 
     /** Reset singleton state for testing */
     @VisibleForTesting
@@ -80,7 +90,7 @@ object AiManager {
         refreshProviders()
 
         // Evict expired cache entries on startup
-        ProcessLifecycleOwner.get().lifecycleScope.launch(Dispatchers.IO) {
+        safeScope.launch(Dispatchers.IO) {
             try {
                 cache.evictExpired()
                 imageEditCache.evictExpired()
@@ -94,7 +104,7 @@ object AiManager {
 
     /** Clear all cached AI responses. */
     fun clearCache(onDone: Runnable? = null) {
-        ProcessLifecycleOwner.get().lifecycleScope.launch(Dispatchers.IO) {
+        safeScope.launch(Dispatchers.IO) {
             try {
                 cache.clearAll()
             } catch (e: Exception) {
