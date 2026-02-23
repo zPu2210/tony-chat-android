@@ -25,7 +25,7 @@ import org.telegram.ui.Components.LayoutHelper;
 
 /**
  * Floating pill bottom navigation for Tony Chat v2.0.
- * 3 tabs: Chats (default) | Community | Settings
+ * 4 tabs: Tony AI (default) | Explore | Chats | Settings
  * Active = yellow #F9E000 icon+label, inactive = #777777.
  * Pill: white bg, cornerRadius 33dp, elevation shadow.
  */
@@ -35,10 +35,11 @@ public class TonyBottomNavView extends FrameLayout {
         void onTabSelected(int index);
     }
 
-    public static final int TAB_CHATS = 0;
-    public static final int TAB_COMMUNITY = 1;
-    public static final int TAB_SETTINGS = 2;
-    public static final int TAB_COUNT = 3;
+    public static final int TAB_TONY_AI = 0;
+    public static final int TAB_EXPLORE = 1;
+    public static final int TAB_CHATS = 2;
+    public static final int TAB_SETTINGS = 3;
+    public static final int TAB_COUNT = 4;
 
     private static final int ANIM_DURATION = 200;
     private static final int ACTIVE_COLOR = 0xFF111111;
@@ -46,17 +47,18 @@ public class TonyBottomNavView extends FrameLayout {
     private static final int PILL_COLOR = 0xFFF9E000;
 
     private static final int[] ICON_RES = {
-            R.drawable.ic_tony_chats,
+            R.drawable.ic_tony_ai,
             R.drawable.ic_tony_community,
+            R.drawable.ic_tony_chats,
             R.drawable.ic_tony_settings
     };
 
     private static final String[] TAB_LABELS = {
-            "Chats", "Community", "Settings"
+            "Tony AI", "Explore", "Chats", "Settings"
     };
 
     private static final String[] CONTENT_DESCRIPTIONS = {
-            "Chats tab", "Community tab", "Settings tab"
+            "Tony AI tab", "Explore tab", "Chats tab", "Settings tab"
     };
 
     private final ImageView[] icons = new ImageView[TAB_COUNT];
@@ -67,7 +69,7 @@ public class TonyBottomNavView extends FrameLayout {
     private final Paint pillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF pillRect = new RectF();
 
-    private int activeTab = TAB_CHATS;
+    private int activeTab = TAB_TONY_AI;
     private int unreadCount = 0;
     private OnTabSelectedListener listener;
 
