@@ -10,6 +10,7 @@ import com.tonychat.community.model.CreateCommentRequest
 import com.tonychat.community.model.CreatePostRequest
 import com.tonychat.community.model.Post
 import com.tonychat.community.repository.CommentRepository
+import com.tonychat.community.repository.ImageUploader
 import com.tonychat.community.repository.LikeRepository
 import com.tonychat.community.repository.LocationHelper
 import com.tonychat.community.repository.PostRepository
@@ -39,6 +40,7 @@ object CommunityBridge {
     private val postRepository = PostRepository()
     private val commentRepository = CommentRepository()
     private val likeRepository = LikeRepository()
+    private val imageUploader = ImageUploader()
 
     fun interface PostListCallback {
         fun onResult(posts: List<Post>)
@@ -58,6 +60,10 @@ object CommunityBridge {
 
     fun interface BooleanCallback {
         fun onResult(success: Boolean)
+    }
+
+    fun interface StringCallback {
+        fun onResult(url: String?)
     }
 
     fun interface LocationCallback {
@@ -100,6 +106,24 @@ object CommunityBridge {
                 postRepository.getNearbyPosts(lat, lng, radiusMeters, pageOffset, deviceId)
             } catch (e: Exception) {
                 Log.w(TAG, "getNearbyPosts failed", e)
+                emptyList()
+            }
+            withContext(Dispatchers.Main) {
+                callback.onResult(result)
+            }
+        }
+    }
+
+    /**
+     * Get all posts (global feed, no location required)
+     */
+    @JvmStatic
+    fun getAllPosts(pageOffset: Int, callerDeviceId: String, callback: PostListCallback) {
+        scope.launch(Dispatchers.IO) {
+            val result = try {
+                postRepository.getAllPosts(pageOffset, callerDeviceId)
+            } catch (e: Exception) {
+                Log.w(TAG, "getAllPosts failed", e)
                 emptyList()
             }
             withContext(Dispatchers.Main) {
@@ -191,6 +215,24 @@ object CommunityBridge {
             } catch (e: Exception) {
                 Log.w(TAG, "likePost failed", e)
                 false
+            }
+            withContext(Dispatchers.Main) {
+                callback.onResult(result)
+            }
+        }
+    }
+
+    /**
+     * Upload image to Supabase Storage
+     */
+    @JvmStatic
+    fun uploadImage(imageFile: java.io.File, callback: StringCallback) {
+        scope.launch(Dispatchers.IO) {
+            val result = try {
+                imageUploader.uploadImage(imageFile)
+            } catch (e: Exception) {
+                Log.w(TAG, "uploadImage failed", e)
+                null
             }
             withContext(Dispatchers.Main) {
                 callback.onResult(result)

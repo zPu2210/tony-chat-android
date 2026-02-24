@@ -3,11 +3,15 @@ package com.tonychat.community.ui;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
@@ -15,7 +19,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.tonychat.community.CommunityBridge;
 import com.tonychat.community.DeviceIdHelper;
 import com.tonychat.community.model.Post;
@@ -32,8 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Community feed showing nearby posts.
- * Implements pagination, pull-to-refresh, and location-based loading.
+ * Community feed showing global posts (no location required).
+ * Implements pagination, pull-to-refresh, visual empty state, and image posting.
  */
 public class CommunityFeedFragment extends BaseFragment {
     private static final int REQUEST_LOCATION = 101;
@@ -41,12 +44,11 @@ public class CommunityFeedFragment extends BaseFragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
     private PostAdapter adapter;
-    private FloatingActionButton fabCreate;
+    private ImageView fabCreate;
+    private LinearLayout emptyStateLayout;
 
     private LocationHelper locationHelper;
     private String deviceId;
-    // Cached context from createView — safe to use throughout the fragment lifecycle.
-    // getParentActivity() can return null when fragment is inside a tab INavigationLayout.
     private Context safeContext;
 
     private List<Post> posts = new ArrayList<>();
@@ -54,6 +56,7 @@ public class CommunityFeedFragment extends BaseFragment {
     private boolean hasLoadedInitial = false;
     private int pageOffset = 0;
     private Location lastLocation;
+    private CreatePostBottomSheet currentSheet;
 
     @Override
     public boolean onFragmentCreate() {
@@ -65,7 +68,6 @@ public class CommunityFeedFragment extends BaseFragment {
     public View createView(Context context) {
         safeContext = context;
 
-        // Initialize helpers using the guaranteed non-null context param
         if (locationHelper == null) {
             locationHelper = new LocationHelper(context);
             deviceId = DeviceIdHelper.INSTANCE.getDeviceId(context);
@@ -79,7 +81,8 @@ public class CommunityFeedFragment extends BaseFragment {
         actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
             @Override
             public void onItemClick(int id) {
-                if (id == -1) finishFragment();
+                if (id == -1)
+                    finishFragment();
             }
         });
 
@@ -92,8 +95,7 @@ public class CommunityFeedFragment extends BaseFragment {
         swipeRefreshLayout.setColorSchemeColors(Theme.getColor(Theme.key_actionBarDefault));
         swipeRefreshLayout.setOnRefreshListener(this::refreshPosts);
         frameLayout.addView(swipeRefreshLayout, LayoutHelper.createFrame(
-            LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT
-        ));
+                LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
 
         // RecyclerView
         recyclerView = new RecyclerView(context);
@@ -101,8 +103,7 @@ public class CommunityFeedFragment extends BaseFragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setVerticalScrollBarEnabled(true);
         swipeRefreshLayout.addView(recyclerView, LayoutHelper.createFrame(
-            LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT
-        ));
+                LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
 
         adapter = new PostAdapter(posts, this::onPostClick, this::onLikeClick);
         recyclerView.setAdapter(adapter);
@@ -123,21 +124,75 @@ public class CommunityFeedFragment extends BaseFragment {
             }
         });
 
+        // Empty state
+        emptyStateLayout = new LinearLayout(context);
+        emptyStateLayout.setOrientation(LinearLayout.VERTICAL);
+        emptyStateLayout.setGravity(Gravity.CENTER);
+        emptyStateLayout.setVisibility(View.GONE);
+        emptyStateLayout.setPadding(AndroidUtilities.dp(32), AndroidUtilities.dp(80), AndroidUtilities.dp(32), 0);
+
+        ImageView emptyIcon = new ImageView(context);
+        emptyIcon.setImageResource(R.drawable.msg_groups);
+        emptyIcon.setColorFilter(new android.graphics.PorterDuffColorFilter(
+            0xFFBBBBBB, android.graphics.PorterDuff.Mode.SRC_IN));
+        emptyStateLayout.addView(emptyIcon, LayoutHelper.createLinear(64, 64, Gravity.CENTER, 0, 0, 0, 16));
+
+        TextView emptyTitle = new TextView(context);
+        emptyTitle.setText("No Posts Yet");
+        emptyTitle.setTextSize(20);
+        emptyTitle.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+        emptyTitle.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
+        emptyTitle.setGravity(Gravity.CENTER);
+        emptyStateLayout.addView(emptyTitle, LayoutHelper.createLinear(
+            LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 0, 0, 8));
+
+        TextView emptySubtitle = new TextView(context);
+        emptySubtitle.setText("Be the first to share something!");
+        emptySubtitle.setTextSize(15);
+        emptySubtitle.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
+        emptySubtitle.setGravity(Gravity.CENTER);
+        emptyStateLayout.addView(emptySubtitle, LayoutHelper.createLinear(
+            LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 0, 0, 24));
+
+        TextView createBtn = new TextView(context);
+        createBtn.setText("Create Post");
+        createBtn.setTextSize(15);
+        createBtn.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+        createBtn.setTextColor(0xFF111111);
+        createBtn.setGravity(Gravity.CENTER);
+        createBtn.setPadding(AndroidUtilities.dp(24), AndroidUtilities.dp(12), AndroidUtilities.dp(24), AndroidUtilities.dp(12));
+        createBtn.setBackground(Theme.createSimpleSelectorRoundRectDrawable(
+            AndroidUtilities.dp(24), 0xFFF9E000, 0xFFE0C900));
+        createBtn.setOnClickListener(v -> showCreatePostSheet());
+        emptyStateLayout.addView(createBtn, LayoutHelper.createLinear(
+            LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER));
+
+        frameLayout.addView(emptyStateLayout, LayoutHelper.createFrame(
+            LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
+
         // FAB for create post
-        fabCreate = new FloatingActionButton(context);
+        fabCreate = new ImageView(context);
         fabCreate.setImageResource(R.drawable.msg_send);
+        fabCreate.setScaleType(ImageView.ScaleType.CENTER);
         fabCreate.setContentDescription("Create new post");
-        fabCreate.setBackgroundTintList(
-            android.content.res.ColorStateList.valueOf(0xFFF9E000)
-        );
-        fabCreate.setImageTintList(
-            android.content.res.ColorStateList.valueOf(0xFF111111)
-        );
+        fabCreate.setColorFilter(
+                new android.graphics.PorterDuffColorFilter(0xFF111111, android.graphics.PorterDuff.Mode.SRC_IN));
+        android.graphics.drawable.Drawable circle = Theme.createSimpleSelectorCircleDrawable(AndroidUtilities.dp(56),
+                0xFFF9E000, 0xFFE0C900);
+        fabCreate.setBackground(circle);
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            fabCreate.setElevation(AndroidUtilities.dp(4));
+            fabCreate.setOutlineProvider(new android.view.ViewOutlineProvider() {
+                @Override
+                public void getOutline(View view, android.graphics.Outline outline) {
+                    outline.setOval(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
+                }
+            });
+            fabCreate.setClipToOutline(true);
+        }
         fabCreate.setOnClickListener(v -> showCreatePostSheet());
-        // Bottom margin accounts for floating pill nav bar (66dp + 24dp margin + 16dp gap)
         frameLayout.addView(fabCreate, LayoutHelper.createFrame(
-            56, 56, Gravity.END | Gravity.BOTTOM, 0, 0, 16, 106
-        ));
+                56, 56, Gravity.END | Gravity.BOTTOM, 0, 0, 16, 106));
 
         return fragmentView;
     }
@@ -151,46 +206,56 @@ public class CommunityFeedFragment extends BaseFragment {
         }
     }
 
-    /** Return a non-null context: prefer getParentActivity(), fall back to cached context. */
     private Context ctx() {
         Activity a = getParentActivity();
         return a != null ? a : safeContext;
     }
 
     private void checkLocationPermissionAndLoad() {
-        if (locationHelper == null) return;
-        if (!locationHelper.hasLocationPermission()) {
-            requestLocationPermission();
-        } else {
-            loadInitialPosts();
+        // Load global feed immediately — no location required
+        loadInitialPosts();
+        // Silently try to get location for post creation
+        if (locationHelper != null && locationHelper.hasLocationPermission()) {
+            CommunityBridge.getCurrentLocation(ctx(), location -> {
+                if (location != null) lastLocation = location;
+            });
         }
     }
 
     private void requestLocationPermission() {
         Activity activity = getParentActivity();
         if (activity == null) {
-            // Can't request permissions without an Activity — load without location
-            showEmptyState();
+            loadInitialPosts();
             return;
         }
         ActivityCompat.requestPermissions(
-            activity,
-            new String[]{
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            },
-            REQUEST_LOCATION
-        );
+                activity,
+                new String[]{
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                },
+                REQUEST_LOCATION);
     }
 
     @Override
     public void onRequestPermissionsResultFragment(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == REQUEST_LOCATION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                loadInitialPosts();
-            } else {
-                Toast.makeText(ctx(), "Location permission required. Go to Settings to enable.", Toast.LENGTH_LONG).show();
-                showEmptyState();
+                // Got permission — get location for post creation
+                CommunityBridge.getCurrentLocation(ctx(), location -> {
+                    if (location != null) lastLocation = location;
+                });
+            }
+            // Load global feed regardless of permission
+            loadInitialPosts();
+        }
+    }
+
+    @Override
+    public void onActivityResultFragment(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 201 && resultCode == Activity.RESULT_OK && data != null) {
+            if (currentSheet != null) {
+                currentSheet.onImagePicked(data.getData());
             }
         }
     }
@@ -218,44 +283,31 @@ public class CommunityFeedFragment extends BaseFragment {
         if (c == null) return;
         isLoading = true;
 
-        CommunityBridge.getCurrentLocation(c, location -> {
-            if (location != null) {
-                lastLocation = location;
-                CommunityBridge.getNearbyPosts(
-                    location.getLatitude(),
-                    location.getLongitude(),
-                    5000,
-                    pageOffset,
-                    deviceId,
-                    newPosts -> {
-                        if (pageOffset == 0) {
-                            posts.clear();
-                        }
-                        posts.addAll(newPosts);
-                        adapter.notifyDataSetChanged();
-
-                        if (swipeRefreshLayout.isRefreshing()) {
-                            swipeRefreshLayout.setRefreshing(false);
-                        }
-                        isLoading = false;
-
-                        if (posts.isEmpty()) {
-                            showEmptyState();
-                        }
-                    }
-                );
-            } else {
-                Toast.makeText(ctx(), "Unable to get location. Pull down to retry.", Toast.LENGTH_LONG).show();
-                isLoading = false;
-                if (swipeRefreshLayout.isRefreshing()) {
-                    swipeRefreshLayout.setRefreshing(false);
-                }
+        CommunityBridge.getAllPosts(pageOffset, deviceId, newPosts -> {
+            if (pageOffset == 0) {
+                posts.clear();
             }
+            posts.addAll(newPosts);
+            adapter.notifyDataSetChanged();
+
+            if (swipeRefreshLayout.isRefreshing()) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+            isLoading = false;
+
+            updateEmptyState();
         });
     }
 
-    private void showEmptyState() {
-        Toast.makeText(ctx(), "No posts nearby. Be the first!", Toast.LENGTH_LONG).show();
+    private void updateEmptyState() {
+        if (emptyStateLayout == null) return;
+        if (posts.isEmpty()) {
+            emptyStateLayout.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            emptyStateLayout.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
     }
 
     private void onPostClick(Post post) {
@@ -296,22 +348,26 @@ public class CommunityFeedFragment extends BaseFragment {
         Activity activity = getParentActivity();
         if (activity == null) return;
 
-        if (lastLocation == null) {
-            Toast.makeText(activity, "Getting your location...", Toast.LENGTH_LONG).show();
-            return;
+        // If no location, use default (0,0) — global posts don't require location
+        Location loc = lastLocation;
+        if (loc == null) {
+            loc = new Location("default");
+            loc.setLatitude(0);
+            loc.setLongitude(0);
         }
 
-        CreatePostBottomSheet sheet = new CreatePostBottomSheet(
-            activity,
-            lastLocation,
-            deviceId,
-            post -> {
-                posts.add(0, post);
-                adapter.notifyItemInserted(0);
-                recyclerView.scrollToPosition(0);
-            }
-        );
-        sheet.show();
+        final Location finalLoc = loc;
+        currentSheet = new CreatePostBottomSheet(
+                activity,
+                finalLoc,
+                deviceId,
+                post -> {
+                    posts.add(0, post);
+                    adapter.notifyItemInserted(0);
+                    recyclerView.scrollToPosition(0);
+                    updateEmptyState();
+                });
+        currentSheet.show();
     }
 
     @Override

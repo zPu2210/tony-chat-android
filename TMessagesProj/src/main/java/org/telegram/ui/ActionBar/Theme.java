@@ -1086,7 +1086,7 @@ public class Theme {
                         key = "Arctic Blue";
                         break;
                     case 3:
-                        key = "Day";
+                        key = "KakaoTalk";
                         break;
                     case 4:
                     default:
@@ -4578,6 +4578,16 @@ public class Theme {
         sortAccents(themeInfo);
         themes.add(themeInfo);
         themesDict.put("Arctic Blue", themeInfo);
+
+        themeInfo = new ThemeInfo();
+        themeInfo.name = "KakaoTalk";
+        themeInfo.assetName = "kakao_yellow.attheme";
+        themeInfo.previewBackgroundColor = 0xFFF9E000;
+        themeInfo.previewInColor = 0xFFFFFFFF;
+        themeInfo.previewOutColor = 0xFFFFFDF2;
+        themeInfo.sortIndex = 3;
+        themes.add(themeInfo);
+        themesDict.put("KakaoTalk", themeInfo);
 
         themeInfo = new ThemeInfo();
         themeInfo.name = "Day";

@@ -302,7 +302,7 @@ public class AiAssistFragment extends BaseFragment {
         TextView title = new TextView(context);
         title.setText("Set up AI providers to get started");
         title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
-        title.setTextColor(TonyColors.primarySmall());
+        title.setTextColor(TonyColors.textPrimary());
         title.setGravity(Gravity.CENTER);
         title.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
         inner.addView(title, LayoutHelper.createLinear(

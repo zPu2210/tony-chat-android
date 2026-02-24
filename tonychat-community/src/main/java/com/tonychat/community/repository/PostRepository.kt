@@ -83,6 +83,43 @@ class PostRepository {
     }
 
     /**
+     * Get all posts (global feed, no location required), chronological
+     * @param pageOffset Pagination offset
+     * @param callerDeviceId Current device ID for like status
+     * @return List of posts with counts
+     */
+    suspend fun getAllPosts(
+        pageOffset: Int = 0,
+        callerDeviceId: String
+    ): List<Post> = withContext(Dispatchers.IO) {
+        try {
+            val rpcBody = gson.toJson(mapOf(
+                "page_offset" to pageOffset,
+                "page_size" to 20,
+                "caller_device_id" to callerDeviceId
+            ))
+            val request = SupabaseClient.post("/rest/v1/rpc/all_posts", rpcBody, callerDeviceId)
+            when (val result = SupabaseClient.execute(request)) {
+                is SupabaseResult.Success -> {
+                    val type = object : TypeToken<List<Post>>() {}.type
+                    gson.fromJson<List<Post>>(result.data, type) ?: emptyList()
+                }
+                is SupabaseResult.Error -> {
+                    Log.w(TAG, "Supabase error ${result.code}: ${result.message}")
+                    emptyList()
+                }
+                is SupabaseResult.NetworkError -> {
+                    Log.w(TAG, "Network error", result.exception)
+                    emptyList()
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "getAllPosts failed", e)
+            emptyList()
+        }
+    }
+
+    /**
      * Create a new post
      * @param request Post creation data
      * @return Created post or null on error

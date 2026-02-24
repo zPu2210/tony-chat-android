@@ -69,7 +69,7 @@ import android.widget.Toast;
 
 import com.tonychat.core.TonyConfig;
 import com.tonychat.community.ui.CommunityFeedFragment;
-import org.telegram.ui.TonyChat.AiAssistFragment;
+import org.telegram.ui.TonyChat.AiHubFragment;
 import org.telegram.ui.TonyChat.TonyBottomNavView;
 import org.telegram.ui.TonyChat.TonyMigrationSheet;
 import org.telegram.ui.TonyChat.TonySettingsFragment;
@@ -1362,7 +1362,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         BaseFragment fragment;
         switch (index) {
             case TonyBottomNavView.TAB_TONY_AI:
-                fragment = new AiAssistFragment();
+                fragment = new AiHubFragment();
                 break;
             case TonyBottomNavView.TAB_EXPLORE:
                 fragment = new CommunityFeedFragment();

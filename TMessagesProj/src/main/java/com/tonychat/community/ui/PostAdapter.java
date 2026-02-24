@@ -1,13 +1,14 @@
 package com.tonychat.community.ui;
 
+import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.text.format.DateUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -18,26 +19,31 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.tonychat.community.model.Post;
 
 import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.ImageReceiver;
 import org.telegram.messenger.R;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.LayoutHelper;
 
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Adapter for displaying posts in RecyclerView.
- * Shows content, image, like/comment counts, and time ago.
+ * Instagram/Threads-style post card adapter.
+ * Shows avatar, author, content, image, like/comment actions.
  */
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
     private final List<Post> posts;
     private final PostClickListener clickListener;
     private final LikeClickListener likeListener;
+    private static final Map<String, Bitmap> imageCache = new ConcurrentHashMap<>();
 
     public interface PostClickListener {
         void onPostClick(Post post);
@@ -56,153 +62,185 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     @NonNull
     @Override
     public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        FrameLayout cardLayout = new FrameLayout(parent.getContext());
-        cardLayout.setLayoutParams(new RecyclerView.LayoutParams(
+        Context ctx = parent.getContext();
+
+        // Root card container
+        LinearLayout card = new LinearLayout(ctx);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setLayoutParams(new RecyclerView.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         ));
-        cardLayout.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
-        cardLayout.setPadding(
-            AndroidUtilities.dp(12),
-            AndroidUtilities.dp(12),
-            AndroidUtilities.dp(12),
-            AndroidUtilities.dp(12)
-        );
+        card.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
 
-        LinearLayout contentLayout = new LinearLayout(parent.getContext());
-        contentLayout.setOrientation(LinearLayout.VERTICAL);
-        cardLayout.addView(contentLayout, LayoutHelper.createFrame(
-            LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT
-        ));
+        // === Header row: avatar + name + time ===
+        LinearLayout header = new LinearLayout(ctx);
+        header.setOrientation(LinearLayout.HORIZONTAL);
+        header.setGravity(Gravity.CENTER_VERTICAL);
+        header.setPadding(AndroidUtilities.dp(16), AndroidUtilities.dp(12), AndroidUtilities.dp(16), AndroidUtilities.dp(8));
+        card.addView(header, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
 
-        // Content text
-        TextView contentText = new TextView(parent.getContext());
-        contentText.setId(View.generateViewId());
-        contentText.setTextSize(16);
+        // Avatar circle (custom draw)
+        View avatar = new View(ctx) {
+            private final Paint bgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            {
+                bgPaint.setColor(0xFFE0E0E0);
+                textPaint.setColor(0xFF757575);
+                textPaint.setTextSize(AndroidUtilities.dp(14));
+                textPaint.setTextAlign(Paint.Align.CENTER);
+                textPaint.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+            }
+            @Override
+            protected void onDraw(Canvas canvas) {
+                float cx = getWidth() / 2f;
+                float cy = getHeight() / 2f;
+                float r = Math.min(cx, cy);
+                canvas.drawCircle(cx, cy, r, bgPaint);
+                canvas.drawText("T", cx, cy + AndroidUtilities.dp(5), textPaint);
+            }
+        };
+        header.addView(avatar, LayoutHelper.createLinear(36, 36, 0, 0, 10, 0));
+
+        // Name + time column
+        LinearLayout nameTimeCol = new LinearLayout(ctx);
+        nameTimeCol.setOrientation(LinearLayout.VERTICAL);
+        header.addView(nameTimeCol, LayoutHelper.createLinear(0, LayoutHelper.WRAP_CONTENT, 1.0f));
+
+        TextView authorName = new TextView(ctx);
+        authorName.setTextSize(14);
+        authorName.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+        authorName.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
+        nameTimeCol.addView(authorName, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
+
+        TextView timeText = new TextView(ctx);
+        timeText.setTextSize(12);
+        timeText.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
+        nameTimeCol.addView(timeText, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
+
+        // === Content text ===
+        TextView contentText = new TextView(ctx);
+        contentText.setTextSize(15);
         contentText.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
-        contentLayout.addView(contentText, LayoutHelper.createLinear(
-            LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 0, 0, 8
-        ));
+        contentText.setLineSpacing(AndroidUtilities.dp(3), 1.0f);
+        contentText.setPadding(AndroidUtilities.dp(16), 0, AndroidUtilities.dp(16), AndroidUtilities.dp(8));
+        card.addView(contentText, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
 
-        // Image (optional)
-        ImageView imageView = new ImageView(parent.getContext());
-        imageView.setId(View.generateViewId());
+        // === Image (optional) ===
+        ImageView imageView = new ImageView(ctx);
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         imageView.setVisibility(View.GONE);
-        contentLayout.addView(imageView, LayoutHelper.createLinear(
-            LayoutHelper.MATCH_PARENT, AndroidUtilities.dp(200), 0, 0, 0, 8
-        ));
+        card.addView(imageView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 220, 16, 0, 16, 8));
 
-        // Bottom info row (time, likes, comments)
-        LinearLayout infoLayout = new LinearLayout(parent.getContext());
-        infoLayout.setOrientation(LinearLayout.HORIZONTAL);
-        infoLayout.setGravity(Gravity.CENTER_VERTICAL);
-        contentLayout.addView(infoLayout, LayoutHelper.createLinear(
-            LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT
-        ));
+        // === Action row: like + comment ===
+        LinearLayout actions = new LinearLayout(ctx);
+        actions.setOrientation(LinearLayout.HORIZONTAL);
+        actions.setGravity(Gravity.CENTER_VERTICAL);
+        actions.setPadding(AndroidUtilities.dp(12), AndroidUtilities.dp(4), AndroidUtilities.dp(12), AndroidUtilities.dp(12));
+        card.addView(actions, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
 
-        // Time ago
-        TextView timeText = new TextView(parent.getContext());
-        timeText.setId(View.generateViewId());
-        timeText.setTextSize(13);
-        timeText.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
-        infoLayout.addView(timeText, LayoutHelper.createLinear(
-            0, LayoutHelper.WRAP_CONTENT, 1.0f
-        ));
+        // Like button area
+        LinearLayout likeArea = new LinearLayout(ctx);
+        likeArea.setOrientation(LinearLayout.HORIZONTAL);
+        likeArea.setGravity(Gravity.CENTER_VERTICAL);
+        likeArea.setPadding(AndroidUtilities.dp(4), AndroidUtilities.dp(4), AndroidUtilities.dp(12), AndroidUtilities.dp(4));
+        actions.addView(likeArea, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
 
-        // Like button + count
-        LinearLayout likeLayout = new LinearLayout(parent.getContext());
-        likeLayout.setOrientation(LinearLayout.HORIZONTAL);
-        likeLayout.setGravity(Gravity.CENTER_VERTICAL);
-        likeLayout.setPadding(AndroidUtilities.dp(8), 0, AndroidUtilities.dp(8), 0);
-        infoLayout.addView(likeLayout, LayoutHelper.createLinear(
-            LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT
-        ));
-
-        ImageView likeIcon = new ImageView(parent.getContext());
-        int likeIconId = View.generateViewId();
-        likeIcon.setId(likeIconId);
+        ImageView likeIcon = new ImageView(ctx);
         likeIcon.setImageResource(R.drawable.msg_input_like);
-        likeIcon.setColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
-        likeLayout.addView(likeIcon, LayoutHelper.createLinear(
-            20, 20, 0, 0, 4, 0
-        ));
+        likeArea.addView(likeIcon, LayoutHelper.createLinear(22, 22, 0, 0, 6, 0));
 
-        TextView likeCount = new TextView(parent.getContext());
-        int likeCountId = View.generateViewId();
-        likeCount.setId(likeCountId);
-        likeCount.setTextSize(13);
+        TextView likeCount = new TextView(ctx);
+        likeCount.setTextSize(14);
         likeCount.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
-        likeLayout.addView(likeCount);
+        likeArea.addView(likeCount);
 
-        // Comment count
-        LinearLayout commentLayout = new LinearLayout(parent.getContext());
-        commentLayout.setOrientation(LinearLayout.HORIZONTAL);
-        commentLayout.setGravity(Gravity.CENTER_VERTICAL);
-        commentLayout.setPadding(AndroidUtilities.dp(8), 0, 0, 0);
-        infoLayout.addView(commentLayout, LayoutHelper.createLinear(
-            LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT
-        ));
+        // Comment button area
+        LinearLayout commentArea = new LinearLayout(ctx);
+        commentArea.setOrientation(LinearLayout.HORIZONTAL);
+        commentArea.setGravity(Gravity.CENTER_VERTICAL);
+        commentArea.setPadding(AndroidUtilities.dp(4), AndroidUtilities.dp(4), AndroidUtilities.dp(12), AndroidUtilities.dp(4));
+        actions.addView(commentArea, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
 
-        ImageView commentIcon = new ImageView(parent.getContext());
+        ImageView commentIcon = new ImageView(ctx);
         commentIcon.setImageResource(R.drawable.msg_msgbubble3);
-        commentIcon.setColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
-        commentLayout.addView(commentIcon, LayoutHelper.createLinear(
-            20, 20, 0, 0, 4, 0
-        ));
+        commentIcon.setColorFilter(new android.graphics.PorterDuffColorFilter(
+            Theme.getColor(Theme.key_windowBackgroundWhiteGrayText), android.graphics.PorterDuff.Mode.SRC_IN));
+        commentArea.addView(commentIcon, LayoutHelper.createLinear(22, 22, 0, 0, 6, 0));
 
-        TextView commentCount = new TextView(parent.getContext());
-        int commentCountId = View.generateViewId();
-        commentCount.setId(commentCountId);
-        commentCount.setTextSize(13);
+        TextView commentCount = new TextView(ctx);
+        commentCount.setTextSize(14);
         commentCount.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
-        commentLayout.addView(commentCount);
+        commentArea.addView(commentCount);
 
-        return new PostViewHolder(cardLayout, likeLayout, likeIconId, likeCountId, commentCountId);
+        // === Divider ===
+        View divider = new View(ctx);
+        divider.setBackgroundColor(Theme.getColor(Theme.key_divider));
+        card.addView(divider, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 1));
+
+        return new PostViewHolder(card, likeArea);
     }
 
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
         Post post = posts.get(position);
+        LinearLayout card = (LinearLayout) holder.itemView;
 
-        LinearLayout contentLayout = (LinearLayout)((FrameLayout)holder.itemView).getChildAt(0);
-        TextView contentText = (TextView)contentLayout.getChildAt(0);
-        contentText.setText(post.getContent());
+        // Header
+        LinearLayout header = (LinearLayout) card.getChildAt(0);
+        LinearLayout nameTimeCol = (LinearLayout) header.getChildAt(1);
+        TextView authorName = (TextView) nameTimeCol.getChildAt(0);
+        TextView timeText = (TextView) nameTimeCol.getChildAt(1);
 
-        ImageView imageView = (ImageView)contentLayout.getChildAt(1);
-        if (post.getImageUrl() != null && !post.getImageUrl().isEmpty()) {
-            imageView.setVisibility(View.VISIBLE);
-            // Load image using URL (simplified - production should use image loader)
-            // For now, just show placeholder
-            imageView.setBackgroundColor(Theme.getColor(Theme.key_chat_inBubble));
+        String deviceId = post.getDeviceId();
+        if (post.getAnonymous()) {
+            authorName.setText("Anonymous");
+        } else if (deviceId != null && deviceId.startsWith("demo-")) {
+            authorName.setText("Tony Chat");
         } else {
-            imageView.setVisibility(View.GONE);
+            authorName.setText("User " + (deviceId != null && deviceId.length() > 6 ? deviceId.substring(0, 6) : "???"));
         }
-
-        LinearLayout infoLayout = (LinearLayout)contentLayout.getChildAt(2);
-        TextView timeText = (TextView)infoLayout.getChildAt(0);
         timeText.setText(formatTimeAgo(post.getCreatedAt()));
 
-        ImageView likeIcon = holder.itemView.findViewById(holder.likeIconId);
-        TextView likeCount = holder.itemView.findViewById(holder.likeCountId);
-        likeIcon.setColorFilter(post.isLiked()
-            ? Theme.getColor(Theme.key_avatar_nameInMessageRed)
-            : Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
-        likeCount.setText(String.valueOf(post.getLikeCount()));
+        // Content
+        TextView contentText = (TextView) card.getChildAt(1);
+        contentText.setText(post.getContent());
 
-        TextView commentCount = holder.itemView.findViewById(holder.commentCountId);
-        commentCount.setText(String.valueOf(post.getCommentCount()));
+        // Image
+        ImageView imageView = (ImageView) card.getChildAt(2);
+        String imageUrl = post.getImageUrl();
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            imageView.setVisibility(View.VISIBLE);
+            imageView.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray));
+            loadImage(imageView, imageUrl);
+        } else {
+            imageView.setVisibility(View.GONE);
+            imageView.setImageBitmap(null);
+        }
 
+        // Actions
+        LinearLayout actions = (LinearLayout) card.getChildAt(3);
+        LinearLayout likeArea = (LinearLayout) actions.getChildAt(0);
+        ImageView likeIcon = (ImageView) likeArea.getChildAt(0);
+        TextView likeCountView = (TextView) likeArea.getChildAt(1);
+
+        boolean isLiked = post.isLiked();
+        likeIcon.setColorFilter(new android.graphics.PorterDuffColorFilter(
+            isLiked ? 0xFFFF3B30 : Theme.getColor(Theme.key_windowBackgroundWhiteGrayText),
+            android.graphics.PorterDuff.Mode.SRC_IN));
+        likeCountView.setText(post.getLikeCount() > 0 ? String.valueOf(post.getLikeCount()) : "");
+        likeCountView.setTextColor(isLiked ? 0xFFFF3B30 : Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
+
+        LinearLayout commentArea = (LinearLayout) actions.getChildAt(1);
+        TextView commentCountView = (TextView) commentArea.getChildAt(1);
+        commentCountView.setText(post.getCommentCount() > 0 ? String.valueOf(post.getCommentCount()) : "");
+
+        // Click handlers
         holder.itemView.setOnClickListener(v -> {
-            if (clickListener != null) {
-                clickListener.onPostClick(post);
-            }
+            if (clickListener != null) clickListener.onPostClick(post);
         });
-
-        holder.likeLayout.setOnClickListener(v -> {
-            if (likeListener != null) {
-                likeListener.onLikeClick(post, position);
-            }
+        holder.likeArea.setOnClickListener(v -> {
+            if (likeListener != null) likeListener.onLikeClick(post, holder.getAdapterPosition());
         });
     }
 
@@ -211,39 +249,73 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         return posts.size();
     }
 
+    /**
+     * Async image loader with in-memory bitmap cache. Uses tag to prevent recycling issues.
+     * Uses HttpURLConnection (no external deps required in TMessagesProj).
+     */
+    private void loadImage(ImageView imageView, String url) {
+        Bitmap cached = imageCache.get(url);
+        if (cached != null) {
+            imageView.setImageBitmap(cached);
+            return;
+        }
+
+        imageView.setTag(url);
+        imageView.setImageBitmap(null);
+
+        new Thread(() -> {
+            HttpURLConnection conn = null;
+            try {
+                conn = (HttpURLConnection) new URL(url).openConnection();
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(15000);
+                conn.setDoInput(true);
+                conn.connect();
+                if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    InputStream is = conn.getInputStream();
+                    Bitmap bitmap = BitmapFactory.decodeStream(is);
+                    if (bitmap != null) {
+                        imageCache.put(url, bitmap);
+                        AndroidUtilities.runOnUIThread(() -> {
+                            if (url.equals(imageView.getTag())) {
+                                imageView.setImageBitmap(bitmap);
+                            }
+                        });
+                    }
+                }
+            } catch (Exception e) {
+                // Silently fail — image just won't show
+            } finally {
+                if (conn != null) conn.disconnect();
+            }
+        }).start();
+    }
+
     private String formatTimeAgo(String createdAt) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
             sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
             Date date = sdf.parse(createdAt);
             if (date != null) {
-                long timeMs = date.getTime();
-                CharSequence relativeTime = DateUtils.getRelativeTimeSpanString(
-                    timeMs,
+                return DateUtils.getRelativeTimeSpanString(
+                    date.getTime(),
                     System.currentTimeMillis(),
                     DateUtils.MINUTE_IN_MILLIS,
                     DateUtils.FORMAT_ABBREV_RELATIVE
-                );
-                return relativeTime.toString();
+                ).toString();
             }
         } catch (ParseException e) {
-            e.printStackTrace();
+            // ignore
         }
         return "recently";
     }
 
     static class PostViewHolder extends RecyclerView.ViewHolder {
-        LinearLayout likeLayout;
-        int likeIconId;
-        int likeCountId;
-        int commentCountId;
+        LinearLayout likeArea;
 
-        PostViewHolder(View itemView, LinearLayout likeLayout, int likeIconId, int likeCountId, int commentCountId) {
+        PostViewHolder(View itemView, LinearLayout likeArea) {
             super(itemView);
-            this.likeLayout = likeLayout;
-            this.likeIconId = likeIconId;
-            this.likeCountId = likeCountId;
-            this.commentCountId = commentCountId;
+            this.likeArea = likeArea;
         }
     }
 }

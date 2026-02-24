@@ -13,48 +13,91 @@ import org.telegram.ui.ActionBar.Theme;
 
 /**
  * Dark-mode-aware color constants for Tony Chat custom screens.
- * Uses Theme.isCurrentThemeDark() to pick light vs dark variants.
+ * v2.0: Yellow #F9E000 brand palette.
  */
 public final class TonyColors {
 
-    private TonyColors() {}
+    private TonyColors() {
+    }
 
-    // Primary (Warm Indigo)
+    // ==================== Brand ====================
+
+    /** Primary brand yellow — used for action bars, FABs, CTAs */
     public static int primary() {
-        return Theme.isCurrentThemeDark() ? 0xFF818CF8 : 0xFF6366F1;
+        return 0xFFF9E000;
     }
 
-    // Darker primary for small text (WCAG AA on light bg)
-    public static int primarySmall() {
-        return Theme.isCurrentThemeDark() ? 0xFF818CF8 : 0xFF4F46E5;
+    /** Text color safe to render ON primary yellow bg */
+    public static int onPrimary() {
+        return 0xFF111111;
     }
 
-    // AI accent — text-safe
+    // ==================== Navigation ====================
+
+    /** Active nav tab color (yellow in both modes) */
+    public static int navActive() {
+        return 0xFFF9E000;
+    }
+
+    /** Inactive nav tab color */
+    public static int navInactive() {
+        return Theme.isCurrentThemeDark() ? 0xFF94A3B8 : 0xFF777777;
+    }
+
+    // ==================== Text ====================
+
+    public static int textPrimary() {
+        return Theme.isCurrentThemeDark() ? 0xFFF1F5F9 : 0xFF111111;
+    }
+
+    public static int textSecondary() {
+        return Theme.isCurrentThemeDark() ? 0xFF94A3B8 : 0xFF777777;
+    }
+
+    public static int textTertiary() {
+        return Theme.isCurrentThemeDark() ? 0xFF64748B : 0xFF999999;
+    }
+
+    // ==================== Surfaces ====================
+
+    public static int background() {
+        return Theme.isCurrentThemeDark() ? 0xFF0F172A : 0xFFFFFFFF;
+    }
+
+    public static int backgroundSecondary() {
+        return Theme.isCurrentThemeDark() ? 0xFF1E293B : 0xFFF2F2F2;
+    }
+
+    public static int navGlass() {
+        return Theme.isCurrentThemeDark() ? 0xCC0F172A : 0xCCFFFFFF;
+    }
+
+    // ==================== AI Accent ====================
+
     public static int aiAccent() {
         return Theme.isCurrentThemeDark() ? 0xFFF59E0B : 0xFFD97706;
     }
 
-    // AI accent — icons/decorative only
     public static int aiAccentIcon() {
         return 0xFFF59E0B;
     }
 
-    // Success green
+    // ==================== Semantic ====================
+
     public static int success() {
         return Theme.isCurrentThemeDark() ? 0xFF34D399 : 0xFF10B981;
     }
 
-    // Error red
     public static int error() {
         return Theme.isCurrentThemeDark() ? 0xFFFB7185 : 0xFFF43F5E;
     }
 
-    // Warning amber
     public static int warning() {
         return Theme.isCurrentThemeDark() ? 0xFFFBBF24 : 0xFFF59E0B;
     }
 
-    // Settings icon colors — adapt slightly for dark mode visibility
+    // ==================== Settings Icon Colors ====================
+
     public static int blue() {
         return Theme.isCurrentThemeDark() ? 0xFF60A5FA : 0xFF3B82F6;
     }
@@ -75,9 +118,10 @@ public final class TonyColors {
         return Theme.isCurrentThemeDark() ? 0xFFFB923C : 0xFFF97316;
     }
 
-    // Setup prompt background (indigo 10% alpha)
+    // ==================== Utility ====================
+
     public static int setupPromptBg() {
-        return Theme.isCurrentThemeDark() ? 0x1A818CF8 : 0x1A6366F1;
+        return Theme.isCurrentThemeDark() ? 0x1AF9E000 : 0x1AF9E000;
     }
 
     /**

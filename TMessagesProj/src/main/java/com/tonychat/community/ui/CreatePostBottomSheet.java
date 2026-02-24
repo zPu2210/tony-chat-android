@@ -2,13 +2,19 @@ package com.tonychat.community.ui;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -24,14 +30,18 @@ import org.telegram.ui.ActionBar.BottomSheet;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.LayoutHelper;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.Arrays;
 
 /**
  * Bottom sheet for creating a new community post.
- * Includes text input, image picker, anonymous toggle, and character counter.
+ * Supports text input, optional photo attachment, anonymous toggle, and character counter.
  */
 public class CreatePostBottomSheet extends BottomSheet {
     private static final int MAX_CHARS = 500;
+    private static final int PICK_IMAGE_REQUEST = 201;
 
     private final Location location;
     private final String deviceId;
@@ -41,6 +51,10 @@ public class CreatePostBottomSheet extends BottomSheet {
     private TextView charCounter;
     private Switch anonymousSwitch;
     private Button postButton;
+    private ImageView imagePreview;
+    private TextView addPhotoButton;
+    private Uri selectedImageUri;
+    private File imageFile;
 
     public interface PostCreatedCallback {
         void onPostCreated(Post post);
@@ -83,7 +97,7 @@ public class CreatePostBottomSheet extends BottomSheet {
         ));
 
         contentInput = new EditText(activity);
-        contentInput.setHint("What's happening nearby?");
+        contentInput.setHint("What's on your mind?");
         contentInput.setTextSize(15);
         contentInput.setGravity(Gravity.TOP | Gravity.START);
         contentInput.setPadding(
@@ -95,6 +109,25 @@ public class CreatePostBottomSheet extends BottomSheet {
         contentInput.setBackgroundColor(0);
         inputContainer.addView(contentInput, LayoutHelper.createFrame(
             LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT
+        ));
+
+        // Image preview (hidden initially)
+        imagePreview = new ImageView(activity);
+        imagePreview.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imagePreview.setVisibility(android.view.View.GONE);
+        containerView.addView(imagePreview, LayoutHelper.createLinear(
+            LayoutHelper.MATCH_PARENT, AndroidUtilities.dp(180), 0, 0, 0, 8
+        ));
+
+        // Add photo button
+        addPhotoButton = new TextView(activity);
+        addPhotoButton.setText("\uD83D\uDCF7 Add Photo");
+        addPhotoButton.setTextSize(14);
+        addPhotoButton.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlueText2));
+        addPhotoButton.setPadding(0, AndroidUtilities.dp(4), 0, AndroidUtilities.dp(4));
+        addPhotoButton.setOnClickListener(v -> pickImage());
+        containerView.addView(addPhotoButton, LayoutHelper.createLinear(
+            LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, 0, 0, 0, 8
         ));
 
         // Character counter
@@ -114,13 +147,11 @@ public class CreatePostBottomSheet extends BottomSheet {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 int length = s.length();
                 charCounter.setText(length + "/" + MAX_CHARS);
-
                 if (length > MAX_CHARS) {
                     charCounter.setTextColor(Theme.getColor(Theme.key_text_RedBold));
                 } else {
                     charCounter.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
                 }
-
                 postButton.setEnabled(length > 0 && length <= MAX_CHARS);
             }
 
@@ -158,7 +189,6 @@ public class CreatePostBottomSheet extends BottomSheet {
             LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT
         ));
 
-        // Cancel button
         Button cancelButton = new Button(activity);
         cancelButton.setText("Cancel");
         cancelButton.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
@@ -168,7 +198,6 @@ public class CreatePostBottomSheet extends BottomSheet {
             0, AndroidUtilities.dp(44), 1.0f, 0, 0, 8, 0
         ));
 
-        // Post button
         postButton = new Button(activity);
         postButton.setText("Post");
         postButton.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhite));
@@ -180,6 +209,44 @@ public class CreatePostBottomSheet extends BottomSheet {
         ));
 
         setCustomView(containerView);
+    }
+
+    private void pickImage() {
+        Activity activity = (Activity) getContext();
+        if (activity == null) return;
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.setType("image/*");
+        activity.startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    }
+
+    /**
+     * Called from CommunityFeedFragment.onActivityResultFragment after user picks an image.
+     */
+    public void onImagePicked(Uri uri) {
+        if (uri == null) return;
+        selectedImageUri = uri;
+        try {
+            Context ctx = getContext();
+            if (ctx == null) return;
+            InputStream is = ctx.getContentResolver().openInputStream(uri);
+            if (is != null) {
+                Bitmap bitmap = BitmapFactory.decodeStream(is);
+                is.close();
+                if (bitmap != null) {
+                    imagePreview.setImageBitmap(bitmap);
+                    imagePreview.setVisibility(android.view.View.VISIBLE);
+                    addPhotoButton.setText("\uD83D\uDCF7 Change Photo");
+
+                    // Save to temp file for upload
+                    imageFile = new File(ctx.getCacheDir(), "community_upload_" + System.currentTimeMillis() + ".jpg");
+                    FileOutputStream fos = new FileOutputStream(imageFile);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fos);
+                    fos.close();
+                }
+            }
+        } catch (Exception e) {
+            Toast.makeText(getContext(), "Failed to load image", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void createPost() {
@@ -196,16 +263,26 @@ public class CreatePostBottomSheet extends BottomSheet {
             Arrays.asList(location.getLongitude(), location.getLatitude())
         );
 
+        if (imageFile != null && imageFile.exists()) {
+            // Upload image first, then create post
+            CommunityBridge.uploadImage(imageFile, imageUrl -> submitPost(content, imageUrl, locationPoint));
+        } else {
+            submitPost(content, null, locationPoint);
+        }
+    }
+
+    private void submitPost(String content, String imageUrl, LocationPoint locationPoint) {
         CreatePostRequest request = new CreatePostRequest(
             deviceId,
             content,
-            null, // No image for now
+            imageUrl,
             locationPoint,
             anonymousSwitch.isChecked()
         );
 
         CommunityBridge.createPost(request, newPost -> {
             if (newPost != null) {
+                if (imageFile != null) imageFile.delete();
                 if (callback != null) {
                     callback.onPostCreated(newPost);
                 }
