@@ -1,6 +1,23 @@
+# IDE
 .idea/
-.gradle/
-build/
-obj/
 *.iml
+.DS_Store
+
+# Build
+build/
+*.apk
+*.aab
+*.ipa
+
+# Secrets
+*.keystore
+*.jks
+google-services.json
 local.properties
+
+# Environment
+.env
+.env.*
+
+# OS
+Thumbs.db
