@@ -40,6 +40,8 @@ object AiManager {
     private var cloudProvider: AiProvider = NoOpProvider()
     private var removeBgProvider: ImageEditProvider? = null
     private var emojiProvider: ImageGenerationProvider? = null
+    private var clipDropProvider: ClipDropProvider? = null
+    private lateinit var clipDropCacheDir: File
 
     private val fallbackScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val safeScope: CoroutineScope
@@ -85,6 +87,7 @@ object AiManager {
         transcriptCache = db.transcriptCacheDao()
         imageEditCacheDir = File(appContext.cacheDir, "image_edits")
         emojiCacheDir = File(appContext.cacheDir, "emoji_gen").apply { mkdirs() }
+        clipDropCacheDir = File(appContext.cacheDir, "clipdrop").apply { mkdirs() }
         rateLimiter = RateLimiter(appContext)
 
         refreshProviders()
@@ -135,6 +138,13 @@ object AiManager {
         val geminiKey = AiConfig.geminiApiKey
         emojiProvider = if (!geminiKey.isNullOrBlank()) {
             GeminiImageProvider(geminiKey, emojiCacheDir)
+        } else {
+            null
+        }
+
+        val clipDropKey = AiConfig.clipDropApiKey
+        clipDropProvider = if (!clipDropKey.isNullOrBlank()) {
+            ClipDropProvider(clipDropKey, clipDropCacheDir)
         } else {
             null
         }
@@ -340,6 +350,73 @@ object AiManager {
         val md = MessageDigest.getInstance("MD5")
         val bytes = md.digest(this.toByteArray())
         return bytes.joinToString("") { "%02x".format(it) }
+    }
+
+    // ==================== Standalone AI Writer ====================
+
+    /** Rewrite text with a given style for standalone AI Writer. */
+    suspend fun standaloneRewrite(text: String, style: String): AiResponse<String> {
+        if (!AiConsentManager.hasConsent(AiFeatureType.AI_WRITER)) return AiResponse.ConsentRequired()
+        if (!rateLimiter.tryAcquire(AiFeatureType.AI_WRITER)) return AiResponse.RateLimited()
+        val provider = if (cloudProvider.isAvailable) cloudProvider else return AiResponse.Unavailable()
+
+        val prompt = when (style.lowercase()) {
+            "fix grammar" -> "Fix the grammar and spelling in this text. Return only the corrected text:\n\n$text"
+            "professional" -> "Rewrite this text in a professional business tone. Return only the rewritten text:\n\n$text"
+            "casual" -> "Rewrite this text in a casual, friendly tone. Return only the rewritten text:\n\n$text"
+            "polite" -> "Rewrite this text in a polite, courteous tone. Return only the rewritten text:\n\n$text"
+            else -> "Improve this text. Return only the improved text:\n\n$text"
+        }
+
+        return try {
+            val messages = listOf(AiMessage(prompt, true))
+            provider.generateReply(messages, 1).let { resp ->
+                when (resp) {
+                    is AiResponse.Success -> {
+                        val result = resp.data.firstOrNull() ?: ""
+                        AiResponse.Success(result, provider = resp.provider)
+                    }
+                    is AiResponse.Error -> AiResponse.Error(resp.message)
+                    else -> AiResponse.Error("Unexpected response")
+                }
+            }
+        } catch (e: Exception) {
+            AiResponse.Error(e.message ?: "Unknown error")
+        }
+    }
+
+    // ==================== ClipDrop Image Tools ====================
+
+    /** ClipDrop: Remove background from image. */
+    suspend fun clipDropRemoveBg(imageFile: File): ImageEditResponse {
+        if (!AiConsentManager.hasConsent(AiFeatureType.CLIPDROP_IMAGE)) return ImageEditResponse.ConsentRequired()
+        if (!rateLimiter.tryAcquire(AiFeatureType.CLIPDROP_IMAGE)) return ImageEditResponse.RateLimited()
+        val provider = clipDropProvider ?: return ImageEditResponse.Error("ClipDrop API key not set. Go to AI Settings.")
+        return provider.removeBackground(imageFile)
+    }
+
+    /** ClipDrop: Upscale image to 2x resolution. */
+    suspend fun clipDropUpscale(imageFile: File): ImageEditResponse {
+        if (!AiConsentManager.hasConsent(AiFeatureType.CLIPDROP_IMAGE)) return ImageEditResponse.ConsentRequired()
+        if (!rateLimiter.tryAcquire(AiFeatureType.CLIPDROP_IMAGE)) return ImageEditResponse.RateLimited()
+        val provider = clipDropProvider ?: return ImageEditResponse.Error("ClipDrop API key not set. Go to AI Settings.")
+        return provider.upscale(imageFile)
+    }
+
+    /** ClipDrop: Remove text from image. */
+    suspend fun clipDropRemoveText(imageFile: File): ImageEditResponse {
+        if (!AiConsentManager.hasConsent(AiFeatureType.CLIPDROP_IMAGE)) return ImageEditResponse.ConsentRequired()
+        if (!rateLimiter.tryAcquire(AiFeatureType.CLIPDROP_IMAGE)) return ImageEditResponse.RateLimited()
+        val provider = clipDropProvider ?: return ImageEditResponse.Error("ClipDrop API key not set. Go to AI Settings.")
+        return provider.removeText(imageFile)
+    }
+
+    /** ClipDrop: Generate image from text prompt. */
+    suspend fun clipDropGenerate(prompt: String): ImageGenerationResponse {
+        if (!AiConsentManager.hasConsent(AiFeatureType.CLIPDROP_IMAGE)) return ImageGenerationResponse.ConsentRequired()
+        if (!rateLimiter.tryAcquire(AiFeatureType.CLIPDROP_IMAGE)) return ImageGenerationResponse.RateLimited()
+        val provider = clipDropProvider ?: return ImageGenerationResponse.Error("ClipDrop API key not set. Go to AI Settings.")
+        return provider.textToImage(prompt)
     }
 
     /** Transcribe voice message to text using OpenAI Whisper. */

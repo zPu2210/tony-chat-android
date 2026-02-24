@@ -50,6 +50,7 @@ public class AiSettingsActivity extends BaseFragment {
     private int anthropicKeyRow;
     private int removeBgKeyRow;
     private int geminiKeyRow;
+    private int clipDropKeyRow;
     private int apiKeysSectionRow;
     private int preferencesHeaderRow;
     private int preferOnDeviceRow;
@@ -79,6 +80,7 @@ public class AiSettingsActivity extends BaseFragment {
         anthropicKeyRow = rowCount++;
         removeBgKeyRow = rowCount++;
         geminiKeyRow = rowCount++;
+        clipDropKeyRow = rowCount++;
         apiKeysSectionRow = rowCount++;
         preferencesHeaderRow = rowCount++;
         preferOnDeviceRow = rowCount++;
@@ -147,6 +149,12 @@ public class AiSettingsActivity extends BaseFragment {
                 AiConfig.INSTANCE.setGeminiApiKey(key);
                 AiManager.INSTANCE.refreshProviders();
                 if (listAdapter != null) listAdapter.notifyItemChanged(geminiKeyRow);
+            });
+        } else if (position == clipDropKeyRow) {
+            showApiKeyDialog("ClipDrop API Key", AiConfig.INSTANCE.getClipDropApiKey(), key -> {
+                AiConfig.INSTANCE.setClipDropApiKey(key);
+                AiManager.INSTANCE.refreshProviders();
+                if (listAdapter != null) listAdapter.notifyItemChanged(clipDropKeyRow);
             });
         } else if (position == preferOnDeviceRow) {
             boolean newValue = !AiConfig.INSTANCE.getPreferOnDevice();
@@ -358,7 +366,10 @@ public class AiSettingsActivity extends BaseFragment {
                         cell.setTextAndValue("Remove.bg", key != null ? "Configured" : "Not set", true);
                     } else if (position == geminiKeyRow) {
                         String key = AiConfig.INSTANCE.getGeminiApiKey();
-                        cell.setTextAndValue("Gemini", key != null ? "Configured" : "Not set", false);
+                        cell.setTextAndValue("Gemini", key != null ? "Configured" : "Not set", true);
+                    } else if (position == clipDropKeyRow) {
+                        String key = AiConfig.INSTANCE.getClipDropApiKey();
+                        cell.setTextAndValue("ClipDrop", key != null ? "Configured" : "Not set", false);
                     } else if (position == clearCacheRow) {
                         cell.setText("Clear AI Cache", false);
                     }

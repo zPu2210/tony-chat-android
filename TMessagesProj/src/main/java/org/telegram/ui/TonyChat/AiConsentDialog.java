@@ -71,6 +71,8 @@ public class AiConsentDialog {
             case IMAGE_EDIT: return "Enable Background Removal";
             case EMOJI_REMIX: return "Enable Emoji Remix";
             case TRANSCRIBE: return "Enable Voice Transcription";
+            case AI_WRITER: return "Enable AI Writer";
+            case CLIPDROP_IMAGE: return "Enable AI Image Tools";
             default: return "Enable AI Feature";
         }
     }
@@ -91,6 +93,10 @@ public class AiConsentDialog {
                 return "Emoji Remix uses AI to generate creative emoji combinations. Your emoji selections will be sent to Google's Gemini API for processing.";
             case TRANSCRIBE:
                 return "Voice Transcription uses AI to convert voice messages to text. Audio files will be sent to OpenAI's Whisper API for processing.";
+            case AI_WRITER:
+                return "AI Writer uses cloud AI to transform your text. Your text will be sent to an AI service for processing.";
+            case CLIPDROP_IMAGE:
+                return "AI Image Tools use ClipDrop's cloud service to process your photos. Images will be sent to ClipDrop API for processing.";
             default:
                 return "This feature uses AI to enhance your messaging experience.";
         }

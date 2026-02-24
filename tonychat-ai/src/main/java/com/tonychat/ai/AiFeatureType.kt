@@ -6,6 +6,8 @@ enum class AiFeatureType(val ttlHours: Int) {
     TONE_REWRITE(1),
     TRANSLATE(72),
     IMAGE_EDIT(168),
-    EMOJI_REMIX(720),  // 30 days - generated emojis stable per prompt
-    TRANSCRIBE(720)    // 30 days - voice transcripts don't change
+    EMOJI_REMIX(720),
+    TRANSCRIBE(720),
+    AI_WRITER(1),          // Standalone writer: 50/day
+    CLIPDROP_IMAGE(168)    // ClipDrop image tools: 5/day shared pool
 }

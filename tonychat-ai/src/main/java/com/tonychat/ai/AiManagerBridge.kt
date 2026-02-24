@@ -136,4 +136,83 @@ object AiManagerBridge {
             }
         }
     }
+
+    // ==================== Standalone AI Writer ====================
+
+    @JvmStatic
+    fun standaloneRewrite(text: String, style: String, callback: ResultCallback<String>) {
+        scope.launch(Dispatchers.IO) {
+            val result = try {
+                AiManager.standaloneRewrite(text, style)
+            } catch (e: Exception) {
+                Log.w(TAG, "standaloneRewrite failed", e)
+                AiResponse.Error<String>(e.message ?: "Unknown error")
+            }
+            withContext(Dispatchers.Main) {
+                callback.onResult(result)
+            }
+        }
+    }
+
+    // ==================== ClipDrop Image Tools ====================
+
+    @JvmStatic
+    fun clipDropRemoveBg(imageFile: File, callback: ImageEditCallback) {
+        scope.launch(Dispatchers.IO) {
+            val result = try {
+                AiManager.clipDropRemoveBg(imageFile)
+            } catch (e: Exception) {
+                Log.w(TAG, "clipDropRemoveBg failed", e)
+                ImageEditResponse.Error(e.message ?: "Unknown error")
+            }
+            withContext(Dispatchers.Main) {
+                callback.onResult(result)
+            }
+        }
+    }
+
+    @JvmStatic
+    fun clipDropUpscale(imageFile: File, callback: ImageEditCallback) {
+        scope.launch(Dispatchers.IO) {
+            val result = try {
+                AiManager.clipDropUpscale(imageFile)
+            } catch (e: Exception) {
+                Log.w(TAG, "clipDropUpscale failed", e)
+                ImageEditResponse.Error(e.message ?: "Unknown error")
+            }
+            withContext(Dispatchers.Main) {
+                callback.onResult(result)
+            }
+        }
+    }
+
+    @JvmStatic
+    fun clipDropRemoveText(imageFile: File, callback: ImageEditCallback) {
+        scope.launch(Dispatchers.IO) {
+            val result = try {
+                AiManager.clipDropRemoveText(imageFile)
+            } catch (e: Exception) {
+                Log.w(TAG, "clipDropRemoveText failed", e)
+                ImageEditResponse.Error(e.message ?: "Unknown error")
+            }
+            withContext(Dispatchers.Main) {
+                callback.onResult(result)
+            }
+        }
+    }
+
+    @JvmStatic
+    fun clipDropGenerate(prompt: String, callback: ImageGenerationCallback) {
+        scope.launch(Dispatchers.IO) {
+            val result = try {
+                AiManager.clipDropGenerate(prompt)
+            } catch (e: Exception) {
+                Log.w(TAG, "clipDropGenerate failed", e)
+                ImageGenerationResponse.Error(e.message ?: "Unknown error")
+            }
+            withContext(Dispatchers.Main) {
+                callback.onResult(result)
+            }
+        }
+    }
 }

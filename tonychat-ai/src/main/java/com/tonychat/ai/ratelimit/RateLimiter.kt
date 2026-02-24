@@ -26,8 +26,10 @@ class RateLimiter(context: Context) {
         AiFeatureType.TONE_REWRITE to Config(30, 30),
         AiFeatureType.TRANSLATE to Config(30, 30),
         AiFeatureType.IMAGE_EDIT to Config(5, 5),
-        AiFeatureType.EMOJI_REMIX to Config(250, 250),  // 250/day from Gemini free tier
-        AiFeatureType.TRANSCRIBE to Config(30, 30)       // 30/day for voice transcription
+        AiFeatureType.EMOJI_REMIX to Config(250, 250),
+        AiFeatureType.TRANSCRIBE to Config(30, 30),
+        AiFeatureType.AI_WRITER to Config(50, 50),         // 50/day standalone writer
+        AiFeatureType.CLIPDROP_IMAGE to Config(5, 5)        // 5/day shared pool for all ClipDrop tools
     )
 
     fun tryAcquire(feature: AiFeatureType): Boolean = lock.withLock {

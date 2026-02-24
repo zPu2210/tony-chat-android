@@ -23,23 +23,23 @@ import org.telegram.ui.Components.LayoutHelper;
 /**
  * AI Hub v2.0 — Tab 0 in bottom nav.
  * Shows 6 standalone AI tool cards in a 3x2 grid.
- * Each card is a placeholder until Phase 2 wires up the actual tool screens.
+ * Each card navigates to its respective tool fragment.
  */
 public class AiHubFragment extends BaseFragment {
 
     private static final ToolItem[] TOOLS = {
             new ToolItem("AI Writer", "Fix grammar, adjust tone, write emails",
-                    R.drawable.msg_edit, 0xFF3B82F6),
+                    R.drawable.msg_edit, 0xFF3B82F6, 0),
             new ToolItem("AI Translator", "Translate any text instantly",
-                    R.drawable.msg_translate, 0xFF10B981),
+                    R.drawable.msg_translate, 0xFF10B981, 1),
             new ToolItem("Remove BG", "Remove photo backgrounds",
-                    R.drawable.msg_photos, 0xFFF97316),
+                    R.drawable.msg_photos, 0xFFF97316, 2),
             new ToolItem("Upscale", "Enhance photo resolution",
-                    R.drawable.msg_photo_settings, 0xFF8B5CF6),
+                    R.drawable.msg_photo_settings, 0xFF8B5CF6, 3),
             new ToolItem("Remove Text", "Erase text from images",
-                    R.drawable.msg_clear, 0xFFF43F5E),
+                    R.drawable.msg_clear, 0xFFF43F5E, 4),
             new ToolItem("AI Generate", "Create images from text",
-                    R.drawable.msg_addphoto, 0xFF06B6D4),
+                    R.drawable.msg_addphoto, 0xFF06B6D4, 5),
     };
 
     @Override
@@ -149,15 +149,26 @@ public class AiHubFragment extends BaseFragment {
 
         card.setOnClickListener(v -> {
             LoginPromptSheet.checkAndRun(AiHubFragment.this, () -> {
-                if (getParentActivity() != null) {
-                    android.widget.Toast.makeText(getParentActivity(),
-                            tool.title + " \u2014 Coming soon!",
-                            android.widget.Toast.LENGTH_SHORT).show();
+                BaseFragment fragment = createToolFragment(tool.toolIndex);
+                if (fragment != null) {
+                    presentFragment(fragment);
                 }
             });
         });
 
         return card;
+    }
+
+    private BaseFragment createToolFragment(int toolIndex) {
+        switch (toolIndex) {
+            case 0: return new AiWriterFragment();
+            case 1: return new AiTranslatorFragment();
+            case 2: return new RemoveBgToolFragment();
+            case 3: return new UpscaleToolFragment();
+            case 4: return new RemoveTextToolFragment();
+            case 5: return new AiGenerateFragment();
+            default: return null;
+        }
     }
 
     private static int dp(float value) {
@@ -169,12 +180,14 @@ public class AiHubFragment extends BaseFragment {
         final String description;
         final int iconRes;
         final int color;
+        final int toolIndex;
 
-        ToolItem(String title, String description, int iconRes, int color) {
+        ToolItem(String title, String description, int iconRes, int color, int toolIndex) {
             this.title = title;
             this.description = description;
             this.iconRes = iconRes;
             this.color = color;
+            this.toolIndex = toolIndex;
         }
     }
 }
