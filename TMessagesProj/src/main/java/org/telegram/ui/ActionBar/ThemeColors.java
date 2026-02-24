@@ -781,23 +781,290 @@ public class ThemeColors {
         defaultColors[key_code_comment] = 0x80000000;
         defaultColors[key_code_function] = 0xFFF28C39;
 
-        // Tony Chat design tokens (light defaults)
-        defaultColors[key_tony_primary] = 0xFF6366F1;
-        defaultColors[key_tony_primaryDark] = 0xFF4F46E5;
-        defaultColors[key_tony_primaryLight] = 0xFFE0E7FF;
-        defaultColors[key_tony_aiAccent] = 0xFFF59E0B;
-        defaultColors[key_tony_aiAccentText] = 0xFFD97706;
-        defaultColors[key_tony_aiLight] = 0xFFFEF3C7;
+        // ==============================================================
+        // TONY CHAT — KakaoTalk Yellow Reskin
+        // All Telegram blue/accent → #F9E000 yellow brand
+        // ==============================================================
+        final int Y = 0xFFF9E000;          // Primary brand yellow
+        final int YD = 0xFFE5CC00;         // Pressed/darker yellow
+        final int YT = 0xFFC8A000;         // Yellow text on white bg (readable)
+        final int YL = 0xFFFFF9C4;         // Light yellow tint
+        final int YS = 0x33F9E000;         // Yellow selection overlay
+        final int DOY = 0xFF6B5B00;        // Dark on yellow bg
+        final int TD = 0xFF111111;         // Text dark
+
+        // --- Dialog accent colors ---
+        defaultColors[key_dialogTextLink] = YT;
+        defaultColors[key_dialogLinkSelection] = YS;
+        defaultColors[key_dialogTextBlue] = YT;
+        defaultColors[key_dialogTextBlue2] = YT;
+        defaultColors[key_dialogTextBlue4] = YT;
+        defaultColors[key_dialogTextGray] = YT;
+        defaultColors[key_dialogTopBackground] = Y;
+        defaultColors[key_dialogInputFieldActivated] = Y;
+        defaultColors[key_dialogCheckboxSquareBackground] = Y;
+        defaultColors[key_dialogRadioBackgroundChecked] = Y;
+        defaultColors[key_dialogLineProgress] = Y;
+        defaultColors[key_dialogButton] = YT;
+        defaultColors[key_dialogRoundCheckBox] = Y;
+        defaultColors[key_dialogFloatingButton] = Y;
+        defaultColors[key_dialogFloatingIcon] = TD;
+
+        // --- Window/global accent ---
+        defaultColors[key_windowBackgroundChecked] = Y;
+        defaultColors[key_progressCircle] = Y;
+        defaultColors[key_windowBackgroundWhiteBlueText] = YT;
+        defaultColors[key_windowBackgroundWhiteBlueText2] = YT;
+        defaultColors[key_windowBackgroundWhiteBlueText3] = YT;
+        defaultColors[key_windowBackgroundWhiteBlueText4] = YT;
+        defaultColors[key_windowBackgroundWhiteBlueText5] = YT;
+        defaultColors[key_windowBackgroundWhiteBlueText6] = YT;
+        defaultColors[key_windowBackgroundWhiteBlueText7] = YT;
+        defaultColors[key_windowBackgroundWhiteBlueButton] = Y;
+        defaultColors[key_windowBackgroundWhiteBlueIcon] = Y;
+        defaultColors[key_windowBackgroundWhiteValueText] = YT;
+        defaultColors[key_windowBackgroundWhiteLinkText] = YT;
+        defaultColors[key_windowBackgroundWhiteLinkSelection] = YS;
+        defaultColors[key_windowBackgroundWhiteBlueHeader] = YT;
+        defaultColors[key_windowBackgroundWhiteInputFieldActivated] = Y;
+
+        // --- Switches & checkboxes ---
+        defaultColors[key_switchTrackChecked] = Y;
+        defaultColors[key_switchTrackBlueChecked] = Y;
+        defaultColors[key_switchTrackBlueSelectorChecked] = 0x21F9E000;
+        defaultColors[key_switch2TrackChecked] = Y;
+        defaultColors[key_checkboxSquareBackground] = Y;
+        defaultColors[key_radioBackgroundChecked] = Y;
+
+        // --- Progress ---
+        defaultColors[key_contextProgressOuter1] = Y;
+        defaultColors[key_contextProgressInner1] = YL;
+        defaultColors[key_contextProgressInner2] = YL;
+        defaultColors[key_fastScrollActive] = Y;
+
+        // --- Chats list ---
+        defaultColors[key_chats_actionBackground] = Y;
+        defaultColors[key_chats_actionPressedBackground] = YD;
+        defaultColors[key_chats_actionIcon] = TD;
+        defaultColors[key_chats_archiveBackground] = Y;
+        defaultColors[key_chats_archivePullDownBackgroundActive] = Y;
+        defaultColors[key_chats_verifiedBackground] = Y;
+        defaultColors[key_chats_verifiedCheck] = TD;
+        defaultColors[key_chats_menuItemCheck] = YT;
+        defaultColors[key_chats_menuTopBackgroundCats] = Y;
+        defaultColors[key_chats_nameMessage] = YT;
+        defaultColors[key_chats_attachMessage] = YT;
+        defaultColors[key_chats_actionMessage] = YT;
+
+        // --- Chat attach ---
+        defaultColors[key_chat_attachCheckBoxBackground] = Y;
+        defaultColors[key_chat_attachActiveTab] = Y;
+        defaultColors[key_chat_attachGalleryBackground] = Y;
+        defaultColors[key_chat_attachGalleryText] = YT;
+        defaultColors[key_chat_attachFileBackground] = Y;
+        defaultColors[key_chat_attachFileText] = YT;
+
+        // --- Chat bubbles ---
+        defaultColors[key_chat_outBubble] = Y;
+        defaultColors[key_chat_outBubbleSelected] = YD;
+        defaultColors[key_chat_outBubbleShadow] = 0xFF8B7A00;
+        defaultColors[key_chat_inBubble] = 0xFFF5F5F5;
+        defaultColors[key_chat_inBubbleSelected] = 0xFFE8E8E8;
+
+        // --- Outgoing message elements (on yellow bg → dark) ---
+        defaultColors[key_chat_outSentCheck] = DOY;
+        defaultColors[key_chat_outSentCheckSelected] = DOY;
+        defaultColors[key_chat_outSentCheckRead] = DOY;
+        defaultColors[key_chat_outSentCheckReadSelected] = DOY;
+        defaultColors[key_chat_outSentClock] = DOY;
+        defaultColors[key_chat_outSentClockSelected] = DOY;
+        defaultColors[key_chat_outViews] = DOY;
+        defaultColors[key_chat_outViewsSelected] = DOY;
+        defaultColors[key_chat_outMenu] = DOY;
+        defaultColors[key_chat_outMenuSelected] = DOY;
+        defaultColors[key_chat_outTimeText] = DOY;
+        defaultColors[key_chat_outTimeSelectedText] = DOY;
+        defaultColors[key_chat_outInstant] = DOY;
+        defaultColors[key_chat_outInstantSelected] = DOY;
+        defaultColors[key_chat_outPreviewInstantText] = DOY;
+        defaultColors[key_chat_outForwardedNameText] = DOY;
+        defaultColors[key_chat_outViaBotNameText] = DOY;
+        defaultColors[key_chat_outReplyLine] = 0xFFC8A000;
+        defaultColors[key_chat_outReplyNameText] = DOY;
+        defaultColors[key_chat_outSiteNameText] = DOY;
+        defaultColors[key_chat_outContactNameText] = DOY;
+        defaultColors[key_chat_outAudioTitleText] = DOY;
+        defaultColors[key_chat_outFileNameText] = DOY;
+        defaultColors[key_chat_outMediaIcon] = TD;
+        defaultColors[key_chat_outMediaIconSelected] = TD;
+        defaultColors[key_chat_outAdminText] = DOY;
+        defaultColors[key_chat_outAdminSelectedText] = DOY;
+        defaultColors[key_chat_outAudioProgress] = YL;
+        defaultColors[key_chat_outAudioSelectedProgress] = YL;
+        defaultColors[key_chat_outAudioDurationText] = DOY;
+        defaultColors[key_chat_outAudioDurationSelectedText] = DOY;
+        defaultColors[key_chat_outAudioSeekbar] = 0xFFD4C060;
+        defaultColors[key_chat_outAudioCacheSeekbar] = 0x3FD4C060;
+        defaultColors[key_chat_outAudioSeekbarSelected] = 0xFFB8A040;
+        defaultColors[key_chat_outAudioSeekbarFill] = DOY;
+        defaultColors[key_chat_outVoiceSeekbar] = 0xFFD4C060;
+        defaultColors[key_chat_outVoiceSeekbarSelected] = 0xFFB8A040;
+        defaultColors[key_chat_outVoiceSeekbarFill] = DOY;
+        defaultColors[key_chat_outFileProgress] = YL;
+        defaultColors[key_chat_outFileProgressSelected] = 0xFFE8D080;
+        defaultColors[key_chat_outFileInfoText] = DOY;
+        defaultColors[key_chat_outFileInfoSelectedText] = DOY;
+        defaultColors[key_chat_outFileBackground] = YL;
+        defaultColors[key_chat_outFileBackgroundSelected] = 0xFFE8D080;
+        defaultColors[key_chat_outVenueInfoText] = DOY;
+        defaultColors[key_chat_outVenueInfoSelectedText] = DOY;
+        defaultColors[key_chat_outLocationIcon] = DOY;
+        defaultColors[key_chat_outContactBackground] = 0xFFC8A000;
+        defaultColors[key_chat_outContactIcon] = YL;
+        defaultColors[key_chat_outReplyMediaMessageText] = DOY;
+        defaultColors[key_chat_outReplyMediaMessageSelectedText] = DOY;
+        defaultColors[key_chat_outLoader] = 0xFFC8A000;
+        defaultColors[key_chat_outLoaderSelected] = 0xFFB09000;
+        defaultColors[key_chat_outPreviewLine] = 0xFFC8A000;
+        defaultColors[key_chat_outReactionButtonBackground] = 0xFFC8A000;
+        defaultColors[key_chat_outReactionButtonText] = DOY;
+        defaultColors[key_chat_outQuote] = 0xFFC8A000;
+        defaultColors[key_chat_outBubbleLocationPlaceholder] = 0x1E6B5B00;
+        defaultColors[key_chat_outTextSelectionHighlight] = 0x2E6B5B00;
+        defaultColors[key_chat_outTextSelectionCursor] = DOY;
+        defaultColors[key_chat_outCodeBackground] = 0x126B5B00;
+        defaultColors[key_chat_outContactPhoneText] = TD;
+        defaultColors[key_chat_outContactPhoneSelectedText] = TD;
+        defaultColors[key_chat_outAudioPerformerText] = TD;
+        defaultColors[key_chat_outAudioPerformerSelectedText] = TD;
+
+        // --- Incoming message accent (on white/light bg → yellow) ---
+        defaultColors[key_chat_inInstant] = YT;
+        defaultColors[key_chat_inInstantSelected] = YD;
+        defaultColors[key_chat_inPreviewInstantText] = YT;
+        defaultColors[key_chat_inViaBotNameText] = YT;
+        defaultColors[key_chat_inReplyNameText] = YT;
+        defaultColors[key_chat_inSiteNameText] = YT;
+        defaultColors[key_chat_inForwardedNameText] = YT;
+        defaultColors[key_chat_inReplyLine] = Y;
+        defaultColors[key_chat_inContactNameText] = YT;
+        defaultColors[key_chat_inAudioTitleText] = YT;
+        defaultColors[key_chat_inFileNameText] = YT;
+        defaultColors[key_chat_inPreviewLine] = Y;
+        defaultColors[key_chat_inAudioSeekbarFill] = Y;
+        defaultColors[key_chat_inVoiceSeekbarFill] = Y;
+        defaultColors[key_chat_inLoader] = Y;
+        defaultColors[key_chat_inLoaderSelected] = YD;
+        defaultColors[key_chat_inContactBackground] = Y;
+        defaultColors[key_chat_inReactionButtonBackground] = Y;
+        defaultColors[key_chat_inReactionButtonText] = YT;
+        defaultColors[key_chat_inQuote] = Y;
+
+        // --- Chat panel & controls ---
+        defaultColors[key_chat_fieldOverlayText] = YT;
+        defaultColors[key_chat_replyPanelIcons] = Y;
+        defaultColors[key_chat_replyPanelName] = YT;
+        defaultColors[key_chat_topPanelLine] = Y;
+        defaultColors[key_chat_topPanelTitle] = YT;
+        defaultColors[key_chat_messagePanelSend] = Y;
+        defaultColors[key_chat_messagePanelCursor] = Y;
+        defaultColors[key_chat_messagePanelVoiceBackground] = Y;
+        defaultColors[key_chat_messagePanelVoicePressed] = TD;
+        defaultColors[key_chat_recordedVoiceBackground] = Y;
+        defaultColors[key_chat_recordedVoiceProgress] = YL;
+        defaultColors[key_chat_recordVoiceCancel] = YT;
+        defaultColors[key_chat_addContact] = YT;
+        defaultColors[key_chat_unreadMessagesStartText] = YT;
+        defaultColors[key_chat_goDownButtonCounterBackground] = Y;
+        defaultColors[key_chat_goDownButtonCounter] = TD;
+        defaultColors[key_chat_emojiPanelStickerPackSelectorLine] = Y;
+        defaultColors[key_chat_emojiPanelStickerSetNameHighlight] = YT;
+        defaultColors[key_chat_emojiPanelNewTrending] = Y;
+        defaultColors[key_chat_botSwitchToInlineText] = YT;
+        defaultColors[key_chat_TextSelectionCursor] = Y;
+        defaultColors[key_chat_inTextSelectionHighlight] = YS;
+        defaultColors[key_chat_linkSelectBackground] = YS;
+        defaultColors[key_chat_outLinkSelectBackground] = YS;
+        defaultColors[key_chat_textSelectBackground] = 0x66F9E000;
+        defaultColors[key_chat_inlineResultIcon] = YT;
+
+        // --- Featured stickers ---
+        defaultColors[key_featuredStickers_addButton] = Y;
+        defaultColors[key_featuredStickers_addButtonPressed] = YD;
+        defaultColors[key_featuredStickers_addedIcon] = Y;
+        defaultColors[key_featuredStickers_buttonText] = TD;
+        defaultColors[key_featuredStickers_removeButtonText] = YT;
+        defaultColors[key_featuredStickers_unread] = Y;
+
+        // --- Profile ---
+        defaultColors[key_profile_creatorIcon] = YT;
+        defaultColors[key_profile_verifiedBackground] = Y;
+        defaultColors[key_profile_verifiedCheck] = TD;
+        defaultColors[key_profile_tabSelectedText] = YT;
+        defaultColors[key_profile_tabSelectedLine] = Y;
+
+        // --- Player ---
+        defaultColors[key_player_progress] = Y;
+        defaultColors[key_player_buttonActive] = Y;
+        defaultColors[key_inappPlayerPlayPause] = Y;
+
+        // --- Files ---
+        defaultColors[key_files_folderIconBackground] = Y;
+        defaultColors[key_files_folderIcon] = TD;
+
+        // --- Location ---
+        defaultColors[key_location_sendLocationBackground] = Y;
+        defaultColors[key_location_sendLocationIcon] = TD;
+        defaultColors[key_location_sendLocationText] = YT;
+        defaultColors[key_location_liveLocationProgress] = Y;
+        defaultColors[key_location_placeLocationBackground] = Y;
+        defaultColors[key_location_actionActiveIcon] = Y;
+        defaultColors[key_dialog_liveLocationProgress] = Y;
+
+        // --- Login ---
+        defaultColors[key_login_progressOuter] = Y;
+        defaultColors[key_login_progressInner] = YL;
+
+        // --- Picker ---
+        defaultColors[key_picker_enabledButton] = Y;
+        defaultColors[key_picker_badge] = Y;
+        defaultColors[key_picker_badgeText] = TD;
+
+        // --- Passport ---
+        defaultColors[key_passport_authorizeBackground] = Y;
+        defaultColors[key_passport_authorizeBackgroundSelected] = YD;
+        defaultColors[key_passport_authorizeText] = TD;
+
+        // --- Return to call ---
+        defaultColors[key_returnToCallBackground] = Y;
+        defaultColors[key_returnToCallText] = TD;
+
+        // --- Shared media ---
+        defaultColors[key_sharedMedia_startStopLoadIcon] = Y;
+
+        // --- Misc ---
+        defaultColors[key_changephoneinfo_image2] = Y;
+        defaultColors[key_groupcreate_cursor] = Y;
+        defaultColors[key_undo_cancelColor] = Y;
+        defaultColors[key_statisticChartBackZoomColor] = YT;
+
+        // Tony Chat design tokens (yellow brand)
+        defaultColors[key_tony_primary] = 0xFFF9E000;
+        defaultColors[key_tony_primaryDark] = 0xFFE5CC00;
+        defaultColors[key_tony_primaryLight] = 0xFFFFF9C4;
+        defaultColors[key_tony_aiAccent] = 0xFFF9E000;
+        defaultColors[key_tony_aiAccentText] = 0xFFC8A000;
+        defaultColors[key_tony_aiLight] = 0xFFFFF9C4;
         defaultColors[key_tony_success] = 0xFF10B981;
         defaultColors[key_tony_error] = 0xFFF43F5E;
         defaultColors[key_tony_warning] = 0xFFF59E0B;
-        defaultColors[key_tony_background] = 0xFFFAFAFA;
+        defaultColors[key_tony_background] = 0xFFFFFFFF;
         defaultColors[key_tony_surface] = 0xFFFFFFFF;
-        defaultColors[key_tony_surface2] = 0xFFF3F4F6;
+        defaultColors[key_tony_surface2] = 0xFFF5F5F5;
         defaultColors[key_tony_border] = 0xFFE5E7EB;
-        defaultColors[key_tony_textPrimary] = 0xFF1A1A1A;
-        defaultColors[key_tony_textSecondary] = 0xFF64748B;
-        defaultColors[key_tony_textTertiary] = 0xFF9CA3AF;
+        defaultColors[key_tony_textPrimary] = 0xFF111111;
+        defaultColors[key_tony_textSecondary] = 0xFF666666;
+        defaultColors[key_tony_textTertiary] = 0xFF999999;
         defaultColors[key_tony_navGlass] = 0xCCFFFFFF;
 
         return defaultColors;

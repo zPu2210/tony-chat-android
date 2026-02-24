@@ -286,6 +286,12 @@
             </intent-filter>
         </activity-alias>
         <activity
+            android:name="org.telegram.ui.TonyChat.OnboardingActivity"
+            android:theme="@style/Theme.TonyChat.Onboarding"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:exported="false"/>
+        <activity
             android:name="org.telegram.ui.BubbleActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
             android:hardwareAccelerated="@bool/useHardwareAcceleration"

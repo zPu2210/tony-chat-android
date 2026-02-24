@@ -148,11 +148,13 @@ public class AiHubFragment extends BaseFragment {
                 LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
 
         card.setOnClickListener(v -> {
-            if (getParentActivity() != null) {
-                android.widget.Toast.makeText(getParentActivity(),
-                        tool.title + " \u2014 Coming soon!",
-                        android.widget.Toast.LENGTH_SHORT).show();
-            }
+            LoginPromptSheet.checkAndRun(AiHubFragment.this, () -> {
+                if (getParentActivity() != null) {
+                    android.widget.Toast.makeText(getParentActivity(),
+                            tool.title + " \u2014 Coming soon!",
+                            android.widget.Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
         return card;

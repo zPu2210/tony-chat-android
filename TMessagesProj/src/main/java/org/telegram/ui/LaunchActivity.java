@@ -72,6 +72,7 @@ import com.tonychat.community.ui.CommunityFeedFragment;
 import org.telegram.ui.TonyChat.AiHubFragment;
 import org.telegram.ui.TonyChat.TonyBottomNavView;
 import org.telegram.ui.TonyChat.TonyMigrationSheet;
+import org.telegram.ui.TonyChat.TelegramConnectView;
 import org.telegram.ui.TonyChat.TonySettingsFragment;
 
 import androidx.annotation.NonNull;
@@ -277,6 +278,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
     private View[] tonyTabViews = new View[TonyBottomNavView.TAB_COUNT];
     private INavigationLayout[] tonyTabLayouts = new INavigationLayout[TonyBottomNavView.TAB_COUNT];
     private int tonyCurrentTab = TonyBottomNavView.TAB_TONY_AI;
+    private TelegramConnectView tonyConnectView;
     private IUpdateLayout updateLayout;
 
     private AlertDialog localeDialog;
@@ -337,6 +339,17 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         instance = this;
         ApplicationLoader.postInitApplication();
         AndroidUtilities.checkDisplaySize(this, getResources().getConfiguration());
+
+        // Tony Chat: First-time onboarding check
+        android.content.SharedPreferences tonyPrefs = ApplicationLoader.applicationContext
+                .getSharedPreferences("tonychat", android.content.Context.MODE_PRIVATE);
+        if (!tonyPrefs.getBoolean("onboarding_seen", false)) {
+            super.onCreate(savedInstanceState);
+            startActivity(new Intent(this, org.telegram.ui.TonyChat.OnboardingActivity.class));
+            finish();
+            return;
+        }
+
         currentAccount = UserConfig.selectedAccount;
         if (!UserConfig.getInstance(currentAccount).isClientActivated()) {
             Intent intent = getIntent();
@@ -1332,13 +1345,35 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         // Hide current tab
         if (tonyCurrentTab == TonyBottomNavView.TAB_CHATS) {
             actionBarLayout.getView().setVisibility(View.GONE);
+            if (tonyConnectView != null) tonyConnectView.setVisibility(View.GONE);
         } else if (tonyTabViews[tonyCurrentTab] != null) {
             tonyTabViews[tonyCurrentTab].setVisibility(View.GONE);
         }
 
         // Show/create target tab
         if (index == TonyBottomNavView.TAB_CHATS) {
-            actionBarLayout.getView().setVisibility(View.VISIBLE);
+            boolean loggedIn = UserConfig.getInstance(currentAccount).isClientActivated();
+            if (loggedIn) {
+                actionBarLayout.getView().setVisibility(View.VISIBLE);
+                if (tonyConnectView != null) tonyConnectView.setVisibility(View.GONE);
+            } else {
+                actionBarLayout.getView().setVisibility(View.GONE);
+                if (tonyConnectView == null) {
+                    tonyConnectView = new TelegramConnectView(this);
+                    tonyConnectView.setOnConnectClickListener(() -> {
+                        // Open Telegram login flow
+                        if (actionBarLayout.getFragmentStack().isEmpty()) return;
+                        BaseFragment lastFragment = actionBarLayout.getFragmentStack()
+                                .get(actionBarLayout.getFragmentStack().size() - 1);
+                        lastFragment.presentFragment(new LoginActivity());
+                    });
+                    tonyTabContainer.addView(tonyConnectView,
+                            new FrameLayout.LayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT,
+                                    ViewGroup.LayoutParams.MATCH_PARENT));
+                }
+                tonyConnectView.setVisibility(View.VISIBLE);
+            }
         } else {
             if (tonyTabViews[index] == null) {
                 tonyTabViews[index] = createTonyTabView(index);

@@ -41,7 +41,7 @@ public final class TonyColors {
 
     /** Inactive nav tab color */
     public static int navInactive() {
-        return Theme.isCurrentThemeDark() ? 0xFF94A3B8 : 0xFF777777;
+        return Theme.isCurrentThemeDark() ? 0xFF94A3B8 : 0xFF999999;
     }
 
     // ==================== Text ====================
@@ -51,7 +51,7 @@ public final class TonyColors {
     }
 
     public static int textSecondary() {
-        return Theme.isCurrentThemeDark() ? 0xFF94A3B8 : 0xFF777777;
+        return Theme.isCurrentThemeDark() ? 0xFF94A3B8 : 0xFF666666;
     }
 
     public static int textTertiary() {
