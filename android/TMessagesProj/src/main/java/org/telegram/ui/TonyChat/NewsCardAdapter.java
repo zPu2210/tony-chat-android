@@ -198,7 +198,7 @@ public class NewsCardAdapter extends RecyclerView.Adapter<NewsCardAdapter.NewsVi
         int textColor;
         switch (category) {
             case "technology":
-                bgColor = 0x1A2196F3; textColor = 0xFF2196F3; break;
+                bgColor = 0x1A7C4DFF; textColor = 0xFF7C4DFF; break;
             case "business":
                 bgColor = 0x1A4CAF50; textColor = 0xFF4CAF50; break;
             case "world":
