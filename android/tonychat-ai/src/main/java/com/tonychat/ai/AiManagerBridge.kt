@@ -137,7 +137,7 @@ object AiManagerBridge {
         }
     }
 
-    // ==================== Standalone AI Writer ====================
+    // ==================== Standalone AI Writer (Edge Function) ====================
 
     @JvmStatic
     fun standaloneRewrite(text: String, style: String, callback: ResultCallback<String>) {
@@ -154,7 +154,24 @@ object AiManagerBridge {
         }
     }
 
-    // ==================== ClipDrop Image Tools ====================
+    // ==================== Standalone AI Translator (Edge Function) ====================
+
+    @JvmStatic
+    fun standaloneTranslate(text: String, targetLang: String, sourceLang: String?, callback: ResultCallback<String>) {
+        scope.launch(Dispatchers.IO) {
+            val result = try {
+                AiManager.standaloneTranslate(text, targetLang, sourceLang)
+            } catch (e: Exception) {
+                Log.w(TAG, "standaloneTranslate failed", e)
+                AiResponse.Error<String>(e.message ?: "Unknown error")
+            }
+            withContext(Dispatchers.Main) {
+                callback.onResult(result)
+            }
+        }
+    }
+
+    // ==================== ClipDrop Image Tools (Edge Functions) ====================
 
     @JvmStatic
     fun clipDropRemoveBg(imageFile: File, callback: ImageEditCallback) {

@@ -68,13 +68,4 @@ object AiConfig {
             }
         }
 
-    var clipDropApiKey: String?
-        get() = prefs.getString("clipdrop_key_enc", null)?.let { keyManager.decrypt(it) }
-        set(value) {
-            if (value == null) {
-                prefs.edit().remove("clipdrop_key_enc").apply()
-            } else {
-                prefs.edit().putString("clipdrop_key_enc", keyManager.encrypt(value)).apply()
-            }
-        }
 }

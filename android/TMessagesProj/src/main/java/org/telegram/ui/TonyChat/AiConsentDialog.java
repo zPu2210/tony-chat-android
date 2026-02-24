@@ -94,9 +94,9 @@ public class AiConsentDialog {
             case TRANSCRIBE:
                 return "Voice Transcription uses AI to convert voice messages to text. Audio files will be sent to OpenAI's Whisper API for processing.";
             case AI_WRITER:
-                return "AI Writer uses cloud AI to transform your text. Your text will be sent to an AI service for processing.";
+                return "AI Writer transforms your text using cloud AI. Your text is processed securely on our servers. No API key needed.";
             case CLIPDROP_IMAGE:
-                return "AI Image Tools use ClipDrop's cloud service to process your photos. Images will be sent to ClipDrop API for processing.";
+                return "AI Image Tools process your photos using cloud AI. Images are processed securely on our servers. No API key needed.";
             default:
                 return "This feature uses AI to enhance your messaging experience.";
         }

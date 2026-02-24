@@ -29,6 +29,7 @@ import java.security.MessageDigest
 object AiManager {
     private const val TAG = "AiManager"
 
+    private lateinit var appContext: Context
     private lateinit var cache: AiCacheDao
     private lateinit var imageEditCache: ImageEditCacheDao
     private lateinit var imageEditCacheDir: File
@@ -77,7 +78,8 @@ object AiManager {
         rateLimiter = limiter
     }
 
-    fun init(appContext: Context) {
+    fun init(context: Context) {
+        appContext = context.applicationContext
         AiConfig.init(appContext)
         AiConsentManager.init(appContext)
         val db = AiCacheDatabase.get(appContext)
@@ -142,9 +144,10 @@ object AiManager {
             null
         }
 
-        val clipDropKey = AiConfig.clipDropApiKey
-        clipDropProvider = if (!clipDropKey.isNullOrBlank()) {
-            ClipDropProvider(clipDropKey, clipDropCacheDir)
+        // ClipDrop provider now uses Edge Functions — no API key needed, uses device ID
+        val deviceId = if (::appContext.isInitialized) DeviceIdentifier.getId(appContext) else ""
+        clipDropProvider = if (deviceId.isNotBlank()) {
+            ClipDropProvider(deviceId, clipDropCacheDir)
         } else {
             null
         }
@@ -352,70 +355,59 @@ object AiManager {
         return bytes.joinToString("") { "%02x".format(it) }
     }
 
-    // ==================== Standalone AI Writer ====================
+    // ==================== Standalone AI Writer (Edge Function) ====================
 
-    /** Rewrite text with a given style for standalone AI Writer. */
+    /** Rewrite text via Edge Function /ai-rewrite. No API key needed. */
     suspend fun standaloneRewrite(text: String, style: String): AiResponse<String> {
         if (!AiConsentManager.hasConsent(AiFeatureType.AI_WRITER)) return AiResponse.ConsentRequired()
         if (!rateLimiter.tryAcquire(AiFeatureType.AI_WRITER)) return AiResponse.RateLimited()
-        val provider = if (cloudProvider.isAvailable) cloudProvider else return AiResponse.Unavailable()
-
-        val prompt = when (style.lowercase()) {
-            "fix grammar" -> "Fix the grammar and spelling in this text. Return only the corrected text:\n\n$text"
-            "professional" -> "Rewrite this text in a professional business tone. Return only the rewritten text:\n\n$text"
-            "casual" -> "Rewrite this text in a casual, friendly tone. Return only the rewritten text:\n\n$text"
-            "polite" -> "Rewrite this text in a polite, courteous tone. Return only the rewritten text:\n\n$text"
-            else -> "Improve this text. Return only the improved text:\n\n$text"
-        }
-
-        return try {
-            val messages = listOf(AiMessage(prompt, true))
-            provider.generateReply(messages, 1).let { resp ->
-                when (resp) {
-                    is AiResponse.Success -> {
-                        val result = resp.data.firstOrNull() ?: ""
-                        AiResponse.Success(result, provider = resp.provider)
-                    }
-                    is AiResponse.Error -> AiResponse.Error(resp.message)
-                    else -> AiResponse.Error("Unexpected response")
-                }
-            }
-        } catch (e: Exception) {
-            AiResponse.Error(e.message ?: "Unknown error")
-        }
+        val deviceId = if (::appContext.isInitialized) DeviceIdentifier.getId(appContext) else ""
+        if (deviceId.isBlank()) return AiResponse.Error("Device ID unavailable")
+        return EdgeFunctionClient.rewrite(text, style, deviceId)
     }
 
-    // ==================== ClipDrop Image Tools ====================
+    // ==================== Standalone AI Translator (Edge Function) ====================
 
-    /** ClipDrop: Remove background from image. */
+    /** Translate text via Edge Function /ai-translate. No API key needed. */
+    suspend fun standaloneTranslate(text: String, targetLang: String, sourceLang: String? = null): AiResponse<String> {
+        if (!AiConsentManager.hasConsent(AiFeatureType.TRANSLATE)) return AiResponse.ConsentRequired()
+        if (!rateLimiter.tryAcquire(AiFeatureType.TRANSLATE)) return AiResponse.RateLimited()
+        val deviceId = if (::appContext.isInitialized) DeviceIdentifier.getId(appContext) else ""
+        if (deviceId.isBlank()) return AiResponse.Error("Device ID unavailable")
+        return EdgeFunctionClient.translate(text, targetLang, sourceLang, deviceId)
+    }
+
+    // ==================== ClipDrop Image Tools (Edge Functions) ====================
+
+    /** Remove background via Edge Function. No API key needed. */
     suspend fun clipDropRemoveBg(imageFile: File): ImageEditResponse {
         if (!AiConsentManager.hasConsent(AiFeatureType.CLIPDROP_IMAGE)) return ImageEditResponse.ConsentRequired()
         if (!rateLimiter.tryAcquire(AiFeatureType.CLIPDROP_IMAGE)) return ImageEditResponse.RateLimited()
-        val provider = clipDropProvider ?: return ImageEditResponse.Error("ClipDrop API key not set. Go to AI Settings.")
+        val provider = clipDropProvider ?: return ImageEditResponse.Error("Service unavailable. Please try again.")
         return provider.removeBackground(imageFile)
     }
 
-    /** ClipDrop: Upscale image to 2x resolution. */
+    /** Upscale image via Edge Function. No API key needed. */
     suspend fun clipDropUpscale(imageFile: File): ImageEditResponse {
         if (!AiConsentManager.hasConsent(AiFeatureType.CLIPDROP_IMAGE)) return ImageEditResponse.ConsentRequired()
         if (!rateLimiter.tryAcquire(AiFeatureType.CLIPDROP_IMAGE)) return ImageEditResponse.RateLimited()
-        val provider = clipDropProvider ?: return ImageEditResponse.Error("ClipDrop API key not set. Go to AI Settings.")
+        val provider = clipDropProvider ?: return ImageEditResponse.Error("Service unavailable. Please try again.")
         return provider.upscale(imageFile)
     }
 
-    /** ClipDrop: Remove text from image. */
+    /** Remove text via Edge Function. No API key needed. */
     suspend fun clipDropRemoveText(imageFile: File): ImageEditResponse {
         if (!AiConsentManager.hasConsent(AiFeatureType.CLIPDROP_IMAGE)) return ImageEditResponse.ConsentRequired()
         if (!rateLimiter.tryAcquire(AiFeatureType.CLIPDROP_IMAGE)) return ImageEditResponse.RateLimited()
-        val provider = clipDropProvider ?: return ImageEditResponse.Error("ClipDrop API key not set. Go to AI Settings.")
+        val provider = clipDropProvider ?: return ImageEditResponse.Error("Service unavailable. Please try again.")
         return provider.removeText(imageFile)
     }
 
-    /** ClipDrop: Generate image from text prompt. */
+    /** Generate image via Edge Function. No API key needed. */
     suspend fun clipDropGenerate(prompt: String): ImageGenerationResponse {
         if (!AiConsentManager.hasConsent(AiFeatureType.CLIPDROP_IMAGE)) return ImageGenerationResponse.ConsentRequired()
         if (!rateLimiter.tryAcquire(AiFeatureType.CLIPDROP_IMAGE)) return ImageGenerationResponse.RateLimited()
-        val provider = clipDropProvider ?: return ImageGenerationResponse.Error("ClipDrop API key not set. Go to AI Settings.")
+        val provider = clipDropProvider ?: return ImageGenerationResponse.Error("Service unavailable. Please try again.")
         return provider.textToImage(prompt)
     }
 

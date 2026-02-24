@@ -291,8 +291,8 @@ public class AiTranslatorFragment extends BaseFragment {
 
     private void executeTranslate(String text) {
         setLoading(true);
-        String from = "auto".equals(sourceLang) ? "" : sourceLang;
-        AiManagerBridge.INSTANCE.translate(text, from, targetLang, response -> {
+        String from = "auto".equals(sourceLang) ? null : sourceLang;
+        AiManagerBridge.standaloneTranslate(text, targetLang, from, response -> {
             setLoading(false);
             if (response instanceof AiResponse.Success) {
                 String result = ((AiResponse.Success<String>) response).getData();

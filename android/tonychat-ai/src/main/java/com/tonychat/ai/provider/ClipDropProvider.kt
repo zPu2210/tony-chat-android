@@ -2,40 +2,44 @@ package com.tonychat.ai.provider
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import com.tonychat.ai.BuildConfig
 import com.tonychat.ai.ImageEditResponse
 import com.tonychat.ai.ImageGenerationResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.TimeUnit
 
 /**
- * Unified ClipDrop API provider for 4 image operations:
- * - Remove Background
- * - Upscale (2x)
- * - Remove Text
- * - Text-to-Image generation
+ * Image tool provider routing through Supabase Edge Functions:
+ * - Remove Background  → POST /ai-remove-bg     (multipart)
+ * - Upscale            → POST /ai-upscale        (multipart)
+ * - Remove Text        → POST /ai-remove-text    (multipart)
+ * - Generate Image     → POST /ai-generate-image (JSON)
  *
- * API docs: https://clipdrop.co/apis/docs
+ * Auth: X-Device-Id header + Supabase anon key Bearer token.
+ * Rate limits enforced server-side; remaining quota in X-Remaining header.
  */
 class ClipDropProvider(
-    private val apiKey: String,
+    private val deviceId: String,
     private val cacheDir: File
 ) {
     companion object {
-        private const val BASE_URL = "https://clipdrop-api.co"
+        private const val BASE_URL = BuildConfig.SUPABASE_URL + "/functions/v1"
         private const val MAX_IMAGE_PIXELS = 16_000_000 // 16MP
         private const val JPEG_QUALITY = 95
     }
 
-    val isAvailable: Boolean get() = apiKey.isNotBlank()
+    val isAvailable: Boolean get() = deviceId.isNotBlank()
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(15, TimeUnit.SECONDS)
@@ -47,7 +51,7 @@ class ClipDropProvider(
         if (!imageFile.exists()) return@withContext ImageEditResponse.Error("Image file not found")
 
         try {
-            val prepared = prepareImage(imageFile, 25_000_000) // 25MP limit for remove-bg
+            val prepared = prepareImage(imageFile, 25_000_000)
             val body = MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("image_file", prepared.name,
@@ -55,8 +59,9 @@ class ClipDropProvider(
                 .build()
 
             val request = Request.Builder()
-                .url("$BASE_URL/remove-background/v1")
-                .header("x-api-key", apiKey)
+                .url("$BASE_URL/ai-remove-bg")
+                .header("X-Device-Id", deviceId)
+                .header("Authorization", "Bearer ${BuildConfig.SUPABASE_ANON_KEY}")
                 .post(body)
                 .build()
 
@@ -75,13 +80,12 @@ class ClipDropProvider(
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("image_file", prepared.name,
                     prepared.asRequestBody("image/png".toMediaTypeOrNull()))
-                .addFormDataPart("target_width", "4096")
-                .addFormDataPart("target_height", "4096")
                 .build()
 
             val request = Request.Builder()
-                .url("$BASE_URL/image-upscaling/v1/upscale")
-                .header("x-api-key", apiKey)
+                .url("$BASE_URL/ai-upscale")
+                .header("X-Device-Id", deviceId)
+                .header("Authorization", "Bearer ${BuildConfig.SUPABASE_ANON_KEY}")
                 .post(body)
                 .build()
 
@@ -103,8 +107,9 @@ class ClipDropProvider(
                 .build()
 
             val request = Request.Builder()
-                .url("$BASE_URL/remove-text/v1")
-                .header("x-api-key", apiKey)
+                .url("$BASE_URL/ai-remove-text")
+                .header("X-Device-Id", deviceId)
+                .header("Authorization", "Bearer ${BuildConfig.SUPABASE_ANON_KEY}")
                 .post(body)
                 .build()
 
@@ -118,15 +123,15 @@ class ClipDropProvider(
         if (prompt.isBlank()) return@withContext ImageGenerationResponse.Error("Prompt cannot be empty")
 
         try {
-            val body = MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("prompt", prompt.take(1000))
-                .build()
+            val json = JSONObject().apply { put("prompt", prompt.take(1000)) }
+            val requestBody = json.toString()
+                .toRequestBody("application/json; charset=utf-8".toMediaType())
 
             val request = Request.Builder()
-                .url("$BASE_URL/text-to-image/v1")
-                .header("x-api-key", apiKey)
-                .post(body)
+                .url("$BASE_URL/ai-generate-image")
+                .header("X-Device-Id", deviceId)
+                .header("Authorization", "Bearer ${BuildConfig.SUPABASE_ANON_KEY}")
+                .post(requestBody)
                 .build()
 
             val response = client.newCall(request).execute()
@@ -138,12 +143,11 @@ class ClipDropProvider(
                         resp.body?.byteStream()?.use { input ->
                             resultFile.outputStream().use { output -> input.copyTo(output) }
                         } ?: return@withContext ImageGenerationResponse.Error("Empty response")
-                        ImageGenerationResponse.Success(resultFile, provider = "clipdrop")
+                        ImageGenerationResponse.Success(resultFile, provider = "edge-function")
                     }
-                    402 -> ImageGenerationResponse.Error("Image processing temporarily unavailable")
-                    429 -> ImageGenerationResponse.Error("Too many requests, try again in a minute")
+                    429 -> ImageGenerationResponse.Error("Daily limit reached. Try again tomorrow.")
                     400 -> ImageGenerationResponse.Error("Invalid prompt: ${resp.body?.string() ?: "bad request"}")
-                    else -> ImageGenerationResponse.Error("API error (${resp.code})")
+                    else -> ImageGenerationResponse.Error("Server error (${resp.code})")
                 }
             }
         } catch (e: Exception) {
@@ -163,18 +167,14 @@ class ClipDropProvider(
                     } ?: return ImageEditResponse.Error("Empty response")
                     ImageEditResponse.Success(resultFile)
                 }
-                402 -> ImageEditResponse.Error("Image processing temporarily unavailable", 402)
                 429 -> ImageEditResponse.RateLimited()
                 400 -> ImageEditResponse.Error("Invalid image: ${resp.body?.string() ?: "bad request"}", 400)
-                else -> ImageEditResponse.Error("API error (${resp.code})", resp.code)
+                else -> ImageEditResponse.Error("Server error (${resp.code})", resp.code)
             }
         }
     }
 
-    /**
-     * Resize image if it exceeds pixel limit to prevent API rejection.
-     * Returns original file if within limits, otherwise a compressed temp file.
-     */
+    /** Resize image if it exceeds pixel limit to prevent API rejection. */
     private fun prepareImage(imageFile: File, maxPixels: Int): File {
         val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         BitmapFactory.decodeFile(imageFile.absolutePath, options)

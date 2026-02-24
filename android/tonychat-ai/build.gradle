@@ -9,6 +9,9 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 34
+
+        buildConfigField "String", "SUPABASE_URL", "\"${project.findProperty('SUPABASE_URL') ?: 'https://omuajrrvkhzeruupwjot.supabase.co'}\""
+        buildConfigField "String", "SUPABASE_ANON_KEY", "\"${project.findProperty('SUPABASE_ANON_KEY') ?: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tdWFqcnJ2a2h6ZXJ1dXB3am90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyMzM0NDUsImV4cCI6MjA4NjgwOTQ0NX0.6v5fA9uxYxQ89AskrJQoYb5BwOgttt5x9z9VQFaIe3g'}\""
     }
 
     buildTypes {

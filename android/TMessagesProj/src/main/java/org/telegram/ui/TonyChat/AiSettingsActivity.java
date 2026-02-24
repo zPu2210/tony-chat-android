@@ -49,8 +49,6 @@ public class AiSettingsActivity extends BaseFragment {
     private int openAiKeyRow;
     private int anthropicKeyRow;
     private int removeBgKeyRow;
-    private int geminiKeyRow;
-    private int clipDropKeyRow;
     private int apiKeysSectionRow;
     private int preferencesHeaderRow;
     private int preferOnDeviceRow;
@@ -79,8 +77,6 @@ public class AiSettingsActivity extends BaseFragment {
         openAiKeyRow = rowCount++;
         anthropicKeyRow = rowCount++;
         removeBgKeyRow = rowCount++;
-        geminiKeyRow = rowCount++;
-        clipDropKeyRow = rowCount++;
         apiKeysSectionRow = rowCount++;
         preferencesHeaderRow = rowCount++;
         preferOnDeviceRow = rowCount++;
@@ -144,18 +140,6 @@ public class AiSettingsActivity extends BaseFragment {
                 AiManager.INSTANCE.refreshProviders();
                 if (listAdapter != null) listAdapter.notifyItemChanged(removeBgKeyRow);
             });
-        } else if (position == geminiKeyRow) {
-            showApiKeyDialog("Gemini API Key", AiConfig.INSTANCE.getGeminiApiKey(), key -> {
-                AiConfig.INSTANCE.setGeminiApiKey(key);
-                AiManager.INSTANCE.refreshProviders();
-                if (listAdapter != null) listAdapter.notifyItemChanged(geminiKeyRow);
-            });
-        } else if (position == clipDropKeyRow) {
-            showApiKeyDialog("ClipDrop API Key", AiConfig.INSTANCE.getClipDropApiKey(), key -> {
-                AiConfig.INSTANCE.setClipDropApiKey(key);
-                AiManager.INSTANCE.refreshProviders();
-                if (listAdapter != null) listAdapter.notifyItemChanged(clipDropKeyRow);
-            });
         } else if (position == preferOnDeviceRow) {
             boolean newValue = !AiConfig.INSTANCE.getPreferOnDevice();
             AiConfig.INSTANCE.setPreferOnDevice(newValue);
@@ -203,14 +187,12 @@ public class AiSettingsActivity extends BaseFragment {
         EditTextBoldCursor editText = new EditTextBoldCursor(context);
         editText.setTextSize(18);
 
-        // Mask API key - show only last 4 characters for security
         if (currentKey != null && currentKey.length() > 4) {
             editText.setHint("****" + currentKey.substring(currentKey.length() - 4));
         } else {
             editText.setHint("sk-...");
         }
 
-        // Use password input type to mask typed characters
         editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         editText.setSingleLine(true);
         editText.setPadding(AndroidUtilities.dp(24), AndroidUtilities.dp(8), AndroidUtilities.dp(24), AndroidUtilities.dp(8));
@@ -218,7 +200,6 @@ public class AiSettingsActivity extends BaseFragment {
 
         builder.setPositiveButton(LocaleController.getString(R.string.OK), (dialog, which) -> {
             String key = editText.getText().toString().trim();
-            // If empty, keep existing key (user didn't change it)
             if (key.isEmpty() && currentKey != null) {
                 callback.onKey(currentKey);
             } else {
@@ -232,7 +213,6 @@ public class AiSettingsActivity extends BaseFragment {
 
         AlertDialog dialog = builder.show();
 
-        // Prevent screenshots of API key dialog for security
         if (dialog != null && dialog.getWindow() != null) {
             dialog.getWindow().setFlags(
                 WindowManager.LayoutParams.FLAG_SECURE,
@@ -330,7 +310,7 @@ public class AiSettingsActivity extends BaseFragment {
                     if (position == featuresHeaderRow) {
                         cell.setText("AI Features");
                     } else if (position == apiKeysHeaderRow) {
-                        cell.setText("API Keys");
+                        cell.setText("API Keys (Advanced)");
                     } else if (position == preferencesHeaderRow) {
                         cell.setText("Preferences");
                     } else if (position == cacheHeaderRow) {
@@ -363,13 +343,7 @@ public class AiSettingsActivity extends BaseFragment {
                         cell.setTextAndValue("Anthropic", key != null ? "Configured" : "Not set", true);
                     } else if (position == removeBgKeyRow) {
                         String key = AiConfig.INSTANCE.getRemoveBgApiKey();
-                        cell.setTextAndValue("Remove.bg", key != null ? "Configured" : "Not set", true);
-                    } else if (position == geminiKeyRow) {
-                        String key = AiConfig.INSTANCE.getGeminiApiKey();
-                        cell.setTextAndValue("Gemini", key != null ? "Configured" : "Not set", true);
-                    } else if (position == clipDropKeyRow) {
-                        String key = AiConfig.INSTANCE.getClipDropApiKey();
-                        cell.setTextAndValue("ClipDrop", key != null ? "Configured" : "Not set", false);
+                        cell.setTextAndValue("Remove.bg", key != null ? "Configured" : "Not set", false);
                     } else if (position == clearCacheRow) {
                         cell.setText("Clear AI Cache", false);
                     }
