@@ -1354,6 +1354,8 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         if (tonyBottomNav != null) {
             tonyBottomNav.setActiveTab(index);
         }
+        // Re-evaluate nav visibility for the newly active tab's stack depth
+        updateTonyBottomNavVisibility();
     }
 
     private View createTonyTabView(int index) {
@@ -1408,32 +1410,26 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
      */
     private void updateTonyBottomNavVisibility() {
         if (tonyBottomNav == null || !isTonyBottomNavActive()) return;
+        // Only check the CURRENT tab's stack depth — other tabs' deep stacks are irrelevant
         boolean stackDeep = false;
-        if (actionBarLayout != null && actionBarLayout.getFragmentStack().size() > 1) {
-            stackDeep = true;
-        }
-        if (!stackDeep) {
-            for (int i = 0; i < tonyTabLayouts.length; i++) {
-                if (tonyTabLayouts[i] != null && tonyTabLayouts[i].getFragmentStack().size() > 1) {
-                    stackDeep = true;
-                    break;
-                }
-            }
+        if (tonyCurrentTab == TonyBottomNavView.TAB_CHATS) {
+            stackDeep = actionBarLayout != null && actionBarLayout.getFragmentStack().size() > 1;
+        } else if (tonyTabLayouts[tonyCurrentTab] != null) {
+            stackDeep = tonyTabLayouts[tonyCurrentTab].getFragmentStack().size() > 1;
         }
         final boolean show = !stackDeep;
+        final float targetY = show ? 0 : AndroidUtilities.dp(100);
+        // Cancel any running animation to prevent race conditions
+        tonyBottomNav.animate().cancel();
         final float currentY = tonyBottomNav.getTranslationY();
-        if (show && currentY != 0) {
+        // Use threshold instead of exact float equality
+        if (Math.abs(currentY - targetY) > 1f) {
             tonyBottomNav.animate()
-                    .translationY(0)
+                    .translationY(targetY)
                     .setDuration(200)
-                    .setInterpolator(new android.view.animation.DecelerateInterpolator())
-                    .start();
-        } else if (!show && currentY == 0) {
-            float hideY = AndroidUtilities.dp(100);
-            tonyBottomNav.animate()
-                    .translationY(hideY)
-                    .setDuration(200)
-                    .setInterpolator(new android.view.animation.AccelerateInterpolator())
+                    .setInterpolator(show
+                            ? new android.view.animation.DecelerateInterpolator()
+                            : new android.view.animation.AccelerateInterpolator())
                     .start();
         }
     }
@@ -1664,7 +1660,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         DialogsActivity dialogsActivity = dialogsActivityProvider.provide(null);
         dialogsActivity.setSideMenu(sideMenu);
         actionBarLayout.addFragmentToStack(dialogsActivity, 0);
-        drawerLayoutContainer.setAllowOpenDrawer(true, false);
+        drawerLayoutContainer.setAllowOpenDrawer(!isTonyBottomNavActive(), false);
         actionBarLayout.rebuildFragments(INavigationLayout.REBUILD_FLAG_REBUILD_LAST);
         if (AndroidUtilities.isTablet()) {
             layersActionBarLayout.rebuildFragments(INavigationLayout.REBUILD_FLAG_REBUILD_LAST);
@@ -6900,6 +6896,10 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         }
         ConnectionsManager.getInstance(currentAccount).setAppPaused(false, false);
         updateCurrentConnectionState(currentAccount);
+        // Re-evaluate bottom nav state after resume (e.g. deep link pushed a fragment while paused)
+        if (isTonyBottomNavActive()) {
+            tonyBottomNav.post(this::updateTonyBottomNavVisibility);
+        }
         if (PhotoViewer.hasInstance() && PhotoViewer.getInstance().isVisible()) {
             PhotoViewer.getInstance().onResume();
         }
@@ -8225,8 +8225,8 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
             } else if (tonyCurrentTab != TonyBottomNavView.TAB_TONY_AI) {
                 switchTonyTab(TonyBottomNavView.TAB_TONY_AI);
             } else {
-                // Tony AI tab with single fragment — exit app
-                actionBarLayout.onBackPressed();
+                // Tony AI tab with single fragment — minimize app (don't destroy)
+                moveTaskToBack(true);
             }
         } else {
             actionBarLayout.onBackPressed();
@@ -8533,6 +8533,12 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
             if (allow && isTonyBottomNavActive()) {
                 allow = false; // Bottom nav replaces drawer — never re-enable
             }
+            // Auto-switch to Chats tab when a chat is opened via deep link / notification
+            if (isTonyBottomNavActive() && layout == actionBarLayout
+                    && fragment instanceof ChatActivity
+                    && tonyCurrentTab != TonyBottomNavView.TAB_CHATS) {
+                switchTonyTab(TonyBottomNavView.TAB_CHATS);
+            }
             drawerLayoutContainer.setAllowOpenDrawer(allow, false);
             // Post so the fragment is pushed onto the stack before we read stack size
             layout.getView().post(this::updateTonyBottomNavVisibility);
@@ -8626,6 +8632,12 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
             }
             if (allow && isTonyBottomNavActive()) {
                 allow = false; // Bottom nav replaces drawer — never re-enable
+            }
+            // Auto-switch to Chats tab when a chat is added via deep link / notification
+            if (isTonyBottomNavActive() && layout == actionBarLayout
+                    && fragment instanceof ChatActivity
+                    && tonyCurrentTab != TonyBottomNavView.TAB_CHATS) {
+                switchTonyTab(TonyBottomNavView.TAB_CHATS);
             }
             drawerLayoutContainer.setAllowOpenDrawer(allow, false);
             // Post so the fragment is added to the stack before we read stack size
