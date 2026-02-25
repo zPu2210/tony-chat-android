@@ -1,6 +1,7 @@
 # Phase 2: Android Client Migration
 
-**Priority:** High | **Status:** Pending | **Depends on:** Phase 1
+**Priority:** High | **Status:** Complete | **Depends on:** Phase 1
+**Commit:** `2cc02706` | **Date:** 2026-02-25
 
 ## Overview
 
@@ -96,14 +97,18 @@ Update Android client to call Supabase Edge Functions instead of direct API call
 
 ## Todo
 
-- [ ] Create DeviceIdentifier.kt (UUID generation)
-- [ ] Update ClipDropProvider.kt (swap URLs, remove apiKey, add deviceId)
-- [ ] Add Edge Function calls for rewrite/translate in AiManagerBridge
-- [ ] Remove clipDropApiKey from AiConfig.kt
-- [ ] Remove key input rows from AiSettingsActivity.java
-- [ ] Add Supabase Edge Function URL config
-- [ ] Add X-Remaining header parsing + 429 handling
-- [ ] Build and verify compilation
+- [x] Create DeviceIdentifier.kt (ANDROID_ID based)
+- [x] Create EdgeFunctionClient.kt (text endpoints: /ai-rewrite, /ai-translate)
+- [x] Update ClipDropProvider.kt (swap URLs, remove apiKey, add deviceId)
+- [x] Add standaloneTranslate() Edge Function path in AiManager + AiManagerBridge
+- [x] Update standaloneRewrite() to use EdgeFunctionClient
+- [x] Remove clipDropApiKey from AiConfig.kt
+- [x] Remove clipDrop + gemini key rows from AiSettingsActivity.java
+- [x] Add Supabase URL + anon key BuildConfig to tonychat-ai/build.gradle
+- [x] Update AiConsentDialog consent text (no API key mentions)
+- [x] Update AiTranslatorFragment to call standaloneTranslate
+- [x] 429 handling returns user-friendly messages
+- [x] Build and verify compilation (BUILD SUCCESSFUL)
 
 ## Success Criteria
 

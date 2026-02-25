@@ -7,11 +7,11 @@
 
 ## Phases
 
-| Phase | Description | Status | Depends On |
-|-------|------------|--------|------------|
-| 1 | Supabase Edge Functions + DB | Pending | — |
-| 2 | Android Client Migration | Pending | Phase 1 |
-| 3 | Validation + Cleanup | Pending | Phase 2 |
+| Phase | Description | Status | Commit | Depends On |
+|-------|------------|--------|--------|------------|
+| 1 | Supabase Edge Functions + DB | **Complete** | `6c61c677` | — |
+| 2 | Android Client Migration | **Complete** | `2cc02706` | Phase 1 |
+| 3 | Validation + Cleanup | **Code-Complete** | — | Phase 2 |
 
 ## Architecture
 
