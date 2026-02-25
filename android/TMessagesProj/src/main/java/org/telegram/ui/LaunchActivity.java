@@ -280,6 +280,36 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
     private INavigationLayout[] tonyTabLayouts = new INavigationLayout[TonyBottomNavView.TAB_COUNT];
     private int tonyCurrentTab = TonyBottomNavView.TAB_TONY_AI;
     private TelegramConnectView tonyConnectView;
+    // Scroll-to-hide bottom nav
+    private static final int NAV_SCROLL_THRESHOLD = 20;
+    private int navScrollAccumulator = 0;
+    private boolean navScrollHidden = false;
+    private RecyclerView navAttachedScrollView = null;
+    private final RecyclerView.OnScrollListener navScrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrolled(@NonNull RecyclerView rv, int dx, int dy) {
+            if (tonyBottomNav == null || tonyBottomNav.getVisibility() == View.GONE) return;
+            navScrollAccumulator += dy;
+            if (navScrollAccumulator > NAV_SCROLL_THRESHOLD && !navScrollHidden) {
+                navScrollHidden = true;
+                navScrollAccumulator = 0;
+                float hideY = tonyBottomNav.getHeight() + AndroidUtilities.dp(24);
+                tonyBottomNav.animate()
+                        .translationY(hideY)
+                        .setDuration(220)
+                        .setInterpolator(new android.view.animation.AccelerateInterpolator(1.5f))
+                        .start();
+            } else if (navScrollAccumulator < -NAV_SCROLL_THRESHOLD && navScrollHidden) {
+                navScrollHidden = false;
+                navScrollAccumulator = 0;
+                tonyBottomNav.animate()
+                        .translationY(0f)
+                        .setDuration(220)
+                        .setInterpolator(new android.view.animation.DecelerateInterpolator(1.5f))
+                        .start();
+            }
+        }
+    };
     private IUpdateLayout updateLayout;
 
     private AlertDialog localeDialog;
@@ -1327,6 +1357,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
     }
 
     private void cleanupTonyBottomNav() {
+        detachNavScrollListener();
         if (tonyMainContainer != null && tonyMainContainer.getParent() != null) {
             ((ViewGroup) tonyMainContainer.getParent()).removeView(tonyMainContainer);
         }
@@ -1362,11 +1393,20 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 if (tonyConnectView == null) {
                     tonyConnectView = new TelegramConnectView(this);
                     tonyConnectView.setOnConnectClickListener(() -> {
-                        // Open Telegram login flow
-                        if (actionBarLayout.getFragmentStack().isEmpty()) return;
-                        BaseFragment lastFragment = actionBarLayout.getFragmentStack()
-                                .get(actionBarLayout.getFragmentStack().size() - 1);
-                        lastFragment.presentFragment(new LoginActivity());
+                        // Open Telegram login flow — must make actionBarLayout visible first
+                        actionBarLayout.getView().setVisibility(View.VISIBLE);
+                        if (tonyConnectView != null) tonyConnectView.setVisibility(View.GONE);
+                        if (tonyBottomNav != null) tonyBottomNav.setVisibility(View.GONE);
+                        if (actionBarLayout.getFragmentStack().isEmpty()) {
+                            actionBarLayout.addFragmentToStack(new LoginActivity());
+                            actionBarLayout.showLastFragment();
+                        } else {
+                            BaseFragment lastFragment = actionBarLayout.getFragmentStack()
+                                    .get(actionBarLayout.getFragmentStack().size() - 1);
+                            if (!(lastFragment instanceof LoginActivity)) {
+                                lastFragment.presentFragment(new LoginActivity());
+                            }
+                        }
                     });
                     tonyTabContainer.addView(tonyConnectView,
                             new FrameLayout.LayoutParams(
@@ -1389,6 +1429,13 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         tonyCurrentTab = index;
         if (tonyBottomNav != null) {
             tonyBottomNav.setActiveTab(index);
+        }
+        // Reset scroll-to-hide state on tab switch
+        detachNavScrollListener();
+        showNavImmediate();
+        // Defer attaching scroll listener so fragment view is laid out
+        if (tonyBottomNav != null) {
+            tonyBottomNav.post(() -> attachNavScrollListener(index));
         }
         // Re-evaluate nav visibility for the newly active tab's stack depth
         updateTonyBottomNavVisibility();
@@ -1435,6 +1482,15 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         return tonyBottomNav != null && TonyConfig.INSTANCE.getBottomNavEnabled();
     }
 
+    /** Check if the given layout is one of the Tony tab layouts (not actionBarLayout). */
+    private boolean isTonyTabLayout(INavigationLayout layout) {
+        if (tonyTabLayouts == null) return false;
+        for (INavigationLayout tl : tonyTabLayouts) {
+            if (tl != null && tl == layout) return true;
+        }
+        return false;
+    }
+
     /** Get the Tony bottom nav view (for badge updates etc). */
     public TonyBottomNavView getTonyBottomNav() {
         return tonyBottomNav;
@@ -1446,7 +1502,22 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
      */
     private void updateTonyBottomNavVisibility() {
         if (tonyBottomNav == null || !isTonyBottomNavActive()) return;
-        // Only check the CURRENT tab's stack depth — other tabs' deep stacks are irrelevant
+
+        // Hide nav when LoginActivity is active on actionBarLayout
+        boolean loginActive = false;
+        if (actionBarLayout != null && !actionBarLayout.getFragmentStack().isEmpty()) {
+            BaseFragment topFragment = actionBarLayout.getFragmentStack()
+                    .get(actionBarLayout.getFragmentStack().size() - 1);
+            loginActive = topFragment instanceof LoginActivity || topFragment instanceof IntroActivity;
+        }
+        if (loginActive) {
+            tonyBottomNav.animate().cancel();
+            tonyBottomNav.setTranslationY(0);
+            tonyBottomNav.setVisibility(View.GONE);
+            return;
+        }
+
+        // Check the CURRENT tab's stack depth — other tabs' deep stacks are irrelevant
         boolean stackDeep = false;
         if (tonyCurrentTab == TonyBottomNavView.TAB_CHATS) {
             stackDeep = actionBarLayout != null && actionBarLayout.getFragmentStack().size() > 1;
@@ -1455,10 +1526,11 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         }
         final boolean show = !stackDeep;
         final float targetY = show ? 0 : AndroidUtilities.dp(100);
-        // Cancel any running animation to prevent race conditions
         tonyBottomNav.animate().cancel();
+        if (show) {
+            tonyBottomNav.setVisibility(View.VISIBLE);
+        }
         final float currentY = tonyBottomNav.getTranslationY();
-        // Use threshold instead of exact float equality
         if (Math.abs(currentY - targetY) > 1f) {
             tonyBottomNav.animate()
                     .translationY(targetY)
@@ -1466,8 +1538,58 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                     .setInterpolator(show
                             ? new android.view.animation.DecelerateInterpolator()
                             : new android.view.animation.AccelerateInterpolator())
+                    .withEndAction(() -> {
+                        if (!show && tonyBottomNav != null) {
+                            tonyBottomNav.setVisibility(View.GONE);
+                        }
+                    })
                     .start();
+        } else if (show) {
+            tonyBottomNav.setTranslationY(0);
+            tonyBottomNav.setVisibility(View.VISIBLE);
         }
+    }
+
+    /** Attach scroll-to-hide listener to the active tab's RecyclerView. */
+    private void attachNavScrollListener(int tabIndex) {
+        detachNavScrollListener();
+        RecyclerView rv = getTabRecyclerView(tabIndex);
+        if (rv != null && rv.canScrollVertically(1) || rv != null && rv.canScrollVertically(-1)) {
+            rv.addOnScrollListener(navScrollListener);
+            navAttachedScrollView = rv;
+        }
+    }
+
+    /** Detach scroll-to-hide listener and reset state. */
+    private void detachNavScrollListener() {
+        if (navAttachedScrollView != null) {
+            navAttachedScrollView.removeOnScrollListener(navScrollListener);
+            navAttachedScrollView = null;
+        }
+        navScrollAccumulator = 0;
+        navScrollHidden = false;
+    }
+
+    /** Snap bottom nav back to visible immediately (no animation). */
+    private void showNavImmediate() {
+        if (tonyBottomNav != null && tonyBottomNav.getVisibility() != View.GONE) {
+            tonyBottomNav.animate().cancel();
+            tonyBottomNav.setTranslationY(0f);
+            navScrollHidden = false;
+            navScrollAccumulator = 0;
+        }
+    }
+
+    /** Get the scrollable RecyclerView for a given tab, or null. */
+    private RecyclerView getTabRecyclerView(int tabIndex) {
+        if (tonyTabLayouts == null) return null;
+        INavigationLayout layout = tonyTabLayouts[tabIndex];
+        if (layout == null || layout.getFragmentStack().isEmpty()) return null;
+        BaseFragment fragment = layout.getFragmentStack().get(0);
+        if (fragment instanceof NewsFeedFragment) {
+            return ((NewsFeedFragment) fragment).getRecyclerView();
+        }
+        return null;
     }
 
     // ==================== End Tony Chat Bottom Nav ====================
@@ -8577,7 +8699,11 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
             }
             drawerLayoutContainer.setAllowOpenDrawer(allow, false);
             // Post so the fragment is pushed onto the stack before we read stack size
-            layout.getView().post(this::updateTonyBottomNavVisibility);
+            if (tonyBottomNav != null) {
+                tonyBottomNav.post(this::updateTonyBottomNavVisibility);
+            } else {
+                layout.getView().post(this::updateTonyBottomNavVisibility);
+            }
         }
         return true;
     }
@@ -8677,7 +8803,11 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
             }
             drawerLayoutContainer.setAllowOpenDrawer(allow, false);
             // Post so the fragment is added to the stack before we read stack size
-            layout.getView().post(this::updateTonyBottomNavVisibility);
+            if (tonyBottomNav != null) {
+                tonyBottomNav.post(this::updateTonyBottomNavVisibility);
+            } else {
+                layout.getView().post(this::updateTonyBottomNavVisibility);
+            }
         }
         return true;
     }
@@ -8701,6 +8831,13 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
             }
         } else {
             if (layout.getFragmentStack().size() <= 1) {
+                if (isTonyTabLayout(layout)) {
+                    // Tab layout root fragment — don't exit app, just update nav
+                    if (tonyBottomNav != null) {
+                        tonyBottomNav.post(this::updateTonyBottomNavVisibility);
+                    }
+                    return false;
+                }
                 onFinish();
                 finish();
                 return false;
@@ -8709,7 +8846,11 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 drawerLayoutContainer.setAllowOpenDrawer(!isTonyBottomNavActive(), false);
             }
             // Post so the stack pop completes before we read stack size
-            layout.getView().post(this::updateTonyBottomNavVisibility);
+            if (tonyBottomNav != null) {
+                tonyBottomNav.post(this::updateTonyBottomNavVisibility);
+            } else {
+                layout.getView().post(this::updateTonyBottomNavVisibility);
+            }
         }
         return true;
     }

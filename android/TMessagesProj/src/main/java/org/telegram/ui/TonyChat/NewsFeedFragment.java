@@ -59,6 +59,11 @@ public class NewsFeedFragment extends BaseFragment {
     private int pageOffset = 0;
     private Context safeContext;
 
+    /** Expose RecyclerView for scroll-to-hide bottom nav wiring. */
+    public RecyclerView getRecyclerView() {
+        return recyclerView;
+    }
+
     @Override
     public boolean onFragmentCreate() {
         super.onFragmentCreate();
