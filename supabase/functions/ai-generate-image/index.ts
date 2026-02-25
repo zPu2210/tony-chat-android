@@ -6,8 +6,7 @@ import {
   getDeviceId,
   rateLimitedResponse,
 } from "../_shared/rate-limiter.ts";
-
-const CLIPDROP_API_KEY = Deno.env.get("CLIPDROP_API_KEY") ?? "";
+import { geminiGenerateImage } from "../_shared/gemini.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -24,23 +23,9 @@ serve(async (req) => {
     const { prompt } = await req.json();
     if (!prompt) return errorResponse("Missing 'prompt' field", 400);
 
-    // ClipDrop text-to-image uses form data
-    const clipForm = new FormData();
-    clipForm.append("prompt", prompt);
+    const resultBytes = await geminiGenerateImage(prompt);
 
-    const resp = await fetch("https://clipdrop-api.co/text-to-image/v1", {
-      method: "POST",
-      headers: { "x-api-key": CLIPDROP_API_KEY },
-      body: clipForm,
-    });
-
-    if (!resp.ok) {
-      console.error("ClipDrop error:", resp.status, await resp.text());
-      return errorResponse("Image generation failed", 502);
-    }
-
-    const imageBytes = await resp.arrayBuffer();
-    return new Response(imageBytes, {
+    return new Response(resultBytes, {
       headers: {
         ...corsHeaders,
         "Content-Type": "image/png",
@@ -49,6 +34,6 @@ serve(async (req) => {
     });
   } catch (e) {
     console.error("ai-generate-image error:", e);
-    return errorResponse("Internal server error");
+    return errorResponse("Image generation failed", 502);
   }
 });

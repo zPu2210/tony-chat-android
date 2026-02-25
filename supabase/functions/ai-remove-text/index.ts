@@ -6,8 +6,10 @@ import {
   getDeviceId,
   rateLimitedResponse,
 } from "../_shared/rate-limiter.ts";
+import { geminiEditImage } from "../_shared/gemini.ts";
 
-const CLIPDROP_API_KEY = Deno.env.get("CLIPDROP_API_KEY") ?? "";
+const PROMPT =
+  "Remove all text overlays, captions, and watermarks from this image. Inpaint removed areas naturally using surrounding texture and color. Do not alter the rest of the image. Always output the resulting image.";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -22,35 +24,15 @@ serve(async (req) => {
     if (!rate.allowed) return rateLimitedResponse();
 
     const formData = await req.formData();
-    const imageFile = formData.get("image_file");
+    const imageFile = formData.get("image_file") as File | null;
     if (!imageFile) return errorResponse("Missing 'image_file' field", 400);
 
-    // ClipDrop cleanup needs a mask — full white mask = remove all text
-    // Create a white mask matching image dimensions
-    const clipForm = new FormData();
-    clipForm.append("image_file", imageFile);
+    const imageBytes = await imageFile.arrayBuffer();
+    const mimeType = imageFile.type || "image/jpeg";
 
-    // For cleanup endpoint, mask_file is required
-    // Create a simple white PNG as mask (all pixels = white = inpaint everywhere)
-    // The client should send a mask, but for "remove text" we use full-white
-    const maskFile = formData.get("mask_file");
-    if (maskFile) {
-      clipForm.append("mask_file", maskFile);
-    }
+    const resultBytes = await geminiEditImage(imageBytes, mimeType, PROMPT);
 
-    const resp = await fetch("https://clipdrop-api.co/cleanup/v1", {
-      method: "POST",
-      headers: { "x-api-key": CLIPDROP_API_KEY },
-      body: clipForm,
-    });
-
-    if (!resp.ok) {
-      console.error("ClipDrop error:", resp.status, await resp.text());
-      return errorResponse("Image processing failed", 502);
-    }
-
-    const imageBytes = await resp.arrayBuffer();
-    return new Response(imageBytes, {
+    return new Response(resultBytes, {
       headers: {
         ...corsHeaders,
         "Content-Type": "image/png",
@@ -59,6 +41,6 @@ serve(async (req) => {
     });
   } catch (e) {
     console.error("ai-remove-text error:", e);
-    return errorResponse("Internal server error");
+    return errorResponse("Image processing failed", 502);
   }
 });
