@@ -64,6 +64,11 @@ public class NewsFeedFragment extends BaseFragment {
         return recyclerView;
     }
 
+    /** True while pull-to-refresh spinner is active (used by navScrollListener to skip hiding). */
+    public boolean isRefreshing() {
+        return swipeRefreshLayout != null && swipeRefreshLayout.isRefreshing();
+    }
+
     @Override
     public boolean onFragmentCreate() {
         super.onFragmentCreate();

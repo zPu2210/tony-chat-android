@@ -289,6 +289,17 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         @Override
         public void onScrolled(@NonNull RecyclerView rv, int dx, int dy) {
             if (tonyBottomNav == null || tonyBottomNav.getVisibility() == View.GONE) return;
+            // Skip scroll-to-hide logic while SwipeRefreshLayout is active (pull-to-refresh).
+            // The snap-back produces misleading dy values that would incorrectly hide the bar.
+            if (tonyTabLayouts != null && tonyCurrentTab == TonyBottomNavView.TAB_EXPLORE) {
+                INavigationLayout layout = tonyTabLayouts[TonyBottomNavView.TAB_EXPLORE];
+                if (layout != null && !layout.getFragmentStack().isEmpty()) {
+                    BaseFragment frag = layout.getFragmentStack().get(0);
+                    if (frag instanceof NewsFeedFragment && ((NewsFeedFragment) frag).isRefreshing()) {
+                        return;
+                    }
+                }
+            }
             navScrollAccumulator += dy;
             if (navScrollAccumulator > NAV_SCROLL_THRESHOLD && !navScrollHidden) {
                 navScrollHidden = true;
@@ -1572,12 +1583,14 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
 
     /** Snap bottom nav back to visible immediately (no animation). */
     private void showNavImmediate() {
-        if (tonyBottomNav != null && tonyBottomNav.getVisibility() != View.GONE) {
-            tonyBottomNav.animate().cancel();
-            tonyBottomNav.setTranslationY(0f);
-            navScrollHidden = false;
-            navScrollAccumulator = 0;
-        }
+        if (tonyBottomNav == null) return;
+        // Always reset — even if GONE. The GONE guard previously caused stale translationY
+        // to persist when switching tabs while bar was hidden (bugs 1, 3, 4).
+        tonyBottomNav.animate().cancel();
+        tonyBottomNav.setVisibility(View.VISIBLE);
+        tonyBottomNav.setTranslationY(0f);
+        navScrollHidden = false;
+        navScrollAccumulator = 0;
     }
 
     /** Get the scrollable RecyclerView for a given tab, or null. */
@@ -8371,6 +8384,10 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
             if (tonyCurrentTab == TonyBottomNavView.TAB_CHATS
                     && actionBarLayout.getFragmentStack().size() > 1) {
                 actionBarLayout.onBackPressed();
+                // Explicitly restore bar after Chats back — delegate may not always fire (bug 1).
+                if (tonyBottomNav != null) {
+                    tonyBottomNav.postDelayed(this::updateTonyBottomNavVisibility, 100);
+                }
             } else if (tonyCurrentTab != TonyBottomNavView.TAB_CHATS
                     && tonyCurrentTab != TonyBottomNavView.TAB_TONY_AI
                     && tonyTabLayouts[tonyCurrentTab] != null
@@ -8845,11 +8862,12 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
             if (layout.getFragmentStack().size() >= 2 && !(layout.getFragmentStack().get(0) instanceof LoginActivity)) {
                 drawerLayoutContainer.setAllowOpenDrawer(!isTonyBottomNavActive(), false);
             }
-            // Post so the stack pop completes before we read stack size
+            // Delay slightly so the nav engine's stack pop is fully committed before
+            // we read stack size. post() alone can fire before async pops complete (bugs 3, 4).
             if (tonyBottomNav != null) {
-                tonyBottomNav.post(this::updateTonyBottomNavVisibility);
+                tonyBottomNav.postDelayed(this::updateTonyBottomNavVisibility, 100);
             } else {
-                layout.getView().post(this::updateTonyBottomNavVisibility);
+                layout.getView().postDelayed(this::updateTonyBottomNavVisibility, 100);
             }
         }
         return true;
